@@ -81,8 +81,8 @@ export interface Game {
   clock: string;
   venue: string;
   odds: string;
-  stats?: { possession: number; shotsH: number; shotsA: number; momentum: number[] };
-  ratings?: { name: string; team: string; r: number }[];
+  stats?: { possession: number; shotsH: number; shotsA: number; momentum: number[] } | undefined;
+  ratings?: { name: string; team: string; r: number }[] | undefined;
 }
 
 export const INITIAL_GAMES: Game[] = [

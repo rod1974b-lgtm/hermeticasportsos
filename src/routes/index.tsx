@@ -200,7 +200,7 @@ async function shareCard(g: Game) {
 
 const lineShare = (text: string) => window.open(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`, "_blank");
 
-function GameCard({ g, lang, pred, onPredict }: { g: Game; lang: Lang; pred?: { h: number; a: number }; onPredict?: (h: number, a: number) => void }) {
+function GameCard({ g, lang, pred, onPredict }: { g: Game; lang: Lang; pred?: { h: number; a: number } | undefined; onPredict?: ((h: number, a: number) => void) | undefined }) {
   const t = T[lang]; const h = teamById(g.home), a = teamById(g.away);
   const [ph, setPh] = useState(pred?.h ?? 0), [pa, setPa] = useState(pred?.a ?? 0);
   const cal = calendarLinks(g);
