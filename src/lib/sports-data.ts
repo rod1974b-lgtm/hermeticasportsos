@@ -569,8 +569,8 @@ export interface Game {
     shotsH: number;
     shotsA: number;
     momentum: number[];
-  };
-  ratings?: { name: string; team: string; r: number }[];
+  } | undefined;
+  ratings?: { name: string; team: string; r: number }[] | undefined;
 }
 
 export const INITIAL_GAMES: Game[] = [
