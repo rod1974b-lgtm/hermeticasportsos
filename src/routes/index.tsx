@@ -736,9 +736,9 @@ function LiveTab({
   );
 }
 
-// ==========================================
-// SPORTS PULSE TAB (Dedicated Live Center)
-// ==========================================
+// =========================================================================
+// SPORTS PULSE TAB (Auto-sorted: In-Play Intensity & Fan Sentiment High->Low)
+// =========================================================================
 function PulseTab({
   games,
   hub,
@@ -757,10 +757,37 @@ function PulseTab({
     minnesota: { tempF: number; humidity: number; windMph: number } | null;
   };
 }) {
-  const liveGames = games.filter((g) => g.status === "LIVE");
   const upcomingGames = games.filter((g) => g.status === "UPCOMING").slice(0, 4);
   const mnTeams = TEAMS.filter((t) => t.hub === "minnesota");
   const rbfc = teamById("rbfc");
+
+  // Pulse intensity score calculator: 0-100 based on surge, momentum spike & shot activity
+  const getGamePulse = (g: Game) => {
+    if (!g.stats) return 40;
+    const recent = g.stats.momentum.slice(-4);
+    const maxSurge = Math.max(...recent.map((m) => Math.abs(m)), 0);
+    const avgRecent = recent.reduce((sum, v) => sum + Math.abs(v), 0) / (recent.length || 1);
+    const totalShots = (g.stats.shotsA || 0) + (g.stats.shotsH || 0);
+    return Math.min(100, Math.round(maxSurge * 3.5 + avgRecent * 2.5 + Math.min(20, totalShots * 1.5)));
+  };
+
+  // Auto-sort live games: Highest intensity to lowest
+  const sortedLiveGames = useMemo(() => {
+    return games
+      .filter((g) => g.status === "LIVE")
+      .map((g) => ({ ...g, pulseScore: getGamePulse(g) }))
+      .sort((a, b) => b.pulseScore - a.pulseScore);
+  }, [games]);
+
+  // Auto-sort fan sentiment: Happiest/Strongest positive down to frustrated
+  const sortedSentimentTeams = useMemo(() => {
+    const list = [rbfc, ...mnTeams.filter((t) => t.sentiment)];
+    return list.sort((a, b) => {
+      const sa = a.sentiment ? (a.sentiment.label === "Frustrated" || a.sentiment.label === "Anxious" ? -a.sentiment.pct : a.sentiment.pct) : 0;
+      const sb = b.sentiment ? (b.sentiment.label === "Frustrated" || b.sentiment.label === "Anxious" ? -b.sentiment.pct : b.sentiment.pct) : 0;
+      return sb - sa;
+    });
+  }, [rbfc, mnTeams]);
 
   return (
     <div className="space-y-6">
@@ -781,7 +808,7 @@ function PulseTab({
                   {lang === "th" ? "ชีพจรกีฬาเรียลไทม์" : "SPORTS PULSE RADAR"}
                 </h2>
                 <span className="rounded-full bg-live/20 px-2 py-0.5 text-[10px] font-bold text-live">
-                  ● {liveGames.length} ACTIVE
+                  ● {sortedLiveGames.length} ACTIVE
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -792,34 +819,49 @@ function PulseTab({
             </div>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <span className="rounded-lg bg-card/80 px-3 py-1.5 border border-border font-semibold">
-              <Flame className="inline h-3.5 w-3.5 text-primary mr-1" />
-              {lang === "th" ? "ดัชนีโมเมนตัมสูง" : "High Pressure Index"}
+            <span className="rounded-lg bg-card/80 px-3 py-1.5 border border-border font-semibold flex items-center gap-1.5">
+              <Flame className="h-3.5 w-3.5 text-primary" />
+              <span>{lang === "th" ? "เรียงลำดับ: สูง → ต่ำ" : "Ranked: High → Low"}</span>
             </span>
           </div>
         </div>
       </section>
 
-      {/* Real-time Match Intensity Radar */}
-      {liveGames.length > 0 ? (
+      {/* Real-time Match Intensity Radar (Auto-sorted Highest to Lowest) */}
+      {sortedLiveGames.length > 0 ? (
         <section className="space-y-3">
-          <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
-            <Radio className="h-5 w-5 animate-pulse text-live" />
-            {lang === "th" ? "โมเมนตัมสนามสด (IN-PLAY PRESSURE)" : "LIVE IN-PLAY INTENSITY"}
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
+              <Radio className="h-5 w-5 animate-pulse text-live" />
+              {lang === "th" ? "โมเมนตัมสนามสด (IN-PLAY PRESSURE)" : "LIVE IN-PLAY INTENSITY"}
+            </h3>
+            <span className="text-xs text-muted-foreground font-semibold">
+              {lang === "th" ? "จัดอันดับความดุเดือด" : "Ranked by In-Game Surge"}
+            </span>
+          </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {liveGames.map((g) => {
+            {sortedLiveGames.map((g, rankIdx) => {
               const h = teamById(g.home);
               const a = teamById(g.away);
               const lastMomentum = g.stats?.momentum.slice(-1)[0] ?? 0;
               const pressureTeam = lastMomentum > 0 ? h : a;
               return (
-                <div key={g.id} className="rounded-2xl border border-border bg-card p-4 space-y-3">
+                <div key={g.id} className="rounded-2xl border border-border bg-card p-4 space-y-3 relative overflow-hidden">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-muted-foreground">{g.league}</span>
-                    <span className="rounded-full bg-live px-2 py-0.5 text-xs font-bold text-foreground animate-pulse">
-                      {g.clock}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">
+                        #{rankIdx + 1}
+                      </span>
+                      <span className="font-bold text-muted-foreground">{g.league}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
+                        ⚡ Pulse {g.pulseScore}
+                      </span>
+                      <span className="rounded-full bg-live px-2 py-0.5 text-xs font-bold text-foreground animate-pulse">
+                        {g.clock}
+                      </span>
+                    </div>
                   </div>
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
@@ -984,14 +1026,19 @@ function PulseTab({
         </div>
       </section>
 
-      {/* Fan Sentiment Index */}
+      {/* Fan Sentiment Index (Auto-sorted Positive to Negative) */}
       <section className="space-y-3">
-        <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
-          <TrendingUp className="h-5 w-5" />
-          {lang === "th" ? "ดัชนีอารมณ์แฟนคลับ (SENTIMENT PULSE)" : "FAN SENTIMENT INDEX"}
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
+            <TrendingUp className="h-5 w-5" />
+            {lang === "th" ? "ดัชนีอารมณ์แฟนคลับ (SENTIMENT PULSE)" : "FAN SENTIMENT INDEX"}
+          </h3>
+          <span className="text-xs text-muted-foreground font-semibold">
+            {lang === "th" ? "เรียงตามความพึงพอใจ" : "Ranked by Fan Optimism"}
+          </span>
+        </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[rbfc, ...mnTeams.filter((t) => t.sentiment)].map((team) => {
+          {sortedSentimentTeams.map((team, rankIdx) => {
             const s = team.sentiment;
             if (!s) return null;
             const isNegative = s.label === "Frustrated" || s.label === "Anxious";
@@ -999,6 +1046,9 @@ function PulseTab({
               <div key={team.id} className="rounded-xl border border-border bg-card p-3 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
+                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-muted-foreground">
+                      #{rankIdx + 1}
+                    </span>
                     <Seal t={team} size={28} />
                     <span className="font-semibold text-xs truncate max-w-[100px]">{team.seal}</span>
                   </div>
