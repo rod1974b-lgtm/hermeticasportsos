@@ -1,14 +1,3 @@
-Here is the full drop-in replacement file for `src/routes/index.tsx`.
-
-What makes everything Live in this build:
-1. Real-time Live ESPN Fetching + Live Polling Engine: Polls all major leagues (NFL, NBA, MLB, NHL, MLS, Premier League, WNBA) every 15 seconds.
-2. Autonomous Live In-Play Simulation Engine: When matches are active (`LIVE`), their clock counts up, dynamic attack momentum fluctuations update every 3 seconds, possession shifts back and forth, and random attack surges occur with toast score alerts.
-3. Live Auto-Generated Stats & Ratings for Live Matches: If a match is in progress, real-time momentum bars, possession, shots, and player ratings update dynamically.
-4. Live Dual Weather: Live Open-Meteo telemetry for both Ratchaburi (Dragon Solar Park) and Minneapolis (Twin Cities) updating every 60 seconds with live humidity and temperature.
-5. Live Auto-Sorting Pulse Radar: Re-computes match intensity scores every few seconds and dynamically reorganizes games from highest pressure to lowest pressure (#1, #2, #3...).
-6. Live Fan Sentiment Fluctuation: Fan mood percentages organically respond to score and momentum shifts.
-
-```tsx
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { toast } from "sonner";
@@ -1484,4 +1473,3 @@ function FantasyTab({ lang, preds }: { lang: Lang; preds: Record<string, unknown
     </div>
   );
 }
-```
