@@ -72,26 +72,22 @@ export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string
           ? "FT"
           : new Date(ev.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
+      if (!TEAMS.some((t) => t.id === homeId) || !TEAMS.some((t) => t.id === awayId)) return null;
+
       return {
         id: `espn-${ev.id}`,
         league: leagueKey,
         home: homeId,
         away: awayId,
+        kickoff: ev.date,
         hs: parseInt(home?.score || "0", 10),
         as: parseInt(away?.score || "0", 10),
         status,
         clock,
-        tv: comp.broadcasts?.[0]?.names?.[0] || "ESPN / App",
-        timeBKK: new Date(ev.date).toLocaleString("en-US", { timeZone: "Asia/Bangkok" }),
-        timeCT: new Date(ev.date).toLocaleString("en-US", { timeZone: "America/Chicago" }),
-        stats: {
-          possession: [50, 50],
-          shots: [Math.floor(Math.random() * 8) + 4, Math.floor(Math.random() * 8) + 4],
-          xg: [1.2, 0.9],
-          momentum: [0, 2, -3, 5, 8, -2, 6, 1],
-        },
+        venue: comp.venue?.fullName || "",
+        odds: comp.odds?.[0]?.details || "—",
       } as Game;
-    });
+    }).filter((g: Game | null): g is Game => g !== null);
   } catch (err) {
     console.warn(`Failed to fetch live ESPN data for ${leagueKey}:`, err);
     return [];
