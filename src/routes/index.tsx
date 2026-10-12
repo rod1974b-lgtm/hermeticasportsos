@@ -1,32 +1,76 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { toast } from "sonner";
-import { Activity, CalendarPlus, Cloud, Compass, Heart, RefreshCw, Search, Share2, Star, Trophy, Tv, Users, Zap } from "lucide-react";
-import { INITIAL_GAMES, LEAGUES, T, TEAMS, fmtTime, teamById, type Game, type Hub, type Lang, type Team } from "@/lib/sports-data";
+import {
+  Activity,
+  CalendarPlus,
+  Cloud,
+  Compass,
+  Flame,
+  Heart,
+  Radio,
+  RefreshCw,
+  Search,
+  Share2,
+  Sparkles,
+  Star,
+  TrendingUp,
+  Trophy,
+  Tv,
+  Users,
+  Zap,
+} from "lucide-react";
+import {
+  INITIAL_GAMES,
+  LEAGUES,
+  T,
+  TEAMS,
+  fmtTime,
+  teamById,
+  type Game,
+  type Hub,
+  type Lang,
+  type Team,
+} from "@/lib/sports-data";
 import { fetchDualWeather, fetchLiveESPNLeague, ESPN_LEAGUES } from "@/lib/live-sports-api";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Ultimate Sports OS — Ratchaburi FC & Minnesota Hub" },
-      { name: "description", content: "Live scores, dual CT/ICT times, player ratings, predictions and fantasy for Ratchaburi FC, all 7 Minnesota teams and every major league." },
+      {
+        name: "description",
+        content:
+          "Live scores, dual CT/ICT times, player ratings, predictions and fantasy for Ratchaburi FC, all 7 Minnesota teams and every major league.",
+      },
       { property: "og:title", content: "Ultimate Sports OS — Ratchaburi FC & Minnesota Hub" },
-      { property: "og:description", content: "Any sport, any team. Live ticker, Thai/English, calendar export and LINE sharing." },
+      {
+        property: "og:description",
+        content: "Any sport, any team. Live ticker, Thai/English, calendar export and LINE sharing.",
+      },
     ],
   }),
   component: App,
 });
 
-type Tab = "live" | "my" | "explore" | "leagues" | "fantasy";
+type Tab = "live" | "pulse" | "my" | "explore" | "leagues" | "fantasy";
 const MN_IDS = TEAMS.filter((t) => t.hub === "minnesota").map((t) => t.id);
 
 function useLocal<T>(key: string, init: T) {
   const [v, setV] = useState<T>(init);
   useEffect(() => {
     const raw = localStorage.getItem(key);
-    if (raw) try { setV(JSON.parse(raw)); } catch { /* ignore */ }
+    if (raw)
+      try {
+        setV(JSON.parse(raw));
+      } catch {
+        /* ignore */
+      }
   }, [key]);
-  const set = (n: T) => { setV(n); localStorage.setItem(key, JSON.stringify(n)); };
+  const set = (n: T) => {
+    setV(n);
+    localStorage.setItem(key, JSON.stringify(n));
+  };
   return [v, set] as const;
 }
 
@@ -76,7 +120,9 @@ function App() {
     try {
       const w = await fetchDualWeather();
       setDualWeather(w);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   useEffect(() => {
@@ -95,18 +141,20 @@ function App() {
 
       if (fetchedGames.length > 0) {
         setGames((prev) => {
-          // Notify on score changes for favorited teams
           fetchedGames.forEach((newGame) => {
             const old = prev.find((g) => g.id === newGame.id);
             if (old && (old.hs !== newGame.hs || old.as !== newGame.as)) {
               if (favs.includes(newGame.home) || favs.includes(newGame.away)) {
-                toast.success(`⚡ Score Alert: ${teamById(newGame.away).seal} ${newGame.as} - ${newGame.hs} ${teamById(newGame.home).seal}`);
+                toast.success(
+                  `⚡ Score Alert: ${teamById(newGame.away).seal} ${newGame.as} - ${newGame.hs} ${
+                    teamById(newGame.home).seal
+                  }`
+                );
                 navigator.vibrate?.([50, 50, 50]);
               }
             }
           });
 
-          // Keep non-ESPN local games (e.g. Ratchaburi FC Thai League & PWHL) intact
           const localGames = prev.filter((g) => !g.id.startsWith("espn-"));
           return [...fetchedGames, ...localGames];
         });
@@ -138,7 +186,6 @@ function App() {
       setGames((gs) =>
         gs.map((g) => {
           if (g.status !== "LIVE") return g;
-          const r = Math.random();
           const n = {
             ...g,
             stats: g.stats
@@ -174,13 +221,16 @@ function App() {
 
   const inHub = (g: Game) => hub === "all" || teamById(g.home).hub === hub || teamById(g.away).hub === hub;
   const hubGames = games.filter(inHub);
+  const liveCount = hubGames.filter((g) => g.status === "LIVE").length;
 
   return (
     <div data-hub={hub} className="min-h-screen bg-background font-sans text-foreground">
       <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
           <div className="min-w-0">
-            <h1 className="truncate font-display text-2xl tracking-wider text-primary sm:text-3xl">ULTIMATE SPORTS OS</h1>
+            <h1 className="truncate font-display text-2xl tracking-wider text-primary sm:text-3xl">
+              ULTIMATE SPORTS OS
+            </h1>
             <HubInfo hub={hub} now={now} dualWeather={dualWeather} lang={lang} />
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -203,14 +253,20 @@ function App() {
               aria-label={t.simulate}
             >
               <span className={`h-2 w-2 rounded-full ${liveOn ? "animate-pulse bg-live" : "bg-muted-foreground"}`} />
-              {hubGames.filter((g) => g.status === "LIVE").length}
+              {liveCount}
             </button>
           </div>
         </div>
 
         {/* Hub Switcher */}
         <div className="mx-auto flex max-w-6xl gap-2 px-4 pb-3">
-          {([["ratchaburi", "🐉 Ratchaburi FC"], ["minnesota", "⭐ Minnesota Hub"], ["all", `🌐 ${t.all}`]] as const).map(([h, label]) => (
+          {(
+            [
+              ["ratchaburi", "🐉 Ratchaburi FC"],
+              ["minnesota", "⭐ Minnesota Hub"],
+              ["all", `🌐 ${t.all}`],
+            ] as const
+          ).map(([h, label]) => (
             <button
               key={h}
               onClick={() => setHub(h)}
@@ -228,16 +284,21 @@ function App() {
 
         {/* Desktop Tabs */}
         <nav className="mx-auto hidden max-w-6xl gap-1 px-4 py-2 md:flex">
-          {tabs(t).map(([k, label, Icon]) => (
+          {tabs(t, lang).map(([k, label, Icon]) => (
             <button
               key={k}
               onClick={() => setTab(k)}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold ${
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition ${
                 tab === k ? "bg-secondary text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <Icon className="h-4 w-4" />
               {label}
+              {k === "pulse" && (
+                <span className="flex h-2 w-2 items-center justify-center">
+                  <span className="h-1.5 w-1.5 rounded-full bg-live animate-ping" />
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -246,24 +307,42 @@ function App() {
       {/* Main Content */}
       <main className="mx-auto max-w-6xl px-4 pb-28 pt-5 md:pb-10">
         {tab === "live" && <LiveTab games={hubGames} lang={lang} preds={preds} setPreds={setPreds} />}
+        {tab === "pulse" && (
+          <PulseTab
+            games={hubGames}
+            hub={hub}
+            lang={lang}
+            favs={favs}
+            toggleFav={toggleFav}
+            dualWeather={dualWeather}
+          />
+        )}
         {tab === "my" && <MyTab favs={favs} toggle={toggleFav} addAll={addAllMN} games={games} lang={lang} />}
         {tab === "explore" && <ExploreTab hub={hub} favs={favs} toggle={toggleFav} addAll={addAllMN} lang={lang} />}
         {tab === "leagues" && <LeaguesTab favs={favs} toggle={toggleFav} lang={lang} />}
         {tab === "fantasy" && <FantasyTab lang={lang} preds={preds} />}
       </main>
 
-      {/* Mobile Safe-Area Bottom Nav */}
-      <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-background/95 pt-2 backdrop-blur md:hidden">
-        {tabs(t).map(([k, label, Icon]) => (
+      {/* Mobile Safe-Area Bottom Nav (6 Grid Columns with Pulse between Live and My Teams) */}
+      <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-border bg-background/95 pt-2 backdrop-blur md:hidden">
+        {tabs(t, lang).map(([k, label, Icon]) => (
           <button
             key={k}
             onClick={() => setTab(k)}
-            className={`flex flex-col items-center gap-0.5 text-[11px] font-semibold ${
+            className={`flex flex-col items-center gap-0.5 pb-1 text-[10px] font-semibold transition ${
               tab === k ? "text-primary" : "text-muted-foreground"
             }`}
           >
-            <Icon className="h-5 w-5" />
-            {label}
+            <div className="relative">
+              <Icon className="h-5 w-5" />
+              {k === "pulse" && (
+                <span className="absolute -right-1 -top-0.5 flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-live opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-live" />
+                </span>
+              )}
+            </div>
+            <span className="truncate max-w-[50px]">{label}</span>
           </button>
         ))}
       </nav>
@@ -271,9 +350,11 @@ function App() {
   );
 }
 
-const tabs = (t: (typeof T)["en"]) =>
+// Pulse placed between "live" and "my"
+const tabs = (t: (typeof T)["en"], lang: Lang) =>
   [
     ["live", t.live, Tv],
+    ["pulse", lang === "th" ? "ชีพจร" : "Pulse", Activity],
     ["my", t.my, Heart],
     ["explore", t.explore, Compass],
     ["leagues", t.leagues, Trophy],
@@ -313,7 +394,8 @@ function HubInfo({
           <span>• ICT {f("Asia/Bangkok")}</span>
           {dualWeather.minnesota && (
             <span className="text-secondary font-medium">
-              • <Cloud className="inline h-3 w-3" /> {Math.round(dualWeather.minnesota.tempF)}°F ({dualWeather.minnesota.humidity}% hum)
+              • <Cloud className="inline h-3 w-3" /> {Math.round(dualWeather.minnesota.tempF)}°F (
+              {dualWeather.minnesota.humidity}% hum)
             </span>
           )}
         </>
@@ -324,7 +406,8 @@ function HubInfo({
           {hub === "all" && <span>• CT {f("America/Chicago")}</span>}
           {dualWeather.ratchaburi && (
             <span className="text-primary font-medium">
-              • <Cloud className="inline h-3 w-3" /> {Math.round(dualWeather.ratchaburi.tempC)}°C ({dualWeather.ratchaburi.humidity}% hum)
+              • <Cloud className="inline h-3 w-3" /> {Math.round(dualWeather.ratchaburi.tempC)}°C (
+              {dualWeather.ratchaburi.humidity}% hum)
             </span>
           )}
         </>
@@ -514,8 +597,14 @@ function GameCard({
               <div className="flex h-12 items-center gap-0.5">
                 {g.stats.momentum.map((m, i) => (
                   <div key={i} className="flex h-full flex-1 flex-col justify-center">
-                    <div className={m > 0 ? "rounded-t-sm bg-primary" : "invisible"} style={{ height: `${Math.abs(m) * 3}px` }} />
-                    <div className={m < 0 ? "rounded-b-sm bg-foreground/40" : "invisible"} style={{ height: `${Math.abs(m) * 3}px` }} />
+                    <div
+                      className={m > 0 ? "rounded-t-sm bg-primary" : "invisible"}
+                      style={{ height: `${Math.abs(m) * 3}px` }}
+                    />
+                    <div
+                      className={m < 0 ? "rounded-b-sm bg-foreground/40" : "invisible"}
+                      style={{ height: `${Math.abs(m) * 3}px` }}
+                    />
                   </div>
                 ))}
               </div>
@@ -528,7 +617,11 @@ function GameCard({
             <div className="flex flex-wrap gap-1.5">
               {g.ratings.map((r) => (
                 <span key={r.name} className="flex items-center gap-1 rounded-md bg-muted px-2 py-1">
-                  <b className={`rounded px-1 ${r.r >= 8 ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"}`}>
+                  <b
+                    className={`rounded px-1 ${
+                      r.r >= 8 ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"
+                    }`}
+                  >
                     {r.r.toFixed(1)}
                   </b>
                   {r.name}
@@ -566,7 +659,11 @@ function GameCard({
             >
               OK
             </button>
-            {pred && <span className="text-muted-foreground">✓ {pred.a}-{pred.h}</span>}
+            {pred && (
+              <span className="text-muted-foreground">
+                ✓ {pred.a}-{pred.h}
+              </span>
+            )}
           </div>
         )}
         <div className="flex flex-wrap gap-2 border-t border-border pt-3 text-xs font-semibold">
@@ -582,7 +679,10 @@ function GameCard({
           <button onClick={cal.ics} className="rounded-md bg-muted px-2.5 py-1.5 hover:bg-secondary">
             {t.ics}
           </button>
-          <button onClick={() => shareCard(g)} className="flex items-center gap-1 rounded-md bg-muted px-2.5 py-1.5 hover:bg-secondary">
+          <button
+            onClick={() => shareCard(g)}
+            className="flex items-center gap-1 rounded-md bg-muted px-2.5 py-1.5 hover:bg-secondary"
+          >
             <Share2 className="h-3.5 w-3.5" />
             {t.share}
           </button>
@@ -636,6 +736,334 @@ function LiveTab({
   );
 }
 
+// ==========================================
+// SPORTS PULSE TAB (Dedicated Live Center)
+// ==========================================
+function PulseTab({
+  games,
+  hub,
+  lang,
+  favs,
+  toggleFav,
+  dualWeather,
+}: {
+  games: Game[];
+  hub: Hub;
+  lang: Lang;
+  favs: string[];
+  toggleFav: (id: string) => void;
+  dualWeather: {
+    ratchaburi: { tempC: number; humidity: number; windKmh: number } | null;
+    minnesota: { tempF: number; humidity: number; windMph: number } | null;
+  };
+}) {
+  const liveGames = games.filter((g) => g.status === "LIVE");
+  const upcomingGames = games.filter((g) => g.status === "UPCOMING").slice(0, 4);
+  const mnTeams = TEAMS.filter((t) => t.hub === "minnesota");
+  const rbfc = teamById("rbfc");
+
+  return (
+    <div className="space-y-6">
+      {/* Pulse Banner */}
+      <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-r from-card via-card to-secondary/30 p-5 shadow-lg">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
+              <Activity className="h-6 w-6 animate-pulse" />
+              <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-live opacity-75" />
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-live" />
+              </span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="font-display text-2xl tracking-wide sm:text-3xl">
+                  {lang === "th" ? "ชีพจรกีฬาเรียลไทม์" : "SPORTS PULSE RADAR"}
+                </h2>
+                <span className="rounded-full bg-live/20 px-2 py-0.5 text-[10px] font-bold text-live">
+                  ● {liveGames.length} ACTIVE
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {lang === "th"
+                  ? "ตรวจวัดโมเมนตัมเกมรุก สภาพอากาศสนาม และอารมณ์แฟนคลับสด"
+                  : "Live attack momentum, venue atmospheres, and real-time team sentiment"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="rounded-lg bg-card/80 px-3 py-1.5 border border-border font-semibold">
+              <Flame className="inline h-3.5 w-3.5 text-primary mr-1" />
+              {lang === "th" ? "ดัชนีโมเมนตัมสูง" : "High Pressure Index"}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* Real-time Match Intensity Radar */}
+      {liveGames.length > 0 ? (
+        <section className="space-y-3">
+          <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
+            <Radio className="h-5 w-5 animate-pulse text-live" />
+            {lang === "th" ? "โมเมนตัมสนามสด (IN-PLAY PRESSURE)" : "LIVE IN-PLAY INTENSITY"}
+          </h3>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {liveGames.map((g) => {
+              const h = teamById(g.home);
+              const a = teamById(g.away);
+              const lastMomentum = g.stats?.momentum.slice(-1)[0] ?? 0;
+              const pressureTeam = lastMomentum > 0 ? h : a;
+              return (
+                <div key={g.id} className="rounded-2xl border border-border bg-card p-4 space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-muted-foreground">{g.league}</span>
+                    <span className="rounded-full bg-live px-2 py-0.5 text-xs font-bold text-foreground animate-pulse">
+                      {g.clock}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Seal t={a} size={36} />
+                      <span className="font-bold text-sm">{a.seal}</span>
+                    </div>
+                    <div className="font-display text-3xl tabular-nums">
+                      {g.as} - {g.hs}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm">{h.seal}</span>
+                      <Seal t={h} size={36} />
+                    </div>
+                  </div>
+                  {g.stats && (
+                    <div className="rounded-xl bg-muted p-2.5 text-xs space-y-2">
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span className="text-muted-foreground">Surge Alert</span>
+                        <span className="font-bold text-primary">
+                          {pressureTeam.seal} {Math.abs(lastMomentum) > 8 ? "🔥 Dangerous Attack" : "Holding Shape"}
+                        </span>
+                      </div>
+                      <div className="flex h-8 items-center gap-0.5">
+                        {g.stats.momentum.map((m, i) => (
+                          <div key={i} className="flex h-full flex-1 flex-col justify-center">
+                            <div
+                              className={m > 0 ? "rounded-t-sm bg-primary" : "invisible"}
+                              style={{ height: `${Math.min(100, Math.abs(m) * 2.5)}%` }}
+                            />
+                            <div
+                              className={m < 0 ? "rounded-b-sm bg-foreground/40" : "invisible"}
+                              style={{ height: `${Math.min(100, Math.abs(m) * 2.5)}%` }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ) : (
+        <div className="rounded-2xl border border-dashed border-border bg-card/50 p-6 text-center">
+          <Activity className="mx-auto h-8 w-8 text-muted-foreground opacity-60 mb-2" />
+          <h4 className="font-semibold text-sm">
+            {lang === "th" ? "ไม่มีเกมที่กำลังแข่งอยู่ขณะนี้" : "No live games in progress right now"}
+          </h4>
+          <p className="text-xs text-muted-foreground mt-1">
+            {lang === "th"
+              ? "ดูตารางถ่ายทอดสดและเวลาเตะของ Ratchaburi FC & Minnesota ด้านล่าง"
+              : "Check upcoming match schedules and stadium atmospheres below"}
+          </p>
+        </div>
+      )}
+
+      {/* Twin Hub Pulse Cards: Ratchaburi Dragons vs. Minnesota 7 */}
+      <section className="space-y-3">
+        <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
+          <Sparkles className="h-5 w-5" />
+          {lang === "th" ? "ชีพจรสองถิ่น (TWIN HUB PULSE)" : "TWIN HUB ATMOSPHERE"}
+        </h3>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* Ratchaburi FC Hub Card */}
+          <div className="rounded-2xl border border-border bg-card p-4 space-y-3 relative overflow-hidden">
+            <div
+              className="absolute -right-10 -bottom-10 h-36 w-36 rounded-full opacity-10 pointer-events-none"
+              style={{ background: rbfc.color }}
+            />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Seal t={rbfc} size={46} />
+                <div>
+                  <h4 className="font-display text-lg tracking-wide">{rbfc.name}</h4>
+                  <p className="text-xs text-muted-foreground">{rbfc.venue}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => toggleFav("rbfc")}
+                className={`rounded-full p-2 text-xs font-semibold ${
+                  favs.includes("rbfc") ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                }`}
+              >
+                <Heart className={`h-4 w-4 ${favs.includes("rbfc") ? "fill-current" : ""}`} />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="rounded-xl bg-muted p-2.5">
+                <span className="text-muted-foreground block text-[10px]">Dragon Solar Park</span>
+                <span className="font-bold text-sm">
+                  {dualWeather.ratchaburi ? `${Math.round(dualWeather.ratchaburi.tempC)}°C` : "32°C"} •{" "}
+                  {dualWeather.ratchaburi?.humidity ?? 78}% Hum
+                </span>
+              </div>
+              <div className="rounded-xl bg-muted p-2.5">
+                <span className="text-muted-foreground block text-[10px]">Record</span>
+                <span className="font-bold text-sm">{rbfc.record}</span>
+              </div>
+            </div>
+            {rbfc.sentiment && (
+              <div className="text-xs space-y-1">
+                <div className="flex justify-between text-muted-foreground text-[11px]">
+                  <span>Fan Mood</span>
+                  <span className="font-bold text-primary">
+                    {rbfc.sentiment.pct}% {rbfc.sentiment.label}
+                  </span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div className="h-full bg-primary" style={{ width: `${rbfc.sentiment.pct}%` }} />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Minnesota Hub Card */}
+          <div className="rounded-2xl border border-border bg-card p-4 space-y-3 relative overflow-hidden">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#4F2683] text-[#FFC62F] font-display text-xl font-bold ring-2 ring-[#FFC62F]/40">
+                  MN
+                </div>
+                <div>
+                  <h4 className="font-display text-lg tracking-wide">Minnesota Hub (7 Teams)</h4>
+                  <p className="text-xs text-muted-foreground">Vikings, Wolves, Twins, Wild, Lynx, Frost, MNUFC</p>
+                </div>
+              </div>
+              <span className="rounded-md bg-secondary px-2 py-1 text-[11px] font-bold text-primary">
+                Twin Cities
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="rounded-xl bg-muted p-2.5">
+                <span className="text-muted-foreground block text-[10px]">Minneapolis Weather</span>
+                <span className="font-bold text-sm">
+                  {dualWeather.minnesota ? `${Math.round(dualWeather.minnesota.tempF)}°F` : "58°F"} •{" "}
+                  {dualWeather.minnesota?.humidity ?? 62}% Hum
+                </span>
+              </div>
+              <div className="rounded-xl bg-muted p-2.5">
+                <span className="text-muted-foreground block text-[10px]">Next Big Showdown</span>
+                <span className="font-bold text-sm">VIK @ PIT (Dublin)</span>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {mnTeams.map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => toggleFav(m.id)}
+                  className={`flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold transition ${
+                    favs.includes(m.id)
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <span className="font-bold">{m.seal}</span>
+                  {favs.includes(m.id) && "✓"}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Fan Sentiment Index */}
+      <section className="space-y-3">
+        <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
+          <TrendingUp className="h-5 w-5" />
+          {lang === "th" ? "ดัชนีอารมณ์แฟนคลับ (SENTIMENT PULSE)" : "FAN SENTIMENT INDEX"}
+        </h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[rbfc, ...mnTeams.filter((t) => t.sentiment)].map((team) => {
+            const s = team.sentiment;
+            if (!s) return null;
+            const isNegative = s.label === "Frustrated" || s.label === "Anxious";
+            return (
+              <div key={team.id} className="rounded-xl border border-border bg-card p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Seal t={team} size={28} />
+                    <span className="font-semibold text-xs truncate max-w-[100px]">{team.seal}</span>
+                  </div>
+                  <span
+                    className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
+                      isNegative ? "bg-destructive/20 text-destructive" : "bg-primary/20 text-primary"
+                    }`}
+                  >
+                    {s.pct}% {s.label}
+                  </span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={isNegative ? "h-full bg-destructive" : "h-full bg-primary"}
+                    style={{ width: `${s.pct}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Upcoming Kickoff Countdown */}
+      {upcomingGames.length > 0 && (
+        <section className="space-y-3">
+          <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
+            <Zap className="h-5 w-5" />
+            {lang === "th" ? "กำหนดการเตะใกล้ถึง" : "UPCOMING SCHEDULE PULSE"}
+          </h3>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {upcomingGames.map((g) => {
+              const h = teamById(g.home);
+              const a = teamById(g.away);
+              return (
+                <div key={g.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
+                  <div className="flex items-center gap-3">
+                    <Seal t={a} size={32} />
+                    <span className="text-xs font-semibold">@</span>
+                    <Seal t={h} size={32} />
+                    <div>
+                      <div className="text-xs font-bold">
+                        {a.seal} vs {h.seal}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">{g.league} • {g.venue}</div>
+                    </div>
+                  </div>
+                  <div className="text-right text-xs">
+                    <div className="font-bold text-primary">ICT {fmtTime(g.kickoff, "Asia/Bangkok", lang)}</div>
+                    {isMN(g) && (
+                      <div className="text-[10px] text-muted-foreground">
+                        CT {fmtTime(g.kickoff, "America/Chicago", lang)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
 function TeamCard({ team, fav, toggle, lang }: { team: Team; fav: boolean; toggle: () => void; lang: Lang }) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const long = useRef(false);
@@ -668,7 +1096,9 @@ function TeamCard({ team, fav, toggle, lang }: { team: Team; fav: boolean; toggl
             if (!long.current) toggle();
           }}
           aria-label="favorite"
-          className={`shrink-0 rounded-full p-2 ${fav ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+          className={`shrink-0 rounded-full p-2 ${
+            fav ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          }`}
         >
           <Heart className={`h-4 w-4 ${fav ? "fill-current" : ""}`} />
         </button>
@@ -764,8 +1194,9 @@ function ExploreTab({
   const [league, setLeague] = useState("All");
   const sports = ["All", ...Array.from(new Set(TEAMS.map((x) => x.sport)))];
   const match = (x: Team) => !q || `${x.name} ${x.th} ${x.seal} ${x.league}`.toLowerCase().includes(q.toLowerCase());
-  const list = TEAMS.filter((x) => (sport === "All" || x.sport === sport) && (league === "All" || x.league === league) && match(x))
-    .sort((a, b) => Number(b.hub === hub) - Number(a.hub === hub));
+  const list = TEAMS.filter(
+    (x) => (sport === "All" || x.sport === sport) && (league === "All" || x.league === league) && match(x)
+  ).sort((a, b) => Number(b.hub === hub) - Number(a.hub === hub));
   const suggestions = q ? TEAMS.filter(match).slice(0, 5) : [];
 
   return (
