@@ -549,7 +549,8 @@ export const TEAMS: Team[] = [
   },
 ];
 
-export const teamById = (id: string) => TEAMS.find((t) => t.id === id)!;
+export const teamById = (id: string): Team =>
+  TEAMS.find((t) => t.id === id) ?? { id, name: id.toUpperCase(), th: id, seal: id.slice(0, 4).toUpperCase(), league: "", sport: "", color: "#333333", accent: "#FFFFFF", record: "" };
 
 export interface Game {
   id: string;
@@ -568,8 +569,8 @@ export interface Game {
     shotsH: number;
     shotsA: number;
     momentum: number[];
-  };
-  ratings?: { name: string; team: string; r: number }[];
+  } | undefined;
+  ratings?: { name: string; team: string; r: number }[] | undefined;
 }
 
 export const INITIAL_GAMES: Game[] = [
