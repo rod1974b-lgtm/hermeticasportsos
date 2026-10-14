@@ -1,6 +1,7 @@
+import { createServerFn } from "@tanstack/react-start";
 import { Game, Team, TEAMS } from "./sports-data";
 
-// Free, CORS-friendly public ESPN scoreboard endpoints (no API key needed)
+// Free, public ESPN scoreboard endpoints (no API key needed)
 export const ESPN_LEAGUES: Record<string, string> = {
   NFL: "football/nfl",
   NBA: "basketball/nba",
@@ -14,10 +15,11 @@ export const ESPN_LEAGUES: Record<string, string> = {
 // Map ESPN names & abbreviations to local hub Team IDs
 const TEAM_NAME_TO_ID: Record<string, string> = {
   "vikings": "vik", "minnesota vikings": "vik", "min": "vik",
-  "timberwolves": "twolves", "minnesota timberwolves": "twolves",
+  "timberwolves": "wolves", "minnesota timberwolves": "wolves", "wolves": "wolves",
   "twins": "twins", "minnesota twins": "twins",
   "wild": "wild", "minnesota wild": "wild",
   "lynx": "lynx", "minnesota lynx": "lynx",
+  "frost": "frost", "minnesota frost": "frost",
   "minnesota united": "mnufc", "minnesota united fc": "mnufc",
   "arsenal": "ars", "manchester city": "mci", "liverpool": "liv",
   "chelsea": "che", "real madrid": "rma", "barcelona": "fcb",
@@ -33,7 +35,8 @@ function getSportForLeague(l: string): string {
     case "NBA":
     case "WNBA": return "Basketball";
     case "MLB": return "Baseball";
-    case "NHL": return "Hockey";
+    case "NHL":
+    case "PWHL": return "Hockey";
     case "MLS":
     case "PL":
     case "Thai League 1": return "Soccer";
@@ -94,17 +97,61 @@ export function registerOrResolveTeam(comp: any, leagueKey: string): string {
 }
 
 /**
- * Fetches real-time games from ESPN public scoreboards.
+ * Server function that fetches ESPN scoreboards server-side.
+ * Runs on the TanStack Start backend, completely avoiding browser CORS restrictions.
+ */
+export const fetchESPNScoreboardServer = createServerFn({ method: "GET" })
+  .validator((endpointKey: string) => endpointKey)
+  .handler(async ({ data: endpointKey }) => {
+    try {
+      const res = await fetch(
+        `https://site.api.espn.com/apis/site/v2/sports/${endpointKey}/scoreboard`,
+        {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "application/json",
+          },
+          cache: "no-store",
+        }
+      );
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (err) {
+      console.warn(`[ESPN Server] Fetch error for ${endpointKey}:`, err);
+      return null;
+    }
+  });
+
+/**
+ * Fetches real-time games for a given league.
  * Strictly excludes past/finished games so ONLY active LIVE and scheduled UPCOMING games display.
  */
 export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string): Promise<Game[]> {
   try {
-    const res = await fetch(
-      `https://site.api.espn.com/apis/site/v2/sports/${endpointKey}/scoreboard`,
-      { cache: "no-store" }
-    );
-    if (!res.ok) return [];
-    const data = await res.json();
+    let data: any = null;
+
+    // 1. Fetch via TanStack Start server function (server-side, zero CORS)
+    try {
+      data = await fetchESPNScoreboardServer({ data: endpointKey });
+    } catch (srvErr) {
+      console.warn(`[LiveSports] Server function attempt failed for ${leagueKey}:`, srvErr);
+    }
+
+    // 2. Direct fallback (works during SSR or environments with direct access)
+    if (!data) {
+      try {
+        const res = await fetch(
+          `https://site.api.espn.com/apis/site/v2/sports/${endpointKey}/scoreboard`
+        );
+        if (res.ok) {
+          data = await res.json();
+        }
+      } catch {
+        // Direct browser fetch blocked by CORS
+      }
+    }
+
+    if (!data) return [];
     const events = data?.events || [];
 
     return events
@@ -197,7 +244,7 @@ export const UPCOMING_HUB_FIXTURES: Game[] = [
   },
   {
     id: "hub-wolves-1",
-    home: "twolves",
+    home: "wolves",
     away: "lal",
     league: "NBA",
     kickoff: "2026-10-22T00:00:00Z",
