@@ -12,6 +12,39 @@ if (vikTeam) {
   ];
 }
 
+const wildTeam = TEAMS.find((t) => t.id === "wild");
+if (wildTeam) {
+  wildTeam.record = "4-2";
+  wildTeam.notes = [
+    "4-2-0 — Kaprizov & Boldy pacing the offense",
+    "Next: vs St. Louis Blues at Xcel Energy Center",
+  ];
+}
+
+const wolvesTeam = TEAMS.find((t) => t.id === "wolves");
+if (wolvesTeam) {
+  wolvesTeam.record = "0-0";
+  wolvesTeam.notes = [
+    "Ant + Gobert core ready for 2026-27 campaign",
+    "Next: vs Detroit Pistons tonight at Target Center",
+  ];
+}
+
+const mnufcTeam = TEAMS.find((t) => t.id === "mnufc");
+if (mnufcTeam) {
+  mnufcTeam.record = "7-9-12";
+}
+
+const twinsTeam = TEAMS.find((t) => t.id === "twins");
+if (twinsTeam) {
+  twinsTeam.record = "77-85";
+}
+
+const lynxTeam = TEAMS.find((t) => t.id === "lynx");
+if (lynxTeam) {
+  lynxTeam.record = "33-11";
+}
+
 // Register hub opponents so all fixtures render with full badges, colors, and records
 const OPPONENT_TEAMS: Team[] = [
   {
@@ -66,15 +99,22 @@ OPPONENT_TEAMS.forEach((opp) => {
   }
 });
 
-// Free, public ESPN scoreboard endpoints (no API key needed)
+// Comprehensive, zero-key ESPN scoreboard endpoints for all major global leagues
 export const ESPN_LEAGUES: Record<string, string> = {
   NFL: "football/nfl",
+  CFB: "football/college-football",
   NBA: "basketball/nba",
+  WNBA: "basketball/wnba",
+  CBB: "basketball/mens-college-basketball",
   MLB: "baseball/mlb",
   NHL: "hockey/nhl",
   MLS: "soccer/usa.1",
   PL: "soccer/eng.1",
-  WNBA: "basketball/wnba",
+  LaLiga: "soccer/esp.1",
+  UCL: "soccer/uefa.champions",
+  Bundesliga: "soccer/ger.1",
+  SerieA: "soccer/ita.1",
+  LigaMX: "soccer/mex.1",
 };
 
 // Map ESPN names & abbreviations to local hub Team IDs
@@ -96,20 +136,35 @@ const TEAM_NAME_TO_ID: Record<string, string> = {
   "rapids": "col", "colorado rapids": "col",
   "pistons": "det", "detroit pistons": "det",
   "blues": "stl", "st. louis blues": "stl",
+  "port": "port", "port fc": "port",
+  "fleet": "bos", "boston fleet": "bos",
 };
 
 function getSportForLeague(l: string): string {
   switch (l) {
-    case "NFL": return "Football";
+    case "NFL":
+    case "CFB":
+      return "Football";
     case "NBA":
-    case "WNBA": return "Basketball";
-    case "MLB": return "Baseball";
+    case "WNBA":
+    case "CBB":
+      return "Basketball";
+    case "MLB":
+      return "Baseball";
     case "NHL":
-    case "PWHL": return "Hockey";
+    case "PWHL":
+      return "Hockey";
     case "MLS":
     case "PL":
-    case "Thai League 1": return "Soccer";
-    default: return "Sports";
+    case "LaLiga":
+    case "UCL":
+    case "Bundesliga":
+    case "SerieA":
+    case "LigaMX":
+    case "Thai League 1":
+      return "Soccer";
+    default:
+      return "Sports";
   }
 }
 
@@ -132,7 +187,9 @@ export function registerOrResolveTeam(comp: any, leagueKey: string): string {
     const matchedId = TEAM_NAME_TO_ID[norm];
     const existing = TEAMS.find((t) => t.id === matchedId);
     if (existing && recordSummary && matchedId !== "vik") existing.record = recordSummary;
-    if (existing && !existing.logo && team.logo) existing.logo = team.logo;
+    if (existing && !existing.logo && (team.logo || team.logos?.[0]?.href)) {
+      existing.logo = team.logo || team.logos?.[0]?.href;
+    }
     return matchedId;
   }
 
@@ -140,7 +197,9 @@ export function registerOrResolveTeam(comp: any, leagueKey: string): string {
     const matchedId = TEAM_NAME_TO_ID[abbr];
     const existing = TEAMS.find((t) => t.id === matchedId);
     if (existing && recordSummary && matchedId !== "vik") existing.record = recordSummary;
-    if (existing && !existing.logo && team.logo) existing.logo = team.logo;
+    if (existing && !existing.logo && (team.logo || team.logos?.[0]?.href)) {
+      existing.logo = team.logo || team.logos?.[0]?.href;
+    }
     return matchedId;
   }
 
@@ -152,7 +211,9 @@ export function registerOrResolveTeam(comp: any, leagueKey: string): string {
   );
 
   if (existing) {
-    if (!existing.logo && team.logo) existing.logo = team.logo;
+    if (!existing.logo && (team.logo || team.logos?.[0]?.href)) {
+      existing.logo = team.logo || team.logos?.[0]?.href;
+    }
     if (recordSummary && existing.id !== "vik") existing.record = recordSummary;
     return existing.id;
   }
@@ -174,7 +235,7 @@ export function registerOrResolveTeam(comp: any, leagueKey: string): string {
     color: colorHex,
     accent: altColorHex,
     record: recordSummary,
-    logo: team.logo || undefined,
+    logo: team.logo || team.logos?.[0]?.href || undefined,
   };
 
   TEAMS.push(newTeam);
@@ -183,7 +244,7 @@ export function registerOrResolveTeam(comp: any, leagueKey: string): string {
 
 /**
  * Server function that fetches ESPN scoreboards server-side.
- * Runs on the TanStack Start backend, completely avoiding browser CORS restrictions.
+ * Runs on TanStack Start backend, completely avoiding browser CORS restrictions.
  */
 export const fetchESPNScoreboardServer = createServerFn({ method: "GET" })
   .validator((endpointKey: string) => endpointKey)
@@ -195,7 +256,7 @@ export const fetchESPNScoreboardServer = createServerFn({ method: "GET" })
           headers: {
             "User-Agent":
               "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept": "application/json",
+            Accept: "application/json",
           },
           cache: "no-store",
         }
@@ -207,6 +268,43 @@ export const fetchESPNScoreboardServer = createServerFn({ method: "GET" })
       return null;
     }
   });
+
+/**
+ * Server function that fetches specific team schedules from ESPN.
+ * Enables live retrieval of bye-week games and future fixtures.
+ */
+export const fetchESPNTeamScheduleServer = createServerFn({ method: "GET" })
+  .validator((teamEndpoint: string) => teamEndpoint)
+  .handler(async ({ data: teamEndpoint }) => {
+    try {
+      const res = await fetch(
+        `https://site.api.espn.com/apis/site/v2/sports/${teamEndpoint}/schedule`,
+        {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            Accept: "application/json",
+          },
+          cache: "no-store",
+        }
+      );
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (err) {
+      console.warn(`[ESPN Server] Team schedule error for ${teamEndpoint}:`, err);
+      return null;
+    }
+  });
+
+/**
+ * Hub teams to check for upcoming schedule if not active on today's single-day scoreboard
+ */
+const HUB_SCHEDULE_QUERIES = [
+  { teamId: "vik", endpoint: "football/nfl/teams/16", league: "NFL" },
+  { teamId: "wolves", endpoint: "basketball/nba/teams/16", league: "NBA" },
+  { teamId: "wild", endpoint: "hockey/nhl/teams/min", league: "NHL" },
+  { teamId: "mnufc", endpoint: "soccer/usa.1/teams/17362", league: "MLS" },
+];
 
 /**
  * Fetches real-time games for a given league.
@@ -240,7 +338,7 @@ export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string
     if (!data) return [];
     const events = data?.events || [];
 
-    return events
+    const games: Game[] = events
       .map((ev: any) => {
         const comp = ev.competitions?.[0] || {};
         const competitors = comp.competitors || [];
@@ -291,6 +389,55 @@ export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string
         } as Game;
       })
       .filter((g: Game | null): g is Game => g !== null);
+
+    // If an NFL/NBA/NHL/MLS hub team has no active scoreboard game today (e.g. bye week),
+    // automatically query their official live ESPN schedule to find their next matchup
+    const hubQuery = HUB_SCHEDULE_QUERIES.find((q) => q.league === leagueKey);
+    if (hubQuery) {
+      const hasHubGame = games.some(
+        (g) => g.home === hubQuery.teamId || g.away === hubQuery.teamId
+      );
+      if (!hasHubGame) {
+        try {
+          const schedData = await fetchESPNTeamScheduleServer({ data: hubQuery.endpoint });
+          const upcomingEvents = (schedData?.events || []).filter(
+            (ev: any) => ev.competitions?.[0]?.status?.type?.state !== "post"
+          );
+          if (upcomingEvents.length > 0) {
+            const nextEv = upcomingEvents[0];
+            const comp = nextEv.competitions?.[0] || {};
+            const competitors = comp.competitors || [];
+            const home = competitors.find((c: any) => c.homeAway === "home") || competitors[0];
+            const away = competitors.find((c: any) => c.homeAway === "away") || competitors[1];
+
+            const homeId = registerOrResolveTeam(home, leagueKey);
+            const awayId = registerOrResolveTeam(away, leagueKey);
+
+            games.push({
+              id: `espn-sched-${nextEv.id}`,
+              league: leagueKey,
+              home: homeId,
+              away: awayId,
+              kickoff: nextEv.date,
+              hs: 0,
+              as: 0,
+              status: "UPCOMING",
+              clock: new Date(nextEv.date).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              venue: comp.venue?.fullName || "",
+              odds: comp.odds?.[0]?.details || "—",
+              stats: undefined,
+            });
+          }
+        } catch {
+          // Ignore team schedule query failure
+        }
+      }
+    }
+
+    return games;
   } catch (err) {
     console.warn(`Failed to fetch live ESPN data for ${leagueKey}:`, err);
     return [];
