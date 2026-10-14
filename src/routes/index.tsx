@@ -183,17 +183,30 @@ function App() {
           }
         });
 
-        // Keep local upcoming hub fixtures if not returned by ESPN
-        const nonEspn = prev.filter((g) => !g.id.startsWith("espn-"));
+        // Matchup comparator to prevent duplicate fixtures between ESPN and local placeholders
+        const isMatchupPresent = (g: Game, list: Game[]) =>
+          list.some(
+            (item) =>
+              (item.home === g.home && item.away === g.away) ||
+              (item.home === g.away && item.away === g.home)
+          );
+
+        // Discard local placeholders when real ESPN events exist for that matchup
+        const nonEspn = prev
+          .filter((g) => !g.id.startsWith("espn-"))
+          .filter((g) => !isMatchupPresent(g, fetchedGames));
+
         // Strictly filter to LIVE and UPCOMING only (no FINAL games)
         const allMerged = [...fetchedGames, ...nonEspn].filter(
           (g) => g.status === "LIVE" || g.status === "UPCOMING"
         );
 
-        const seen = new Set<string>();
+        // Deduplicate any repeated matchups (ensuring zero double-renders)
+        const seenMatchups = new Set<string>();
         return allMerged.filter((g) => {
-          if (seen.has(g.id)) return false;
-          seen.add(g.id);
+          const key = [g.league, g.home, g.away].sort().join("::");
+          if (seenMatchups.has(key)) return false;
+          seenMatchups.add(key);
           return true;
         });
       });
@@ -467,10 +480,13 @@ function HubInfo({
 function Ticker({ games, lang }: { games: Game[]; lang: Lang }) {
   const active = games.filter((g) => g.status === "LIVE" || g.status === "UPCOMING");
   if (!active.length) return null;
+  // Duplicate only when list is short so continuous marquee animates smoothly without excess repetition
+  const tickerItems = active.length > 4 ? active : [...active, ...active];
+
   return (
     <div className="overflow-hidden border-b border-border bg-card/60 py-1.5 text-xs">
       <div className="flex animate-marquee gap-8 whitespace-nowrap">
-        {[...active, ...active].map((g, i) => {
+        {tickerItems.map((g, i) => {
           const h = teamById(g.home);
           const a = teamById(g.away);
           return (
@@ -1176,7 +1192,7 @@ function PulseTab({
               </div>
               <div className="rounded-xl bg-muted p-2.5">
                 <span className="text-muted-foreground block text-[10px]">Next Big Showdown</span>
-                <span className="font-bold text-sm">VIK @ PIT (Dublin)</span>
+                <span className="font-bold text-sm">vs Colts (Sun Oct 25, 12:00 PM CT)</span>
               </div>
             </div>
             <div className="flex flex-wrap gap-1.5 pt-1">
