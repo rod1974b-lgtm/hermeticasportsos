@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { toast } from "sonner";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   Activity,
-  CalendarPlus,
-  Cloud,
+  Calendar,
+  Clock,
   Compass,
   Flame,
   Heart,
@@ -12,80 +11,107 @@ import {
   RefreshCw,
   Search,
   Share2,
+  Shield,
   Sparkles,
-  Star,
   TrendingUp,
   Trophy,
-  Tv,
   Users,
   Zap,
 } from "lucide-react";
 import {
-  INITIAL_GAMES,
+  Game,
+  Hub,
+  Lang,
+  Tab,
+  Team,
+  TEAMS,
+  teamById,
   LEAGUES,
   T,
-  TEAMS,
   fmtTime,
-  teamById,
-  type Game,
-  type Hub,
-  type Lang,
-  type Team,
+  MN_IDS,
 } from "@/lib/sports-data";
-import { fetchDualWeather, fetchLiveESPNLeague, ESPN_LEAGUES } from "@/lib/live-sports-api";
+import {
+  ESPN_LEAGUES,
+  fetchLiveESPNLeague,
+  fetchDualWeather,
+  UPCOMING_HUB_FIXTURES,
+} from "@/lib/live-sports-api";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
+  component: App,
   head: () => ({
+    title: "Hermetica Sports OS • Ratchaburi & Minnesota Live Hub",
     meta: [
-      { title: "Ultimate Sports OS — Ratchaburi FC & Minnesota Hub (LIVE)" },
       {
         name: "description",
         content:
-          "Live scores, dual CT/ICT times, player ratings, predictions and fantasy for Ratchaburi FC, all 7 Minnesota teams and every major league.",
+          "Multi-sport operations hub: live and upcoming games, dual-clock schedules (CT & ICT), real-time weather, and fan sentiment.",
       },
-      { property: "og:title", content: "Ultimate Sports OS — Ratchaburi FC & Minnesota Hub" },
+      { property: "og:title", content: "Hermetica Sports OS" },
       {
         property: "og:description",
-        content: "Any sport, any team. Live ticker, Thai/English, calendar export and LINE sharing.",
+        content: "Live scores and upcoming fixtures across all major leagues.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: App,
 });
 
-type Tab = "live" | "pulse" | "my" | "explore" | "leagues" | "fantasy";
-const MN_IDS = TEAMS.filter((t) => t.hub === "minnesota").map((t) => t.id);
-
-function useLocal<T>(key: string, init: T) {
-  const [v, setV] = useState<T>(init);
-  useEffect(() => {
-    const raw = localStorage.getItem(key);
-    if (raw)
+// Simple hook for localStorage
+function useLocal<T>(key: string, initial: T): [T, (val: T | ((prev: T) => T)) => void] {
+  const [val, setVal] = useState<T>(() => {
+    try {
+      const saved = localStorage.getItem(key);
+      return saved ? JSON.parse(saved) : initial;
+    } catch {
+      return initial;
+    }
+  });
+  const update = (v: T | ((prev: T) => T)) => {
+    setVal((prev) => {
+      const next = typeof v === "function" ? (v as (p: T) => T)(prev) : v;
       try {
-        setV(JSON.parse(raw));
+        localStorage.setItem(key, JSON.stringify(next));
       } catch {
         /* ignore */
       }
-  }, [key]);
-  const set = (n: T) => {
-    setV(n);
-    localStorage.setItem(key, JSON.stringify(n));
+      return next;
+    });
   };
-  return [v, set] as const;
+  return [val, update];
 }
 
-function Seal({ t, size = 44 }: { t: Team; size?: number }) {
+const isMN = (g: Game) =>
+  teamById(g.home).hub === "minnesota" || teamById(g.away).hub === "minnesota";
+
+function Seal({ t, size = 40 }: { t: Team; size?: number }) {
+  if (t.logo) {
+    return (
+      <img
+        src={t.logo}
+        alt={t.name}
+        className="shrink-0 object-contain"
+        style={{ width: size, height: size }}
+        onError={(e) => {
+          (e.currentTarget as HTMLElement).style.display = "none";
+        }}
+      />
+    );
+  }
   return (
     <div
-      className="grid shrink-0 place-items-center rounded-xl font-display tracking-wide ring-2"
+      className="grid shrink-0 place-items-center rounded-xl font-display font-bold tracking-wider text-white shadow-sm"
       style={{
         width: size,
         height: size,
-        background: `linear-gradient(135deg, ${t.color}, ${t.color}cc)`,
-        color: t.accent,
-        fontSize: size / (t.seal.length > 4 ? 4.2 : 2.8),
-        boxShadow: `0 0 0 2px ${t.accent}55`,
+        backgroundColor: t.color || "#333",
+        fontSize: Math.max(10, Math.floor(size * 0.3)),
+        border: `2px solid ${t.accent || "#fff"}40`,
       }}
+      title={t.name}
     >
       {t.seal}
     </div>
@@ -98,7 +124,7 @@ function App() {
   const [favs, setFavs] = useLocal<string[]>("sos-favs", ["rbfc", "vik"]);
   const [preds, setPreds] = useLocal<Record<string, { h: number; a: number }>>("sos-preds", {});
   const [tab, setTab] = useState<Tab>("live");
-  const [games, setGames] = useState<Game[]>(INITIAL_GAMES);
+  const [games, setGames] = useState<Game[]>(UPCOMING_HUB_FIXTURES);
   const [liveOn, setLiveOn] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [now, setNow] = useState<Date | null>(null);
@@ -108,7 +134,7 @@ function App() {
   }>({ ratchaburi: null, minnesota: null });
   const t = T[lang];
 
-  // 1-second live clock ticker for live ICT & CT clocks
+  // 1-second clock ticker for live ICT & CT time
   useEffect(() => {
     setNow(new Date());
     const i = setInterval(() => setNow(new Date()), 1000);
@@ -127,11 +153,11 @@ function App() {
 
   useEffect(() => {
     syncWeather();
-    const wInterval = setInterval(syncWeather, 60000); // refresh weather every 60s
+    const wInterval = setInterval(syncWeather, 60000);
     return () => clearInterval(wInterval);
   }, [syncWeather]);
 
-  // Live real-time scores sync from ESPN public endpoints
+  // Live real-time scores sync from ESPN public scoreboards
   const syncLiveScores = useCallback(async () => {
     setIsRefreshing(true);
     try {
@@ -141,27 +167,36 @@ function App() {
       const results = await Promise.all(leaguePromises);
       const fetchedGames = results.flat();
 
-      if (fetchedGames.length > 0) {
-        setGames((prev) => {
-          fetchedGames.forEach((newGame) => {
-            const old = prev.find((g) => g.id === newGame.id);
-            if (old && (old.hs !== newGame.hs || old.as !== newGame.as)) {
-              if (favs.includes(newGame.home) || favs.includes(newGame.away)) {
-                toast.success(
-                  `⚡ Goal/Score Alert: ${teamById(newGame.away).seal} ${newGame.as} - ${newGame.hs} ${
-                    teamById(newGame.home).seal
-                  }`
-                );
-                navigator.vibrate?.([60, 40, 60]);
-              }
+      setGames((prev) => {
+        // Notification on favorite team score changes
+        fetchedGames.forEach((newGame) => {
+          const old = prev.find((g) => g.id === newGame.id);
+          if (old && (old.hs !== newGame.hs || old.as !== newGame.as)) {
+            if (favs.includes(newGame.home) || favs.includes(newGame.away)) {
+              toast.success(
+                `⚡ Score Alert: ${teamById(newGame.away).seal} ${newGame.as} - ${newGame.hs} ${
+                  teamById(newGame.home).seal
+                }`
+              );
+              navigator.vibrate?.([60, 40, 60]);
             }
-          });
-
-          // Keep non-ESPN games (local curated derby matches like Ratchaburi vs Buriram or Vikings Dublin)
-          const localGames = prev.filter((g) => !g.id.startsWith("espn-"));
-          return [...fetchedGames, ...localGames];
+          }
         });
-      }
+
+        // Keep local upcoming hub fixtures if not returned by ESPN
+        const nonEspn = prev.filter((g) => !g.id.startsWith("espn-"));
+        // Strictly filter to LIVE and UPCOMING only (no FINAL games)
+        const allMerged = [...fetchedGames, ...nonEspn].filter(
+          (g) => g.status === "LIVE" || g.status === "UPCOMING"
+        );
+
+        const seen = new Set<string>();
+        return allMerged.filter((g) => {
+          if (seen.has(g.id)) return false;
+          seen.add(g.id);
+          return true;
+        });
+      });
     } catch (e) {
       console.warn("Live sports feed sync error:", e);
     } finally {
@@ -169,7 +204,7 @@ function App() {
     }
   }, [favs]);
 
-  // Sync on startup and poll every 15 seconds when live is active
+  // Sync on startup and poll every 15 seconds
   useEffect(() => {
     syncLiveScores();
   }, [syncLiveScores]);
@@ -182,61 +217,9 @@ function App() {
     return () => clearInterval(interval);
   }, [liveOn, syncLiveScores]);
 
-  // Real-time Match Simulator: advances game clocks, swings momentum bars, fluctuates possession
-  useEffect(() => {
-    if (!liveOn) return;
-    const i = setInterval(() => {
-      setGames((gs) =>
-        gs.map((g) => {
-          if (g.status !== "LIVE") return g;
-
-          // Realistic momentum swing (-16 to +16)
-          const swing = Math.round((Math.random() - 0.48) * 16);
-          const currentMomentum = g.stats?.momentum || [0, 2, -3, 5, 8, -4, 0, 7, -2, 10];
-          const newMomentum = [...currentMomentum.slice(-14), swing];
-
-          // Small random possession drift
-          const currentPoss = g.stats?.possession || 50;
-          const drift = Math.random() > 0.5 ? 1 : -1;
-          const nextPoss = Math.min(75, Math.max(25, currentPoss + (Math.random() > 0.7 ? drift : 0)));
-
-          // Occasional random shot count increase
-          const addsHomeShot = Math.random() > 0.85 ? 1 : 0;
-          const addsAwayShot = Math.random() > 0.85 ? 1 : 0;
-
-          // Clock progression
-          let nextClock = g.clock;
-          if (/^\d+'$/.test(g.clock)) {
-            const m = parseInt(g.clock, 10) + 1;
-            nextClock = m >= 90 ? "90+'" : `${m}'`;
-          } else if (g.clock.includes("Q")) {
-            // Basketball/Football quarter simulation
-            const [q] = g.clock.split(" ");
-            const minLeft = Math.max(1, Math.floor(Math.random() * 11));
-            const secLeft = Math.floor(Math.random() * 59).toString().padStart(2, "0");
-            nextClock = `${q} ${minLeft}:${secLeft}`;
-          }
-
-          return {
-            ...g,
-            clock: nextClock,
-            stats: {
-              possession: nextPoss,
-              shotsH: (g.stats?.shotsH || 6) + addsHomeShot,
-              shotsA: (g.stats?.shotsA || 4) + addsAwayShot,
-              momentum: newMomentum,
-            },
-          };
-        })
-      );
-    }, 3000);
-    return () => clearInterval(i);
-  }, [liveOn]);
-
   const toggleFav = (id: string) => {
     const has = favs.includes(id);
-    setFavs(has ? favs.filter((f) => f !== id) : [...favs, id]);
-    navigator.vibrate?.(30);
+    setFavs(has ? favs.filter((x) => x !== id) : [...favs, id]);
     toast(has ? `Removed ${teamById(id).name}` : `★ Added ${teamById(id).name}`);
   };
 
@@ -310,23 +293,26 @@ function App() {
         </div>
 
         {/* Live Score Ticker */}
-        <Ticker games={games} />
+        <Ticker games={hubGames} lang={lang} />
 
         {/* Desktop Tabs */}
-        <nav className="mx-auto hidden max-w-6xl gap-1 px-4 py-2 md:flex">
-          {tabs(t, lang).map(([k, label, Icon]) => (
+        <nav className="mx-auto hidden max-w-6xl gap-1 px-4 sm:flex">
+          {tabs(t, lang).map(([key, label, Icon]) => (
             <button
-              key={k}
-              onClick={() => setTab(k)}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition ${
-                tab === k ? "bg-secondary text-primary" : "text-muted-foreground hover:text-foreground"
+              key={key}
+              onClick={() => setTab(key as Tab)}
+              className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition ${
+                tab === key
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               <Icon className="h-4 w-4" />
               {label}
-              {k === "pulse" && (
-                <span className="flex h-2 w-2 items-center justify-center">
-                  <span className="h-1.5 w-1.5 rounded-full bg-live animate-ping" />
+              {key === "pulse" && (
+                <span className="flex h-2 w-2 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-live" />
                 </span>
               )}
             </button>
@@ -334,9 +320,11 @@ function App() {
         </nav>
       </header>
 
-      {/* Main Content */}
-      <main className="mx-auto max-w-6xl px-4 pb-28 pt-5 md:pb-10">
-        {tab === "live" && <LiveTab games={hubGames} lang={lang} preds={preds} setPreds={setPreds} />}
+      {/* Main Content Area */}
+      <main className="mx-auto max-w-6xl px-4 py-6 pb-28 sm:pb-12">
+        {tab === "live" && (
+          <LiveTab games={hubGames} lang={lang} preds={preds} setPreds={setPreds} />
+        )}
         {tab === "pulse" && (
           <PulseTab
             games={hubGames}
@@ -347,49 +335,61 @@ function App() {
             dualWeather={dualWeather}
           />
         )}
-        {tab === "my" && <MyTab favs={favs} toggle={toggleFav} addAll={addAllMN} games={games} lang={lang} />}
-        {tab === "explore" && <ExploreTab hub={hub} favs={favs} toggle={toggleFav} addAll={addAllMN} lang={lang} />}
-        {tab === "leagues" && <LeaguesTab favs={favs} toggle={toggleFav} lang={lang} />}
-        {tab === "fantasy" && <FantasyTab lang={lang} preds={preds} />}
+        {tab === "my" && (
+          <MyTab
+            favs={favs}
+            games={games}
+            toggleFav={toggleFav}
+            addAllMN={addAllMN}
+            lang={lang}
+            preds={preds}
+            setPreds={setPreds}
+          />
+        )}
+        {tab === "explore" && <ExploreTab favs={favs} toggleFav={toggleFav} lang={lang} />}
+        {tab === "leagues" && (
+          <LeaguesTab games={games} lang={lang} preds={preds} setPreds={setPreds} />
+        )}
+        {tab === "fantasy" && <FantasyTab favs={favs} lang={lang} />}
       </main>
 
-      {/* Mobile Safe-Area Bottom Nav (6 Grid Columns with Pulse between Live and My Teams) */}
-      <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-border bg-background/95 pt-2 backdrop-blur md:hidden">
-        {tabs(t, lang).map(([k, label, Icon]) => (
-          <button
-            key={k}
-            onClick={() => setTab(k)}
-            className={`flex flex-col items-center gap-0.5 pb-1 text-[10px] font-semibold transition ${
-              tab === k ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            <div className="relative">
+      {/* Mobile Safe-Area Bottom Nav */}
+      <nav className="fixed right-0 bottom-0 left-0 z-30 border-t border-border bg-background/95 backdrop-blur pb-safe sm:hidden">
+        <div className="grid grid-cols-6">
+          {tabs(t, lang).map(([key, label, Icon]) => (
+            <button
+              key={key}
+              onClick={() => setTab(key as Tab)}
+              className={`flex flex-col items-center py-2 text-[10px] font-semibold transition relative ${
+                tab === key ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
               <Icon className="h-5 w-5" />
-              {k === "pulse" && (
-                <span className="absolute -right-1 -top-0.5 flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-live opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-live" />
+              <span className="mt-0.5">{label}</span>
+              {key === "pulse" && (
+                <span className="absolute top-1.5 right-3 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-live" />
                 </span>
               )}
-            </div>
-            <span className="truncate max-w-[50px]">{label}</span>
-          </button>
-        ))}
+            </button>
+          ))}
+        </div>
       </nav>
     </div>
   );
 }
 
-// Pulse placed between "live" and "my"
-const tabs = (t: (typeof T)["en"], lang: Lang) =>
-  [
-    ["live", t.live, Tv],
+function tabs(t: (typeof T)["en"], lang: Lang): [Tab, string, any][] {
+  return [
+    ["live", t.live, Radio],
     ["pulse", lang === "th" ? "ชีพจร" : "Pulse", Activity],
     ["my", t.my, Heart],
-    ["explore", t.explore, Compass],
+    ["explore", t.explore, Search],
     ["leagues", t.leagues, Trophy],
-    ["fantasy", t.fantasy, Star],
-  ] as const;
+    ["fantasy", t.fantasy, Users],
+  ];
+}
 
 function HubInfo({
   hub,
@@ -405,156 +405,161 @@ function HubInfo({
   };
   lang: Lang;
 }) {
-  const f = (tz: string) =>
-    now
-      ? now.toLocaleTimeString(lang === "th" ? "th-TH" : "en-US", {
-          timeZone: tz,
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        })
-      : "--:--";
+  if (!now) return null;
+  const timeOpts: Intl.DateTimeFormatOptions = {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  };
+  const ict = now.toLocaleTimeString(lang === "th" ? "th-TH" : "en-US", {
+    ...timeOpts,
+    timeZone: "Asia/Bangkok",
+  });
+  const ct = now.toLocaleTimeString("en-US", {
+    ...timeOpts,
+    timeZone: "America/Chicago",
+  });
 
   return (
-    <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-      {hub === "minnesota" ? (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+      {hub === "ratchaburi" && (
         <>
-          <span>Twin Cities</span>
-          <span>• CT {f("America/Chicago")}</span>
-          <span>• ICT {f("Asia/Bangkok")}</span>
-          {dualWeather.minnesota && (
-            <span className="text-secondary font-medium">
-              • <Cloud className="inline h-3 w-3" /> {Math.round(dualWeather.minnesota.tempF)}°F (
-              {dualWeather.minnesota.humidity}% hum)
-            </span>
-          )}
+          <span className="font-semibold text-foreground">Dragon Solar Park</span>
+          <span>•</span>
+          <span className="font-mono text-primary">ICT {ict}</span>
+          <span>•</span>
+          <span>
+            {dualWeather.ratchaburi
+              ? `${Math.round(dualWeather.ratchaburi.tempC)}°C, ${dualWeather.ratchaburi.humidity}% Hum`
+              : "32°C, 78% Hum"}
+          </span>
         </>
-      ) : (
+      )}
+      {hub === "minnesota" && (
         <>
-          <span>Dragon Solar Park, Ratchaburi</span>
-          <span>• ICT {f("Asia/Bangkok")}</span>
-          {hub === "all" && <span>• CT {f("America/Chicago")}</span>}
-          {dualWeather.ratchaburi && (
-            <span className="text-primary font-medium">
-              • <Cloud className="inline h-3 w-3" /> {Math.round(dualWeather.ratchaburi.tempC)}°C (
-              {dualWeather.ratchaburi.humidity}% hum)
-            </span>
-          )}
+          <span className="font-semibold text-foreground">Twin Cities (7 Teams)</span>
+          <span>•</span>
+          <span className="font-mono text-primary">CT {ct}</span>
+          <span>•</span>
+          <span className="font-mono">ICT {ict}</span>
+          <span>•</span>
+          <span>
+            {dualWeather.minnesota
+              ? `${Math.round(dualWeather.minnesota.tempF)}°F, ${dualWeather.minnesota.humidity}% Hum`
+              : "58°F, 62% Hum"}
+          </span>
+        </>
+      )}
+      {hub === "all" && (
+        <>
+          <span className="font-mono text-primary">CT {ct}</span>
+          <span>•</span>
+          <span className="font-mono text-primary">ICT {ict}</span>
+          <span>•</span>
+          <span>Global Sports Coverage</span>
         </>
       )}
     </div>
   );
 }
 
-function Ticker({ games }: { games: Game[] }) {
-  const items = games.map(
-    (g) =>
-      `${g.status === "LIVE" ? "🔴" : g.status === "FINAL" ? "✅" : "🕒"} ${teamById(g.away).seal} ${
-        g.status === "UPCOMING" ? "@" : `${g.as}-${g.hs}`
-      } ${teamById(g.home).seal} ${g.clock} • ${g.odds}`
-  );
+function Ticker({ games, lang }: { games: Game[]; lang: Lang }) {
+  const active = games.filter((g) => g.status === "LIVE" || g.status === "UPCOMING");
+  if (!active.length) return null;
   return (
-    <div className="overflow-hidden border-y border-border bg-card py-1.5 text-xs font-semibold">
-      <div className="animate-marquee flex w-max gap-10 whitespace-nowrap">
-        {[...items, ...items].map((s, i) => (
-          <span key={i}>{s}</span>
-        ))}
+    <div className="overflow-hidden border-b border-border bg-card/60 py-1.5 text-xs">
+      <div className="flex animate-marquee gap-8 whitespace-nowrap">
+        {[...active, ...active].map((g, i) => {
+          const h = teamById(g.home);
+          const a = teamById(g.away);
+          return (
+            <div key={`${g.id}-${i}`} className="inline-flex items-center gap-2">
+              <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                {g.league}
+              </span>
+              <span className="font-semibold">
+                {a.seal} {g.status === "LIVE" ? g.as : ""}
+              </span>
+              <span className="text-muted-foreground">
+                {g.status === "LIVE" ? (
+                  <span className="font-bold text-live">● {g.clock}</span>
+                ) : (
+                  <span>vs</span>
+                )}
+              </span>
+              <span className="font-semibold">
+                {g.status === "LIVE" ? g.hs : ""} {h.seal}
+              </span>
+              {g.status === "UPCOMING" && (
+                <span className="text-[11px] text-muted-foreground">
+                  ({fmtTime(g.kickoff, "Asia/Bangkok", lang)})
+                </span>
+              )}
+              {g.odds && <span className="text-[10px] text-primary/80">• {g.odds}</span>}
+              <span className="text-border">|</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-const isMN = (g: Game) => teamById(g.home).hub === "minnesota" || teamById(g.away).hub === "minnesota";
-
-function GameTimes({ g, lang }: { g: Game; lang: Lang }) {
+function GameTimes({ kickoff, lang, showDual }: { kickoff: string; lang: Lang; showDual: boolean }) {
+  const ict = fmtTime(kickoff, "Asia/Bangkok", lang);
+  const ct = fmtTime(kickoff, "America/Chicago", lang);
   return (
-    <div className="flex flex-wrap gap-x-3 text-xs text-muted-foreground">
-      {isMN(g) && <span>🇺🇸 CT {fmtTime(g.kickoff, "America/Chicago", lang)}</span>}
-      <span>🇹🇭 ICT {fmtTime(g.kickoff, "Asia/Bangkok", lang)}</span>
+    <div className="text-right text-xs">
+      <div className="font-bold text-foreground">ICT {ict}</div>
+      {showDual && <div className="text-[11px] text-primary">CT {ct}</div>}
     </div>
   );
 }
 
 function calendarLinks(g: Game) {
-  const h = teamById(g.home),
-    a = teamById(g.away);
-  const s = new Date(g.kickoff),
-    e = new Date(s.getTime() + 2 * 3600 * 1000);
-  const iso = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const h = teamById(g.home);
+  const a = teamById(g.away);
   const title = `${a.name} @ ${h.name} (${g.league})`;
+  const start = new Date(g.kickoff);
+  const end = new Date(start.getTime() + 2.5 * 3600 * 1000);
+  const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
   const gcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
     title
-  )}&dates=${iso(s)}/${iso(e)}&location=${encodeURIComponent(g.venue)}&details=${encodeURIComponent(
-    `Ultimate Sports OS • ${g.odds}`
-  )}`;
-  const ics = () => {
-    const raw = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${title}\nDTSTART:${iso(s)}\nDTEND:${iso(
-      e
-    )}\nLOCATION:${g.venue}\nDESCRIPTION:Ultimate Sports OS • ${g.odds}\nEND:VEVENT\nEND:VCALENDAR`;
-    const b = new Blob([raw], { type: "text/calendar;charset=utf-8" });
-    const u = URL.createObjectURL(b);
-    const el = document.createElement("a");
-    el.href = u;
-    el.download = `${a.seal}-at-${h.seal}.ics`;
-    el.click();
-    toast.success("ICS calendar downloaded");
-  };
-  return { gcal, ics, title };
+  )}&dates=${fmt(start)}/${fmt(end)}&details=${encodeURIComponent(
+    `Hermetica Sports OS: ${g.venue || "Stadium"}. Odds: ${g.odds || "N/A"}`
+  )}&location=${encodeURIComponent(g.venue || "")}`;
+
+  const ics =
+    `data:text/calendar;charset=utf8,BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n` +
+    `SUMMARY:${title}\nDESCRIPTION:Hermetica Sports OS Match\nLOCATION:${g.venue}\n` +
+    `DTSTART:${fmt(start)}\nDTEND:${fmt(end)}\nEND:VEVENT\nEND:VCALENDAR`;
+
+  return { gcal, ics };
 }
 
-async function shareCard(g: Game) {
-  const h = teamById(g.home),
-    a = teamById(g.away);
-  const c = document.createElement("canvas");
-  c.width = 1080;
-  c.height = 1350;
-  const x = c.getContext("2d")!;
-  const grd = x.createLinearGradient(0, 0, 1080, 1350);
-  grd.addColorStop(0, h.color);
-  grd.addColorStop(1, a.color);
-  x.fillStyle = grd;
-  x.fillRect(0, 0, 1080, 1350);
-  x.fillStyle = "rgba(0,0,0,.45)";
-  x.fillRect(60, 60, 960, 1230);
-  x.textAlign = "center";
-  x.fillStyle = "#fff";
-  x.font = "bold 56px sans-serif";
-  x.fillText("ULTIMATE SPORTS OS", 540, 180);
-  x.font = "bold 40px sans-serif";
-  x.fillText(g.league + " • " + g.venue, 540, 260);
-  x.font = "bold 150px sans-serif";
-  x.fillStyle = a.accent;
-  x.fillText(a.seal, 540, 520);
-  x.fillStyle = h.accent;
-  x.fillText(h.seal, 540, 900);
-  x.fillStyle = "#fff";
-  x.font = "bold 120px sans-serif";
-  x.fillText(g.status === "UPCOMING" ? "VS" : `${g.as} - ${g.hs}`, 540, 715);
-  x.font = "36px sans-serif";
-  x.fillText(`ICT ${fmtTime(g.kickoff, "Asia/Bangkok", "en")}`, 540, 1050);
-  if (isMN(g)) x.fillText(`CT ${fmtTime(g.kickoff, "America/Chicago", "en")}`, 540, 1105);
-  x.fillText(g.odds, 540, 1180);
-  const blob: Blob = await new Promise((r) => c.toBlob((b) => r(b!), "image/png"));
-  const file = new File([blob], `${a.seal}-${h.seal}.png`, { type: "image/png" });
-  if (navigator.canShare?.({ files: [file] })) {
-    await navigator.share({ files: [file], title: `${a.name} @ ${h.name}` }).catch(() => {});
+function shareCard(g: Game) {
+  const h = teamById(g.home);
+  const a = teamById(g.away);
+  const text =
+    g.status === "LIVE"
+      ? `🚨 LIVE: ${a.name} ${g.as} - ${g.hs} ${h.name} (${g.clock}) on Hermetica Sports OS!`
+      : `📅 UPCOMING: ${a.name} @ ${h.name} • Kickoff ${g.kickoff} • Venue: ${g.venue}`;
+  if (navigator.share) {
+    navigator.share({ title: "Hermetica Sports OS", text, url: window.location.href }).catch(() => {});
   } else {
-    const u = URL.createObjectURL(blob);
-    const el = document.createElement("a");
-    el.href = u;
-    el.download = file.name;
-    el.click();
-    toast("Match card downloaded");
+    navigator.clipboard.writeText(text);
+    toast.success("Match card copied to clipboard!");
   }
 }
 
-const lineShare = (text: string) =>
-  window.open(
-    `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(
-      text
-    )}`,
-    "_blank"
-  );
+function lineShare(g: Game) {
+  const h = teamById(g.home);
+  const a = teamById(g.away);
+  const text = `${a.name} vs ${h.name} • ${g.status === "LIVE" ? `LIVE ${g.as}-${g.hs}` : "Upcoming Match"}`;
+  const url = `https://line.me/R/msg/text/?${encodeURIComponent(text + " " + window.location.href)}`;
+  window.open(url, "_blank");
+}
 
 function GameCard({
   g,
@@ -565,173 +570,248 @@ function GameCard({
   g: Game;
   lang: Lang;
   pred?: { h: number; a: number } | undefined;
-  onPredict?: ((h: number, a: number) => void) | undefined;
+  onPredict: (h: number, a: number) => void;
 }) {
+  const h = teamById(g.home);
+  const a = teamById(g.away);
   const t = T[lang];
-  const h = teamById(g.home),
-    a = teamById(g.away);
-  const [ph, setPh] = useState(pred?.h ?? 0),
-    [pa, setPa] = useState(pred?.a ?? 0);
-  const cal = calendarLinks(g);
-  const name = (x: Team) => (lang === "th" ? x.th : x.name);
+  const [ph, setPh] = useState(pred ? String(pred.h) : "");
+  const [pa, setPa] = useState(pred ? String(pred.a) : "");
+  const { gcal, ics } = calendarLinks(g);
+  const showDual = isMN(g);
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-border bg-card">
-      <div className="h-1.5" style={{ background: `linear-gradient(90deg, ${a.color}, ${h.color})` }} />
-      <div className="space-y-3 p-4">
-        <div className="flex items-center justify-between gap-2 text-xs">
-          <span className="font-semibold text-muted-foreground">
-            {g.league} • {g.venue}
+    <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:border-primary/50">
+      {/* Header bar */}
+      <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-4 py-2 text-xs">
+        <div className="flex items-center gap-2">
+          <span className="rounded bg-primary/10 px-2 py-0.5 font-bold uppercase tracking-wider text-primary">
+            {g.league}
           </span>
-          <span
-            className={`shrink-0 rounded-full px-2 py-0.5 font-bold ${
-              g.status === "LIVE" ? "animate-pulse bg-live text-foreground" : "bg-muted text-muted-foreground"
-            }`}
-          >
-            {g.status === "LIVE" ? `LIVE ${g.clock}` : g.status === "FINAL" ? t.final : t.next}
-          </span>
+          {g.status === "LIVE" && (
+            <span className="flex items-center gap-1 font-bold text-live">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-live" />
+              LIVE {g.clock}
+            </span>
+          )}
+          {g.status === "UPCOMING" && (
+            <span className="flex items-center gap-1 font-semibold text-muted-foreground">
+              <Clock className="h-3 w-3" />
+              {t.next}
+            </span>
+          )}
         </div>
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
-          <div className="flex min-w-0 items-center gap-2">
-            <Seal t={a} />
-            <span className="truncate text-sm font-semibold">{name(a)}</span>
-          </div>
-          <div className="font-display text-4xl tabular-nums">{g.status === "UPCOMING" ? "VS" : `${g.as}-${g.hs}`}</div>
-          <div className="flex min-w-0 flex-row-reverse items-center gap-2 text-right">
-            <Seal t={h} />
-            <span className="truncate text-sm font-semibold">{name(h)}</span>
+        <GameTimes kickoff={g.kickoff} lang={lang} showDual={showDual} />
+      </div>
+
+      {/* Matchup row */}
+      <div className="grid grid-cols-7 items-center gap-2 p-4">
+        {/* Away */}
+        <div className="col-span-3 flex items-center gap-3">
+          <Seal t={a} size={44} />
+          <div className="min-w-0">
+            <h3 className="truncate font-semibold">{lang === "th" ? a.th : a.name}</h3>
+            <p className="truncate text-xs text-muted-foreground">{a.record}</p>
           </div>
         </div>
-        <GameTimes g={g} lang={lang} />
-        <p className="text-xs font-semibold text-accent">💰 {g.odds}</p>
-        {g.stats && (
-          <div className="space-y-2 rounded-xl bg-muted p-3 text-xs">
-            <div className="flex justify-between">
+
+        {/* Score / Center */}
+        <div className="col-span-1 text-center">
+          {g.status === "LIVE" ? (
+            <div className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+              {g.as} : {g.hs}
+            </div>
+          ) : (
+            <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">VS</div>
+          )}
+        </div>
+
+        {/* Home */}
+        <div className="col-span-3 flex items-center justify-end gap-3 text-right">
+          <div className="min-w-0">
+            <h3 className="truncate font-semibold">{lang === "th" ? h.th : h.name}</h3>
+            <p className="truncate text-xs text-muted-foreground">{h.record}</p>
+          </div>
+          <Seal t={h} size={44} />
+        </div>
+      </div>
+
+      {/* Venue & Odds */}
+      {(g.venue || g.odds) && (
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/50 bg-muted/20 px-4 py-2 text-xs text-muted-foreground">
+          <span className="truncate">{g.venue}</span>
+          {g.odds && <span className="font-mono font-medium text-primary">{g.odds}</span>}
+        </div>
+      )}
+
+      {/* SofaScore-Style Attack Momentum Bars */}
+      {g.stats?.momentum && (
+        <div className="border-t border-border/50 px-4 py-3">
+          <div className="mb-1.5 flex justify-between text-xs text-muted-foreground">
+            <span>{t.momentum}</span>
+            <span>
+              {a.seal} vs {h.seal}
+            </span>
+          </div>
+          <div className="flex h-8 items-center gap-0.5 rounded bg-muted/50 p-1">
+            {g.stats.momentum.map((val, i) => {
+              const isH = val > 0;
+              const hPct = Math.min(100, Math.abs(val) * 10);
+              return (
+                <div key={i} className="flex h-full flex-1 items-center justify-center">
+                  <div
+                    className="w-full rounded-xs transition-all"
+                    style={{
+                      height: `${hPct}%`,
+                      backgroundColor: isH ? h.color || "#888" : a.color || "#888",
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Possession & Shots */}
+      {g.stats && (
+        <div className="grid grid-cols-2 gap-4 border-t border-border/50 px-4 py-2.5 text-xs">
+          <div>
+            <div className="mb-1 flex justify-between text-muted-foreground">
               <span>{t.possession}</span>
               <span>
-                {100 - g.stats.possession}% – {g.stats.possession}%
+                {100 - g.stats.possession}% - {g.stats.possession}%
               </span>
             </div>
-            <div className="flex h-1.5 overflow-hidden rounded-full bg-secondary">
-              <div className="bg-foreground/30 transition-all duration-700" style={{ width: `${100 - g.stats.possession}%` }} />
-              <div className="bg-primary transition-all duration-700" style={{ width: `${g.stats.possession}%` }} />
+            <div className="flex h-1.5 overflow-hidden rounded-full bg-muted">
+              <div style={{ width: `${100 - g.stats.possession}%`, backgroundColor: a.color || "#666" }} />
+              <div style={{ width: `${g.stats.possession}%`, backgroundColor: h.color || "#FF6600" }} />
             </div>
-            <div className="flex justify-between">
+          </div>
+          <div>
+            <div className="mb-1 flex justify-between text-muted-foreground">
               <span>{t.shots}</span>
               <span>
-                {g.stats.shotsA} – {g.stats.shotsH}
+                {g.stats.shotsA} - {g.stats.shotsH}
               </span>
             </div>
-            <div>
-              <div className="mb-1 text-muted-foreground">{t.momentum}</div>
-              <div className="flex h-12 items-center gap-0.5">
-                {g.stats.momentum.map((m, i) => (
-                  <div key={i} className="flex h-full flex-1 flex-col justify-center">
-                    <div
-                      className={m > 0 ? "rounded-t-sm bg-primary transition-all duration-500" : "invisible"}
-                      style={{ height: `${Math.abs(m) * 3}px` }}
-                    />
-                    <div
-                      className={m < 0 ? "rounded-b-sm bg-foreground/40 transition-all duration-500" : "invisible"}
-                      style={{ height: `${Math.abs(m) * 3}px` }}
-                    />
-                  </div>
-                ))}
-              </div>
+            <div className="flex h-1.5 overflow-hidden rounded-full bg-muted">
+              <div
+                style={{
+                  width: `${(g.stats.shotsA / ((g.stats.shotsA + g.stats.shotsH) || 1)) * 100}%`,
+                  backgroundColor: a.color || "#666",
+                }}
+              />
+              <div
+                style={{
+                  width: `${(g.stats.shotsH / ((g.stats.shotsA + g.stats.shotsH) || 1)) * 100}%`,
+                  backgroundColor: h.color || "#FF6600",
+                }}
+              />
             </div>
           </div>
-        )}
-        {g.ratings && (
-          <div className="text-xs">
-            <div className="mb-1 text-muted-foreground">{t.ratings}</div>
-            <div className="flex flex-wrap gap-1.5">
-              {g.ratings.map((r) => (
-                <span key={r.name} className="flex items-center gap-1 rounded-md bg-muted px-2 py-1">
-                  <b
-                    className={`rounded px-1 ${
-                      r.r >= 8 ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"
-                    }`}
-                  >
-                    {r.r.toFixed(1)}
-                  </b>
-                  {r.name}
+        </div>
+      )}
+
+      {/* Player Ratings */}
+      {g.ratings && g.ratings.length > 0 && (
+        <div className="border-t border-border/50 px-4 py-2.5">
+          <p className="mb-1.5 text-xs text-muted-foreground">{t.ratings}</p>
+          <div className="flex flex-wrap gap-2">
+            {g.ratings.map((r, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/60 px-2.5 py-0.5 text-xs font-semibold"
+              >
+                <span>{r.name}</span>
+                <span
+                  className="rounded px-1 text-[10px] font-bold text-white"
+                  style={{
+                    backgroundColor: r.r >= 8 ? "#10B981" : r.r >= 7 ? "#3B82F6" : "#F59E0B",
+                  }}
+                >
+                  {r.r.toFixed(1)}
                 </span>
-              ))}
-            </div>
-          </div>
-        )}
-        {onPredict && g.status !== "FINAL" && (
-          <div className="flex items-center gap-2 text-xs">
-            <span className="font-semibold">{t.predict}:</span>
-            <input
-              aria-label="away"
-              type="number"
-              min={0}
-              value={pa}
-              onChange={(e) => setPa(+e.target.value)}
-              className="w-12 rounded-md border border-input bg-background px-2 py-1"
-            />
-            <span>-</span>
-            <input
-              aria-label="home"
-              type="number"
-              min={0}
-              value={ph}
-              onChange={(e) => setPh(+e.target.value)}
-              className="w-12 rounded-md border border-input bg-background px-2 py-1"
-            />
-            <button
-              onClick={() => {
-                onPredict(ph, pa);
-                toast.success(`${t.predict} ✓ ${a.seal} ${pa}-${ph} ${h.seal}`);
-              }}
-              className="rounded-md bg-primary px-3 py-1 font-bold text-primary-foreground"
-            >
-              OK
-            </button>
-            {pred && (
-              <span className="text-muted-foreground">
-                ✓ {pred.a}-{pred.h}
               </span>
-            )}
+            ))}
           </div>
-        )}
-        <div className="flex flex-wrap gap-2 border-t border-border pt-3 text-xs font-semibold">
-          <a
-            href={cal.gcal}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1 rounded-md bg-muted px-2.5 py-1.5 hover:bg-secondary"
+        </div>
+      )}
+
+      {/* Action / Prediction / Share Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 bg-muted/30 px-4 py-2.5 text-xs">
+        {/* Prediction Input */}
+        <div className="flex items-center gap-1.5">
+          <span className="font-semibold text-muted-foreground">{t.predict}:</span>
+          <input
+            type="number"
+            min="0"
+            placeholder={a.seal}
+            value={pa}
+            onChange={(e) => setPa(e.target.value)}
+            className="w-11 rounded border border-border bg-background px-1.5 py-0.5 text-center font-bold"
+          />
+          <span>-</span>
+          <input
+            type="number"
+            min="0"
+            placeholder={h.seal}
+            value={ph}
+            onChange={(e) => setPh(e.target.value)}
+            className="w-11 rounded border border-border bg-background px-1.5 py-0.5 text-center font-bold"
+          />
+          <button
+            onClick={() => {
+              const hNum = parseInt(ph, 10);
+              const aNum = parseInt(pa, 10);
+              if (!isNaN(hNum) && !isNaN(aNum)) {
+                onPredict(hNum, aNum);
+                toast.success(`Prediction saved: ${a.seal} ${aNum} - ${hNum} ${h.seal}`);
+              }
+            }}
+            className="rounded bg-primary px-2 py-0.5 font-bold text-primary-foreground hover:opacity-90"
           >
-            <CalendarPlus className="h-3.5 w-3.5" />
-            {t.gcal}
-          </a>
-          <button onClick={cal.ics} className="rounded-md bg-muted px-2.5 py-1.5 hover:bg-secondary">
-            {t.ics}
+            ✓
           </button>
+        </div>
+
+        {/* Calendar & Share Actions */}
+        <div className="flex items-center gap-2">
+          {g.status === "UPCOMING" && (
+            <>
+              <a
+                href={gcal}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded border border-border bg-background px-2 py-1 font-semibold hover:bg-muted"
+                title="Add to Google Calendar"
+              >
+                +Google
+              </a>
+              <a
+                href={ics}
+                download={`${g.id}.ics`}
+                className="rounded border border-border bg-background px-2 py-1 font-semibold hover:bg-muted"
+                title="Download .ics Calendar"
+              >
+                .ics
+              </a>
+            </>
+          )}
           <button
             onClick={() => shareCard(g)}
-            className="flex items-center gap-1 rounded-md bg-muted px-2.5 py-1.5 hover:bg-secondary"
+            className="rounded border border-border bg-background p-1.5 hover:bg-muted"
+            title="Share match card"
           >
             <Share2 className="h-3.5 w-3.5" />
-            {t.share}
           </button>
           <button
-            onClick={() =>
-              lineShare(`${cal.title} ${g.status === "UPCOMING" ? "" : `${g.as}-${g.hs}`} • Ultimate Sports OS`)
-            }
-            className="rounded-md bg-line px-2.5 py-1.5 text-background"
+            onClick={() => lineShare(g)}
+            className="rounded border border-border bg-[#06C755] px-2 py-1 font-bold text-white hover:opacity-90"
+            title="Share via LINE"
           >
             LINE
           </button>
-          <a
-            href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${h.name} ${a.name} highlights`)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-md bg-muted px-2.5 py-1.5 hover:bg-secondary"
-          >
-            ▶ Highlights
-          </a>
         </div>
       </div>
     </article>
@@ -749,19 +829,71 @@ function LiveTab({
   preds: Record<string, { h: number; a: number }>;
   setPreds: (p: Record<string, { h: number; a: number }>) => void;
 }) {
-  const order = { LIVE: 0, UPCOMING: 1, FINAL: 2 };
-  const sorted = [...games].sort((x, y) => order[x.status] - order[y.status]);
+  const liveGames = games.filter((g) => g.status === "LIVE");
+  const upcomingGames = [...games.filter((g) => g.status === "UPCOMING")].sort(
+    (a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime()
+  );
+
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {sorted.map((g) => (
-        <GameCard
-          key={g.id}
-          g={g}
-          lang={lang}
-          pred={preds[g.id]}
-          onPredict={(h, a) => setPreds({ ...preds, [g.id]: { h, a } })}
-        />
-      ))}
+    <div className="space-y-6">
+      {/* Live Now Section */}
+      {liveGames.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="flex items-center gap-2 font-display text-2xl tracking-wide text-live">
+              <span className="relative flex h-3 w-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-live opacity-75" />
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-live" />
+              </span>
+              {lang === "th" ? "การแข่งขันสดตอนนี้" : "LIVE IN PLAY"}
+            </h2>
+            <span className="rounded-full bg-live/20 px-2.5 py-0.5 text-xs font-bold text-live">
+              ● {liveGames.length} ACTIVE
+            </span>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {liveGames.map((g) => (
+              <GameCard
+                key={g.id}
+                g={g}
+                lang={lang}
+                pred={preds[g.id]}
+                onPredict={(h, a) => setPreds({ ...preds, [g.id]: { h, a } })}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Upcoming Fixtures Section */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="flex items-center gap-2 font-display text-2xl tracking-wide text-primary">
+            <Zap className="h-5 w-5" />
+            {lang === "th" ? "กำหนดการแข่งขันถัดไป" : "UPCOMING FIXTURES"}
+          </h2>
+          <span className="text-xs font-semibold text-muted-foreground">
+            {upcomingGames.length} {lang === "th" ? "แมตช์" : "matches scheduled"}
+          </span>
+        </div>
+        {upcomingGames.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            {lang === "th" ? "ไม่มีการแข่งขันเร็ว ๆ นี้" : "No upcoming fixtures found for this filter."}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {upcomingGames.map((g) => (
+              <GameCard
+                key={g.id}
+                g={g}
+                lang={lang}
+                pred={preds[g.id]}
+                onPredict={(h, a) => setPreds({ ...preds, [g.id]: { h, a } })}
+              />
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
@@ -791,7 +923,7 @@ function PulseTab({
   const mnTeams = TEAMS.filter((t) => t.hub === "minnesota");
   const rbfc = teamById("rbfc");
 
-  // Pulse intensity score calculator: 0-100 based on surge, momentum spike & shot activity
+  // Pulse intensity score calculator: 0-100 based on surge & shot activity
   const getGamePulse = (g: Game) => {
     if (!g.stats) return 40;
     const recent = g.stats.momentum.slice(-4);
@@ -813,8 +945,16 @@ function PulseTab({
   const sortedSentimentTeams = useMemo(() => {
     const list = [rbfc, ...mnTeams.filter((t) => t.sentiment)];
     return list.sort((a, b) => {
-      const sa = a.sentiment ? (a.sentiment.label === "Frustrated" || a.sentiment.label === "Anxious" ? -a.sentiment.pct : a.sentiment.pct) : 0;
-      const sb = b.sentiment ? (b.sentiment.label === "Frustrated" || b.sentiment.label === "Anxious" ? -b.sentiment.pct : b.sentiment.pct) : 0;
+      const sa = a.sentiment
+        ? a.sentiment.label === "Frustrated" || a.sentiment.label === "Anxious"
+          ? -a.sentiment.pct
+          : a.sentiment.pct
+        : 0;
+      const sb = b.sentiment
+        ? b.sentiment.label === "Frustrated" || b.sentiment.label === "Anxious"
+          ? -b.sentiment.pct
+          : b.sentiment.pct
+        : 0;
       return sb - sa;
     });
   }, [rbfc, mnTeams]);
@@ -857,7 +997,7 @@ function PulseTab({
         </div>
       </section>
 
-      {/* Real-time Match Intensity Radar (Auto-sorted Highest to Lowest) */}
+      {/* Real-time Match Intensity Radar */}
       {sortedLiveGames.length > 0 ? (
         <section className="space-y-3">
           <div className="flex items-center justify-between">
@@ -888,45 +1028,58 @@ function PulseTab({
                       <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
                         ⚡ Pulse {g.pulseScore}
                       </span>
-                      <span className="rounded-full bg-live px-2 py-0.5 text-xs font-bold text-foreground animate-pulse">
+                      <span className="flex items-center gap-1 font-bold text-live">
+                        <span className="h-2 w-2 rounded-full bg-live animate-ping" />
                         {g.clock}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <Seal t={a} size={36} />
-                      <span className="font-bold text-sm">{a.seal}</span>
+
+                  <div className="flex items-center justify-between py-1">
+                    <div className="flex items-center gap-3">
+                      <Seal t={a} size={40} />
+                      <div>
+                        <div className="font-bold">{a.seal}</div>
+                        <div className="text-[10px] text-muted-foreground">{a.name}</div>
+                      </div>
                     </div>
-                    <div className="font-display text-3xl tabular-nums">
-                      {g.as} - {g.hs}
+                    <div className="font-display text-2xl font-bold tracking-tight px-3 py-1 bg-muted/60 rounded-xl">
+                      {g.as} : {g.hs}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm">{h.seal}</span>
-                      <Seal t={h} size={36} />
+                    <div className="flex items-center gap-3 text-right">
+                      <div>
+                        <div className="font-bold">{h.seal}</div>
+                        <div className="text-[10px] text-muted-foreground">{h.name}</div>
+                      </div>
+                      <Seal t={h} size={40} />
                     </div>
                   </div>
-                  {g.stats && (
-                    <div className="rounded-xl bg-muted p-2.5 text-xs space-y-2">
-                      <div className="flex justify-between items-center text-[11px]">
-                        <span className="text-muted-foreground">Surge Alert</span>
-                        <span className="font-bold text-primary">
-                          {pressureTeam.seal} {Math.abs(lastMomentum) > 8 ? "🔥 Dangerous Attack" : "Holding Shape"}
+
+                  {g.stats?.momentum && (
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] text-muted-foreground">
+                        <span className="flex items-center gap-1 font-semibold text-primary">
+                          <Flame className="h-3 w-3" />
+                          Surge: {pressureTeam.seal}
                         </span>
+                        <span>{g.stats.possession}% Poss</span>
                       </div>
-                      <div className="flex h-8 items-center gap-0.5">
-                        {g.stats.momentum.map((m, i) => (
-                          <div key={i} className="flex h-full flex-1 flex-col justify-center">
-                            <div
-                              className={m > 0 ? "rounded-t-sm bg-primary transition-all duration-300" : "invisible"}
-                              style={{ height: `${Math.min(100, Math.abs(m) * 2.5)}%` }}
-                            />
-                            <div
-                              className={m < 0 ? "rounded-b-sm bg-foreground/40 transition-all duration-300" : "invisible"}
-                              style={{ height: `${Math.min(100, Math.abs(m) * 2.5)}%` }}
-                            />
-                          </div>
-                        ))}
+                      <div className="flex h-5 items-center gap-0.5 rounded bg-muted/40 p-1">
+                        {g.stats.momentum.slice(-10).map((val, idx) => {
+                          const isHome = val > 0;
+                          const heightPct = Math.min(100, Math.max(20, Math.abs(val) * 12));
+                          return (
+                            <div key={idx} className="flex h-full flex-1 items-center justify-center">
+                              <div
+                                className="w-full rounded-xs transition-all"
+                                style={{
+                                  height: `${heightPct}%`,
+                                  backgroundColor: isHome ? h.color || "#888" : a.color || "#888",
+                                }}
+                              />
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -936,43 +1089,33 @@ function PulseTab({
           </div>
         </section>
       ) : (
-        <div className="rounded-2xl border border-dashed border-border bg-card/50 p-6 text-center">
-          <Activity className="mx-auto h-8 w-8 text-muted-foreground opacity-60 mb-2" />
-          <h4 className="font-semibold text-sm">
-            {lang === "th" ? "ไม่มีเกมที่กำลังแข่งอยู่ขณะนี้" : "No live games in progress right now"}
-          </h4>
-          <p className="text-xs text-muted-foreground mt-1">
-            {lang === "th"
-              ? "ดูตารางถ่ายทอดสดและเวลาเตะของ Ratchaburi FC & Minnesota ด้านล่าง"
-              : "Check upcoming match schedules and stadium atmospheres below"}
-          </p>
-        </div>
+        <section className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+          <Radio className="mx-auto h-6 w-6 text-muted-foreground/60 mb-2 animate-pulse" />
+          <p className="font-semibold text-foreground">No matches in play at this moment</p>
+          <p className="text-xs mt-1">Live scoreboard polling active — games update automatically when kickoff occurs.</p>
+        </section>
       )}
 
-      {/* Twin Hub Pulse Cards: Ratchaburi Dragons vs. Minnesota 7 */}
+      {/* Twin Hub Heartbeat */}
       <section className="space-y-3">
         <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
-          <Sparkles className="h-5 w-5" />
-          {lang === "th" ? "ชีพจรสองถิ่น (TWIN HUB PULSE)" : "TWIN HUB ATMOSPHERE"}
+          <Shield className="h-5 w-5" />
+          {lang === "th" ? "สัญญาณชีพสองศูนย์กลาง (TWIN HUB HEARTBEAT)" : "TWIN HUB HEARTBEAT"}
         </h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Ratchaburi FC Hub Card */}
+          {/* Ratchaburi FC Card */}
           <div className="rounded-2xl border border-border bg-card p-4 space-y-3 relative overflow-hidden">
-            <div
-              className="absolute -right-10 -bottom-10 h-36 w-36 rounded-full opacity-10 pointer-events-none"
-              style={{ background: rbfc.color }}
-            />
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Seal t={rbfc} size={46} />
+                <Seal t={rbfc} size={44} />
                 <div>
                   <h4 className="font-display text-lg tracking-wide">{rbfc.name}</h4>
-                  <p className="text-xs text-muted-foreground">{rbfc.venue}</p>
+                  <p className="text-xs text-muted-foreground">{rbfc.league} • Dragon Solar Park</p>
                 </div>
               </div>
               <button
                 onClick={() => toggleFav("rbfc")}
-                className={`rounded-full p-2 text-xs font-semibold ${
+                className={`rounded-full p-2 ${
                   favs.includes("rbfc") ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                 }`}
               >
@@ -1056,7 +1199,7 @@ function PulseTab({
         </div>
       </section>
 
-      {/* Fan Sentiment Index (Auto-sorted Positive to Negative) */}
+      {/* Fan Sentiment Index */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
@@ -1212,264 +1355,271 @@ function TeamCard({ team, fav, toggle, lang }: { team: Team; fav: boolean; toggl
 
 function MyTab({
   favs,
-  toggle,
-  addAll,
   games,
+  toggleFav,
+  addAllMN,
   lang,
+  preds,
+  setPreds,
 }: {
   favs: string[];
-  toggle: (id: string) => void;
-  addAll: () => void;
   games: Game[];
+  toggleFav: (id: string) => void;
+  addAllMN: () => void;
   lang: Lang;
+  preds: Record<string, { h: number; a: number }>;
+  setPreds: (p: Record<string, { h: number; a: number }>) => void;
 }) {
   const t = T[lang];
-  const mine = games.filter((g) => favs.includes(g.home) || favs.includes(g.away));
+  const favTeams = favs.map(teamById);
+  const favGames = games.filter((g) => favs.includes(g.home) || favs.includes(g.away));
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-display text-3xl tracking-wide">
-          {t.my} ({favs.length})
-        </h2>
-        <button onClick={addAll} className="rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground">
-          ⭐ {t.addAllMN}
+        <div>
+          <h2 className="font-display text-2xl tracking-wide">{t.my}</h2>
+          <p className="text-xs text-muted-foreground">
+            {favTeams.length} {lang === "th" ? "ทีมที่คุณติดตาม" : "favorited teams"}
+          </p>
+        </div>
+        <button
+          onClick={addAllMN}
+          className="flex items-center gap-1.5 rounded-full bg-[#4F2683] px-3.5 py-1.5 text-xs font-bold text-[#FFC62F] shadow-sm hover:opacity-90"
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          {t.addAllMN}
         </button>
       </div>
-      {favs.length === 0 ? (
-        <p className="text-muted-foreground">{t.empty}</p>
+
+      {favTeams.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+          {t.empty}
+        </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {favs.map((id) => (
-            <TeamCard key={id} team={teamById(id)} fav toggle={() => toggle(id)} lang={lang} />
-          ))}
-        </div>
-      )}
-      {mine.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {mine.map((g) => (
-            <GameCard key={g.id} g={g} lang={lang} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {favTeams.map((team) => (
+              <TeamCard key={team.id} team={team} fav={true} toggle={() => toggleFav(team.id)} lang={lang} />
+            ))}
+          </div>
+
+          <div className="pt-4">
+            <h3 className="mb-3 font-display text-xl tracking-wide">{lang === "th" ? "โปรแกรมทีมโปรด" : "Favorites Match Schedule"}</h3>
+            {favGames.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                {lang === "th" ? "ไม่มีแมตช์สดหรือเร็ว ๆ นี้สำหรับทีมโปรด" : "No live or scheduled upcoming games for your favorites right now."}
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {favGames.map((g) => (
+                  <GameCard
+                    key={g.id}
+                    g={g}
+                    lang={lang}
+                    pred={preds[g.id]}
+                    onPredict={(h, a) => setPreds({ ...preds, [g.id]: { h, a } })}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
 }
 
 function ExploreTab({
-  hub,
   favs,
-  toggle,
-  addAll,
+  toggleFav,
   lang,
 }: {
-  hub: Hub;
   favs: string[];
-  toggle: (id: string) => void;
-  addAll: () => void;
+  toggleFav: (id: string) => void;
   lang: Lang;
 }) {
-  const t = T[lang];
   const [q, setQ] = useState("");
-  const [sport, setSport] = useState("All");
-  const [league, setLeague] = useState("All");
-  const sports = ["All", ...Array.from(new Set(TEAMS.map((x) => x.sport)))];
-  const match = (x: Team) => !q || `${x.name} ${x.th} ${x.seal} ${x.league}`.toLowerCase().includes(q.toLowerCase());
-  const list = TEAMS.filter(
-    (x) => (sport === "All" || x.sport === sport) && (league === "All" || x.league === league) && match(x)
-  ).sort((a, b) => Number(b.hub === hub) - Number(a.hub === hub));
-  const suggestions = q ? TEAMS.filter(match).slice(0, 5) : [];
+  const [sportFilter, setSportFilter] = useState<string>("all");
+  const t = T[lang];
+
+  const sports = useMemo(() => ["all", ...Array.from(new Set(TEAMS.map((x) => x.sport)))], []);
+
+  const results = useMemo(() => {
+    const query = q.toLowerCase().trim();
+    return TEAMS.filter((tm) => {
+      const matchSport = sportFilter === "all" || tm.sport === sportFilter;
+      const matchQ =
+        !query ||
+        tm.name.toLowerCase().includes(query) ||
+        tm.th.toLowerCase().includes(query) ||
+        tm.seal.toLowerCase().includes(query) ||
+        tm.league.toLowerCase().includes(query);
+      return matchSport && matchQ;
+    });
+  }, [q, sportFilter]);
 
   return (
     <div className="space-y-4">
+      {/* Search Input */}
       <div className="relative">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
+          type="text"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={t.search}
-          className="w-full rounded-xl border border-input bg-card py-2.5 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-2xl border border-border bg-card py-3 pr-4 pl-10 text-sm shadow-sm outline-none focus:border-primary"
         />
-        {suggestions.length > 0 && (
-          <div className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-border bg-popover shadow-xl">
-            {suggestions.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => {
-                  if (!favs.includes(s.id)) toggle(s.id);
-                  setQ("");
-                }}
-                className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-muted"
-              >
-                <Seal t={s} size={32} />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold">
-                    {s.name} <span className="text-muted-foreground">{s.th}</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {s.league} • {s.record}
-                  </div>
-                </div>
-                <span className="shrink-0 rounded-md bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
-                  {favs.includes(s.id) ? "✓" : "+ ADD"}
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
       </div>
-      <div className="flex flex-wrap gap-2">
-        {sports.map((s) => (
-          <Chip key={s} on={sport === s} onClick={() => setSport(s)}>
-            {s}
-          </Chip>
+
+      {/* Sport Category Pills */}
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {sports.map((sp) => (
+          <button
+            key={sp}
+            onClick={() => setSportFilter(sp)}
+            className={`rounded-full px-3 py-1 text-xs font-semibold capitalize whitespace-nowrap transition ${
+              sportFilter === sp
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {sp === "all" ? (lang === "th" ? "ทั้งหมด" : "All Sports") : sp}
+          </button>
         ))}
       </div>
-      <div className="flex flex-wrap gap-2">
-        {["All", ...LEAGUES].map((l) => (
-          <Chip key={l} on={league === l} onClick={() => setLeague(l)}>
-            {l}
-          </Chip>
-        ))}
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card p-3">
-        <span className="text-sm text-muted-foreground">
-          <Zap className="inline h-4 w-4 text-primary" /> Long-press any card to add instantly
-        </span>
-        <button onClick={addAll} className="rounded-full bg-primary px-4 py-1.5 text-sm font-bold text-primary-foreground">
-          ⭐ {t.addAllMN}
-        </button>
-      </div>
+
+      {/* Grid of Teams */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((x) => (
-          <TeamCard key={x.id} team={x} fav={favs.includes(x.id)} toggle={() => toggle(x.id)} lang={lang} />
+        {results.map((team) => (
+          <TeamCard
+            key={team.id}
+            team={team}
+            fav={favs.includes(team.id)}
+            toggle={() => toggleFav(team.id)}
+            lang={lang}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`rounded-full px-3 py-1 text-xs font-bold uppercase ${
-        on ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
+function LeaguesTab({
+  games,
+  lang,
+  preds,
+  setPreds,
+}: {
+  games: Game[];
+  lang: Lang;
+  preds: Record<string, { h: number; a: number }>;
+  setPreds: (p: Record<string, { h: number; a: number }>) => void;
+}) {
+  const [sel, setSel] = useState<string>("All");
 
-function LeaguesTab({ favs, toggle, lang }: { favs: string[]; toggle: (id: string) => void; lang: Lang }) {
+  const filtered = sel === "All" ? games : games.filter((g) => g.league === sel);
+
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-      {LEAGUES.map((l) => {
-        const teams = TEAMS.filter((x) => x.league === l);
-        return (
-          <section key={l} className="rounded-2xl border border-border bg-card p-4">
-            <h3 className="mb-3 font-display text-2xl tracking-wide text-primary">{l}</h3>
-            <ul className="space-y-2">
-              {teams.map((x, i) => (
-                <li key={x.id} className="flex items-center gap-3">
-                  <span className="w-5 text-xs text-muted-foreground">{i + 1}</span>
-                  <Seal t={x} size={30} />
-                  <span className="min-w-0 flex-1 truncate text-sm font-semibold">{lang === "th" ? x.th : x.name}</span>
-                  <span className="shrink-0 text-xs text-muted-foreground">{x.record}</span>
-                  <button
-                    onClick={() => toggle(x.id)}
-                    aria-label="favorite"
-                    className={favs.includes(x.id) ? "text-primary" : "text-muted-foreground"}
-                  >
-                    <Heart className={`h-4 w-4 ${favs.includes(x.id) ? "fill-current" : ""}`} />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </section>
-        );
-      })}
+    <div className="space-y-4">
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        {["All", ...LEAGUES].map((lg) => (
+          <button
+            key={lg}
+            onClick={() => setSel(lg)}
+            className={`rounded-full px-3.5 py-1 text-xs font-bold whitespace-nowrap transition ${
+              sel === lg
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {lg}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((g) => (
+          <GameCard
+            key={g.id}
+            g={g}
+            lang={lang}
+            pred={preds[g.id]}
+            onPredict={(h, a) => setPreds({ ...preds, [g.id]: { h, a } })}
+          />
+        ))}
+      </div>
     </div>
   );
 }
 
-const ROSTER = [
-  { name: "Justin Jefferson", pos: "WR", team: "vik", pts: 24.6 },
-  { name: "Anthony Edwards", pos: "G", team: "wolves", pts: 41.3 },
-  { name: "Napheesa Collier", pos: "F", team: "lynx", pts: 38.9 },
-  { name: "Kirill Kaprizov", pos: "LW", team: "wild", pts: 12.5 },
-  { name: "Dennis Murillo", pos: "FW", team: "rbfc", pts: 15.0 },
-  { name: "Taylor Heise", pos: "C", team: "frost", pts: 11.0 },
-];
-
-function FantasyTab({ lang, preds }: { lang: Lang; preds: Record<string, unknown> }) {
+function FantasyTab({ favs, lang }: { favs: string[]; lang: Lang }) {
   const t = T[lang];
-  const mePts = Object.keys(preds).length * 3 + 12;
-  const board = useMemo(
-    () =>
-      [
-        { n: "Somchai 🐉", p: 48 },
-        { n: "Ole from Edina", p: 41 },
-        { n: "Nong Fah", p: 33 },
-        { n: "SKOL_Sara", p: 27 },
-        { n: lang === "th" ? "คุณ" : "You", p: mePts, me: true },
-      ].sort((a, b) => b.p - a.p),
-    [mePts, lang]
-  );
-  const total = ROSTER.reduce((s, r) => s + r.pts, 0);
+  const roster = favs.map(teamById);
+
+  const leaderboard = [
+    { rank: 1, name: "Somchai (Bangkok)", pts: 342 },
+    { rank: 2, name: "SkolVikes55 (Minneapolis)", pts: 318 },
+    { rank: 3, name: "DragonFan_RB", pts: 295 },
+    { rank: 4, name: "TwinCitiesHero", pts: 274 },
+  ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <section className="rounded-2xl border border-border bg-card p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="font-display text-2xl tracking-wide">
-            <Users className="mr-2 inline h-5 w-5" />
-            {t.roster}
-          </h3>
-          <span className="font-display text-3xl text-primary">{total.toFixed(1)}</span>
-        </div>
-        <p className="mb-3 text-xs text-muted-foreground">Week record 4-1 • Rank #2 • {t.scoring}</p>
-        <ul className="space-y-2">
-          {ROSTER.map((r) => (
-            <li key={r.name} className="flex items-center gap-3 rounded-lg bg-muted p-2">
-              <Seal t={teamById(r.team)} size={32} />
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-semibold">{r.name}</div>
-                <div className="text-xs text-muted-foreground">{r.pos}</div>
-              </div>
-              <b className="text-primary">{r.pts}</b>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="rounded-2xl border border-border bg-card p-4">
-        <h3 className="mb-3 font-display text-2xl tracking-wide">
-          <Activity className="mr-2 inline h-5 w-5" />🏆 {t.leaderboard}
-        </h3>
-        <ol className="space-y-2">
-          {board.map((b, i) => (
-            <li
-              key={b.n}
-              className={`flex items-center gap-3 rounded-lg p-2 ${
-                b.me ? "bg-primary text-primary-foreground" : "bg-muted"
-              }`}
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <h2 className="mb-1 font-display text-2xl tracking-wide">{t.roster}</h2>
+        <p className="mb-4 text-xs text-muted-foreground">{t.scoring}</p>
+        <div className="flex flex-wrap gap-2">
+          {roster.map((tm) => (
+            <span
+              key={tm.id}
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-muted/60 px-3 py-1.5 text-xs font-semibold"
             >
-              <span className="w-6">{["🥇", "🥈", "🥉"][i] ?? i + 1}</span>
-              <span className="flex-1 font-semibold">{b.n}</span>
-              <b>
-                {b.p} {t.points}
-              </b>
-            </li>
+              <Seal t={tm} size={24} />
+              <span>{tm.name}</span>
+            </span>
           ))}
-        </ol>
-        <button
-          onClick={() => lineShare(`My prediction score: ${mePts} pts on Ultimate Sports OS 🏆`)}
-          className="mt-4 w-full rounded-lg bg-line py-2 font-bold text-background"
-        >
-          LINE {t.share}
-        </button>
-      </section>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h3 className="font-display text-xl tracking-wide">{t.leaderboard}</h3>
+            <p className="text-xs text-muted-foreground">Weekly Hermetica OS Fantasy League</p>
+          </div>
+          <button
+            onClick={() => {
+              const url = `https://line.me/R/msg/text/?${encodeURIComponent(
+                "Join my Hermetica Sports OS Fantasy Leaderboard! " + window.location.href
+              )}`;
+              window.open(url, "_blank");
+            }}
+            className="rounded-lg bg-[#06C755] px-3 py-1 text-xs font-bold text-white hover:opacity-90"
+          >
+            LINE Invite
+          </button>
+        </div>
+        <div className="space-y-2">
+          {leaderboard.map((u) => (
+            <div
+              key={u.rank}
+              className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-3 py-2 text-xs"
+            >
+              <div className="flex items-center gap-3">
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-primary/20 font-bold text-primary">
+                  {u.rank}
+                </span>
+                <span className="font-semibold">{u.name}</span>
+              </div>
+              <span className="font-mono font-bold text-primary">
+                {u.pts} {t.points}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

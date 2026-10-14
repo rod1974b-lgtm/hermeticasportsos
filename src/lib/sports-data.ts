@@ -87,7 +87,8 @@ export interface Team {
   color: string;
   accent: string;
   record: string;
-  hub?: "ratchaburi" | "minnesota";
+  hub?: "ratchaburi" | "minnesota" | undefined;
+  logo?: string | undefined;
   venue?: string;
   notes?: string[];
   sentiment?: { label: string; pct: number };
@@ -837,3 +838,7 @@ export const T = {
       "คะแนน: NFL ทัชดาวน์ 6 • NBA แต้ม 1 รีบาวด์ 1.2 แอสซิสต์ 1.5 • ฟุตบอล ประตู 5",
   },
 };
+
+export type Tab = "live" | "pulse" | "my" | "explore" | "leagues" | "fantasy";
+
+export const MN_IDS = ["vik", "wolves", "twins", "wild", "lynx", "frost", "mnufc"];
