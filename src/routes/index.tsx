@@ -569,7 +569,7 @@ function GameCard({
 }: {
   g: Game;
   lang: Lang;
-  pred?: { h: number; a: number };
+  pred?: { h: number; a: number } | undefined;
   onPredict: (h: number, a: number) => void;
 }) {
   const h = teamById(g.home);
