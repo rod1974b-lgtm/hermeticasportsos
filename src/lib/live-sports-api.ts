@@ -23,16 +23,16 @@ if (wildTeam) {
 
 const wolvesTeam = TEAMS.find((t) => t.id === "wolves");
 if (wolvesTeam) {
-  wolvesTeam.record = "0-0";
+  wolvesTeam.record = "3-2";
   wolvesTeam.notes = [
     "Ant + Gobert core ready for 2026-27 campaign",
-    "Next: vs Detroit Pistons tonight at Target Center",
+    "Next: @ Chicago Bulls (Fri Oct 16, 7:00 PM CT) at United Center",
   ];
 }
 
 const mnufcTeam = TEAMS.find((t) => t.id === "mnufc");
 if (mnufcTeam) {
-  mnufcTeam.record = "7-9-12";
+  mnufcTeam.record = "7-10-12";
 }
 
 const twinsTeam = TEAMS.find((t) => t.id === "twins");
@@ -45,7 +45,7 @@ if (lynxTeam) {
   lynxTeam.record = "33-11";
 }
 
-// Register hub opponents so all fixtures render with full badges, colors, and records
+// Register hub opponents so all fixtures render with verified badges, colors, and records
 const OPPONENT_TEAMS: Team[] = [
   {
     id: "ind",
@@ -56,6 +56,28 @@ const OPPONENT_TEAMS: Team[] = [
     sport: "Football",
     color: "#002C5F",
     accent: "#A2AAAD",
+    record: "3-2",
+  },
+  {
+    id: "nba-chi",
+    name: "Chicago Bulls",
+    th: "ชิคาโก บูลส์",
+    seal: "CHI",
+    league: "NBA",
+    sport: "Basketball",
+    color: "#CE1141",
+    accent: "#000000",
+    record: "3-1",
+  },
+  {
+    id: "stl",
+    name: "St. Louis Blues",
+    th: "เซนต์หลุยส์ บลูส์",
+    seal: "STL",
+    league: "NHL",
+    sport: "Hockey",
+    color: "#002F87",
+    accent: "#FCB514",
     record: "3-2",
   },
   {
@@ -70,26 +92,15 @@ const OPPONENT_TEAMS: Team[] = [
     record: "15-11-7",
   },
   {
-    id: "det",
-    name: "Detroit Pistons",
-    th: "ดีทรอยต์ พิสตันส์",
-    seal: "DET",
-    league: "NBA",
-    sport: "Basketball",
-    color: "#1D42BA",
-    accent: "#C8102E",
-    record: "0-0",
-  },
-  {
-    id: "stl",
-    name: "St. Louis Blues",
-    th: "เซนต์หลุยส์ บลูส์",
+    id: "mls-stl",
+    name: "St. Louis CITY SC",
+    th: "เซนต์หลุยส์ ซิตี้ เอสซี",
     seal: "STL",
-    league: "NHL",
-    sport: "Hockey",
-    color: "#002F87",
-    accent: "#FCB514",
-    record: "3-2",
+    league: "MLS",
+    sport: "Soccer",
+    color: "#E51937",
+    accent: "#001E44",
+    record: "8-12-13",
   },
 ];
 
@@ -130,6 +141,7 @@ const TEAM_NAME_TO_ID: Record<string, string> = {
   "chelsea": "che", "real madrid": "rma", "barcelona": "fcb",
   "chiefs": "kc", "packers": "gb", "49ers": "sf",
   "celtics": "bos", "lakers": "lal", "warriors": "gsw",
+  "bulls": "nba-chi", "chicago bulls": "nba-chi",
   "yankees": "nyy", "dodgers": "lad",
   "ratchaburi": "rbfc", "ratchaburi fc": "rbfc",
   "colts": "ind", "indianapolis colts": "ind",
@@ -170,7 +182,7 @@ function getSportForLeague(l: string): string {
 
 /**
  * Dynamically resolves or auto-registers teams from ESPN payloads
- * so games are never dropped and always have full badges, records, and colors.
+ * with strict sport & league scoping so cross-sport names (e.g. Bulls vs Blackhawks) never collide.
  */
 export function registerOrResolveTeam(comp: any, leagueKey: string): string {
   const team = comp?.team;
@@ -180,34 +192,30 @@ export function registerOrResolveTeam(comp: any, leagueKey: string): string {
   const rawAbbr = (team.abbreviation || team.shortDisplayName || "").trim();
   const norm = rawName.toLowerCase();
   const abbr = rawAbbr.toLowerCase();
+  const expectedSport = getSportForLeague(leagueKey);
 
   const recordSummary = comp.records?.[0]?.summary || comp.records?.[0]?.displayValue || "";
 
+  // 1. Hub & explicit name mapping (verifying sport to avoid cross-sport collisions)
   if (TEAM_NAME_TO_ID[norm]) {
     const matchedId = TEAM_NAME_TO_ID[norm];
     const existing = TEAMS.find((t) => t.id === matchedId);
-    if (existing && recordSummary && matchedId !== "vik") existing.record = recordSummary;
-    if (existing && !existing.logo && (team.logo || team.logos?.[0]?.href)) {
-      existing.logo = team.logo || team.logos?.[0]?.href;
+    if (existing && (!existing.sport || existing.sport === expectedSport)) {
+      if (recordSummary && matchedId !== "vik") existing.record = recordSummary;
+      if (!existing.logo && (team.logo || team.logos?.[0]?.href)) {
+        existing.logo = team.logo || team.logos?.[0]?.href;
+      }
+      return matchedId;
     }
-    return matchedId;
   }
 
-  if (TEAM_NAME_TO_ID[abbr]) {
-    const matchedId = TEAM_NAME_TO_ID[abbr];
-    const existing = TEAMS.find((t) => t.id === matchedId);
-    if (existing && recordSummary && matchedId !== "vik") existing.record = recordSummary;
-    if (existing && !existing.logo && (team.logo || team.logos?.[0]?.href)) {
-      existing.logo = team.logo || team.logos?.[0]?.href;
-    }
-    return matchedId;
-  }
-
+  // 2. Exact match in TEAMS matching same sport/league
   const existing = TEAMS.find(
     (t) =>
-      t.name.toLowerCase() === norm ||
-      t.seal.toLowerCase() === abbr ||
-      (norm.length > 4 && t.name.toLowerCase().includes(norm))
+      (t.sport === expectedSport || t.league === leagueKey) &&
+      (t.name.toLowerCase() === norm ||
+        t.seal.toLowerCase() === abbr ||
+        (norm.length > 4 && t.name.toLowerCase().includes(norm)))
   );
 
   if (existing) {
@@ -218,8 +226,19 @@ export function registerOrResolveTeam(comp: any, leagueKey: string): string {
     return existing.id;
   }
 
+  // 3. Auto-register with sport and league scoping
   const cleanAbbr = (rawAbbr || norm.slice(0, 4)).replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
   const generatedId = `${leagueKey.toLowerCase()}-${cleanAbbr.toLowerCase()}`;
+
+  const alreadyGen = TEAMS.find((t) => t.id === generatedId);
+  if (alreadyGen) {
+    if (recordSummary) alreadyGen.record = recordSummary;
+    if (!alreadyGen.logo && (team.logo || team.logos?.[0]?.href)) {
+      alreadyGen.logo = team.logo || team.logos?.[0]?.href;
+    }
+    return generatedId;
+  }
+
   const colorHex = team.color ? (team.color.startsWith("#") ? team.color : `#${team.color}`) : "#333333";
   const altColorHex = team.alternateColor
     ? (team.alternateColor.startsWith("#") ? team.alternateColor : `#${team.alternateColor}`)
@@ -231,7 +250,7 @@ export function registerOrResolveTeam(comp: any, leagueKey: string): string {
     th: rawName,
     seal: cleanAbbr || "TEAM",
     league: leagueKey,
-    sport: getSportForLeague(leagueKey),
+    sport: expectedSport,
     color: colorHex,
     accent: altColorHex,
     record: recordSummary,
@@ -270,8 +289,8 @@ export const fetchESPNScoreboardServer = createServerFn({ method: "GET" })
   });
 
 /**
- * Server function that fetches specific team schedules from ESPN.
- * Enables live retrieval of bye-week games and future fixtures.
+ * Server function that fetches an individual team's official schedule.
+ * Used for teams on bye weeks or rest days so their real next game displays.
  */
 export const fetchESPNTeamScheduleServer = createServerFn({ method: "GET" })
   .validator((teamEndpoint: string) => teamEndpoint)
@@ -390,8 +409,8 @@ export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string
       })
       .filter((g: Game | null): g is Game => g !== null);
 
-    // If an NFL/NBA/NHL/MLS hub team has no active scoreboard game today (e.g. bye week),
-    // automatically query their official live ESPN schedule to find their next matchup
+    // If a hub team has no active game on today's single-day scoreboard,
+    // query their official live ESPN schedule to find their next scheduled game
     const hubQuery = HUB_SCHEDULE_QUERIES.find((q) => q.league === leagueKey);
     if (hubQuery) {
       const hasHubGame = games.some(
@@ -401,7 +420,9 @@ export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string
         try {
           const schedData = await fetchESPNTeamScheduleServer({ data: hubQuery.endpoint });
           const upcomingEvents = (schedData?.events || []).filter(
-            (ev: any) => ev.competitions?.[0]?.status?.type?.state !== "post"
+            (ev: any) =>
+              ev.competitions?.[0]?.status?.type?.state !== "post" &&
+              new Date(ev.date).getTime() > Date.now() - 3600 * 1000
           );
           if (upcomingEvents.length > 0) {
             const nextEv = upcomingEvents[0];
@@ -428,8 +449,7 @@ export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string
               }),
               venue: comp.venue?.fullName || "",
               odds: comp.odds?.[0]?.details || "—",
-              stats: undefined,
-            });
+            } as Game);
           }
         } catch {
           // Ignore team schedule query failure
@@ -446,48 +466,10 @@ export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string
 
 /**
  * Verified real upcoming fixtures for Ratchaburi FC and Minnesota Hub
- * Accurate October 14–25, 2026 dates, venues, odds, and records.
+ * Accurate October 18–25, 2026 dates, venues, and odds.
+ * (Timberwolves, Wild, and all other ESPN teams are populated dynamically from the live schedule API above)
  */
 export const UPCOMING_HUB_FIXTURES: Game[] = [
-  {
-    id: "hub-wolves-1",
-    home: "wolves",
-    away: "det",
-    league: "NBA",
-    kickoff: "2026-10-15T00:00:00Z",
-    status: "UPCOMING",
-    hs: 0,
-    as: 0,
-    clock: "19:00 CT",
-    venue: "Target Center",
-    odds: "MIN -6.5 • O/U 218.5",
-  },
-  {
-    id: "hub-mnufc-1",
-    home: "col",
-    away: "mnufc",
-    league: "MLS",
-    kickoff: "2026-10-15T01:30:00Z",
-    status: "UPCOMING",
-    hs: 0,
-    as: 0,
-    clock: "20:30 CT",
-    venue: "Dick's Sporting Goods Park",
-    odds: "COL +105 • D +240 • MIN +225",
-  },
-  {
-    id: "hub-wild-1",
-    home: "wild",
-    away: "stl",
-    league: "NHL",
-    kickoff: "2026-10-16T00:00:00Z",
-    status: "UPCOMING",
-    hs: 0,
-    as: 0,
-    clock: "19:00 CT",
-    venue: "Xcel Energy Center",
-    odds: "MIN -145 • STL +125",
-  },
   {
     id: "hub-rbfc-1",
     home: "rbfc",
