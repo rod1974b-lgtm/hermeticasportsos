@@ -1,147 +1,112 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Activity,
-  Calendar,
-  Clock,
-  Compass,
   Flame,
-  Heart,
   Radio,
-  RefreshCw,
-  Search,
   Share2,
-  Shield,
+  Calendar,
   Sparkles,
-  TrendingUp,
   Trophy,
-  Users,
+  Compass,
   Zap,
+  Globe,
+  Shield,
+  Star,
+  RefreshCw,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Game,
+  Team,
+  Tab,
   Hub,
   Lang,
-  Tab,
-  Team,
   TEAMS,
-  teamById,
+  MN_IDS,
   LEAGUES,
   T,
+  teamById,
   fmtTime,
-  MN_IDS,
 } from "@/lib/sports-data";
 import {
   ESPN_LEAGUES,
+  UPCOMING_HUB_FIXTURES,
   fetchLiveESPNLeague,
   fetchDualWeather,
-  UPCOMING_HUB_FIXTURES,
 } from "@/lib/live-sports-api";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   component: App,
-  head: () => ({
-    title: "Hermetica Sports OS • Ratchaburi & Minnesota Live Hub",
-    meta: [
-      {
-        name: "description",
-        content:
-          "Multi-sport operations hub: live and upcoming games, dual-clock schedules (CT & ICT), real-time weather, and fan sentiment.",
-      },
-      { property: "og:title", content: "Hermetica Sports OS" },
-      {
-        property: "og:description",
-        content: "Live scores and upcoming fixtures across all major leagues.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
 });
 
-// Simple hook for localStorage
-function useLocal<T>(key: string, initial: T): [T, (val: T | ((prev: T) => T)) => void] {
+function useLocal<T>(key: string, init: T): [T, (val: T) => void] {
   const [val, setVal] = useState<T>(() => {
+    if (typeof window === "undefined") return init;
     try {
-      const saved = localStorage.getItem(key);
-      return saved ? JSON.parse(saved) : initial;
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : init;
     } catch {
-      return initial;
+      return init;
     }
   });
-  const update = (v: T | ((prev: T) => T)) => {
-    setVal((prev) => {
-      const next = typeof v === "function" ? (v as (p: T) => T)(prev) : v;
+
+  const update = useCallback(
+    (newVal: T) => {
+      setVal(newVal);
       try {
-        localStorage.setItem(key, JSON.stringify(next));
+        localStorage.setItem(key, JSON.stringify(newVal));
       } catch {
-        /* ignore */
+        /* ignore storage write failures */
       }
-      return next;
-    });
-  };
+    },
+    [key]
+  );
+
   return [val, update];
 }
 
-const isMN = (g: Game) =>
-  teamById(g.home).hub === "minnesota" || teamById(g.away).hub === "minnesota";
+const tabs = (t: (typeof T)["en"], lang: Lang) =>
+  [
+    ["live", t.live, Radio],
+    ["pulse", lang === "th" ? "ชีพจรกีฬา" : "Pulse", Activity],
+    ["my", t.myTeams, Star],
+    ["explore", t.explore, Compass],
+    ["leagues", t.leagues, Trophy],
+    ["fantasy", t.fantasy, Sparkles],
+  ] as const;
 
-function Seal({ t, size = 40 }: { t: Team; size?: number }) {
-  if (t.logo) {
-    return (
-      <img
-        src={t.logo}
-        alt={t.name}
-        className="shrink-0 object-contain"
-        style={{ width: size, height: size }}
-        onError={(e) => {
-          (e.currentTarget as HTMLElement).style.display = "none";
-        }}
-      />
-    );
-  }
-  return (
-    <div
-      className="grid shrink-0 place-items-center rounded-xl font-display font-bold tracking-wider text-white shadow-sm"
-      style={{
-        width: size,
-        height: size,
-        backgroundColor: t.color || "#333",
-        fontSize: Math.max(10, Math.floor(size * 0.3)),
-        border: `2px solid ${t.accent || "#fff"}40`,
-      }}
-      title={t.name}
-    >
-      {t.seal}
-    </div>
-  );
-}
-
-function App() {
-  const [hub, setHub] = useLocal<Hub>("sos-hub", "ratchaburi");
+export default function App() {
+  // Default to "all" so every user immediately sees all 60+ global and hub games
+  const [hub, setHub] = useLocal<"ratchaburi" | "minnesota" | "all">("sos-hub", "all");
   const [lang, setLang] = useLocal<Lang>("sos-lang", "en");
-  const [favs, setFavs] = useLocal<string[]>("sos-favs", ["rbfc", "vik"]);
-  const [preds, setPreds] = useLocal<Record<string, { h: number; a: number }>>("sos-preds", {});
+  const [favs, setFavs] = useLocal<string[]>("sos-favs", ["rbfc", "vik", "wolves"]);
+  const [preds, setPreds] = useLocal<Record<string, { h: number; a: number }>>(
+    "sos-preds",
+    {}
+  );
+
   const [tab, setTab] = useState<Tab>("live");
   const [games, setGames] = useState<Game[]>(UPCOMING_HUB_FIXTURES);
+  const [now, setNow] = useState(new Date());
   const [liveOn, setLiveOn] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [now, setNow] = useState<Date | null>(null);
+
   const [dualWeather, setDualWeather] = useState<{
     ratchaburi: { tempC: number; humidity: number; windKmh: number } | null;
     minnesota: { tempF: number; humidity: number; windMph: number } | null;
   }>({ ratchaburi: null, minnesota: null });
+
   const t = T[lang];
 
-  // 1-second clock ticker for live ICT & CT time
+  // 1-second clock ticker for live ICT & CT times
   useEffect(() => {
     setNow(new Date());
     const i = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(i);
   }, []);
 
-  // Fetch real-time dual weather (Ratchaburi + Twin Cities)
+  // Real-time dual weather fetching
   const syncWeather = useCallback(async () => {
     try {
       const w = await fetchDualWeather();
@@ -157,7 +122,7 @@ function App() {
     return () => clearInterval(wInterval);
   }, [syncWeather]);
 
-  // Live real-time scores sync from ESPN public scoreboards
+  // Live real-time scores sync from ESPN global scoreboards
   const syncLiveScores = useCallback(async () => {
     setIsRefreshing(true);
     try {
@@ -183,7 +148,7 @@ function App() {
           }
         });
 
-        // Matchup comparator to prevent duplicate fixtures between ESPN and local placeholders
+        // Matchup comparator to prevent duplicate fixtures
         const isMatchupPresent = (g: Game, list: Game[]) =>
           list.some(
             (item) =>
@@ -201,7 +166,7 @@ function App() {
           (g) => g.status === "LIVE" || g.status === "UPCOMING"
         );
 
-        // Deduplicate any repeated matchups (ensuring zero double-renders)
+        // Deduplicate repeated matchups
         const seenMatchups = new Set<string>();
         return allMerged.filter((g) => {
           const key = [g.league, g.home, g.away].sort().join("::");
@@ -242,7 +207,8 @@ function App() {
     navigator.vibrate?.([40, 30, 40]);
   };
 
-  const inHub = (g: Game) => hub === "all" || teamById(g.home).hub === hub || teamById(g.away).hub === hub;
+  const inHub = (g: Game) =>
+    hub === "all" || teamById(g.home).hub === hub || teamById(g.away).hub === hub;
   const hubGames = games.filter(inHub);
   const liveCount = hubGames.filter((g) => g.status === "LIVE").length;
 
@@ -262,7 +228,9 @@ function App() {
               className="rounded-lg border border-border p-2 text-sm font-semibold hover:bg-muted"
               title="Refresh Live Data"
             >
-              <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin text-primary" : "text-muted-foreground"}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${isRefreshing ? "animate-spin text-primary" : "text-muted-foreground"}`}
+              />
             </button>
             <button
               onClick={() => setLang(lang === "en" ? "th" : "en")}
@@ -278,29 +246,55 @@ function App() {
               className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-sm font-semibold hover:bg-muted"
               aria-label={t.simulate}
             >
-              <span className={`h-2 w-2 rounded-full ${liveOn ? "animate-pulse bg-live" : "bg-muted-foreground"}`} />
+              <span
+                className={`h-2 w-2 rounded-full ${liveOn ? "animate-pulse bg-live" : "bg-muted-foreground"}`}
+              />
               {liveCount} LIVE
             </button>
           </div>
         </div>
 
-        {/* Hub Switcher */}
+        {/* Hub Switcher with crisp icons and counts */}
         <div className="mx-auto flex max-w-6xl gap-2 px-4 pb-3">
           {(
             [
-              ["ratchaburi", "🐉 Ratchaburi FC"],
-              ["minnesota", "⭐ Minnesota Hub"],
-              ["all", `🌐 ${t.all}`],
+              ["all", "ALL TEAMS", Globe, games.length],
+              [
+                "minnesota",
+                "MINNESOTA HUB",
+                Star,
+                games.filter(
+                  (g) =>
+                    teamById(g.home).hub === "minnesota" ||
+                    teamById(g.away).hub === "minnesota"
+                ).length,
+              ],
+              [
+                "ratchaburi",
+                "RATCHABURI FC",
+                Shield,
+                games.filter(
+                  (g) =>
+                    teamById(g.home).hub === "ratchaburi" ||
+                    teamById(g.away).hub === "ratchaburi"
+                ).length,
+              ],
             ] as const
-          ).map(([h, label]) => (
+          ).map(([h, label, Icon, count]) => (
             <button
               key={h}
               onClick={() => setHub(h)}
-              className={`flex-1 rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition sm:flex-none sm:text-sm ${
-                hub === h ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition sm:flex-none sm:text-sm ${
+                hub === h
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted text-muted-foreground hover:text-foreground"
               }`}
             >
-              {label}
+              <Icon className="h-3.5 w-3.5 shrink-0" />
+              <span>{label}</span>
+              <span className="rounded-full bg-background/20 px-1.5 py-0.2 text-[10px] font-mono">
+                {count}
+              </span>
             </button>
           ))}
         </div>
@@ -323,9 +317,9 @@ function App() {
               <Icon className="h-4 w-4" />
               {label}
               {key === "pulse" && (
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-live" />
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-live opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-live" />
                 </span>
               )}
             </button>
@@ -334,9 +328,17 @@ function App() {
       </header>
 
       {/* Main Content Area */}
-      <main className="mx-auto max-w-6xl px-4 py-6 pb-28 sm:pb-12">
+      <main className="mx-auto max-w-6xl px-4 py-6 pb-24 sm:pb-8">
         {tab === "live" && (
-          <LiveTab games={hubGames} lang={lang} preds={preds} setPreds={setPreds} />
+          <LiveTab
+            games={hubGames}
+            allGames={games}
+            hub={hub}
+            setHub={setHub}
+            lang={lang}
+            preds={preds}
+            setPreds={setPreds}
+          />
         )}
         {tab === "pulse" && (
           <PulseTab
@@ -351,39 +353,45 @@ function App() {
         {tab === "my" && (
           <MyTab
             favs={favs}
-            games={games}
             toggleFav={toggleFav}
             addAllMN={addAllMN}
+            games={hubGames}
             lang={lang}
             preds={preds}
             setPreds={setPreds}
           />
         )}
-        {tab === "explore" && <ExploreTab favs={favs} toggleFav={toggleFav} lang={lang} />}
-        {tab === "leagues" && (
-          <LeaguesTab games={games} lang={lang} preds={preds} setPreds={setPreds} />
+        {tab === "explore" && (
+          <ExploreTab favs={favs} toggleFav={toggleFav} lang={lang} />
         )}
-        {tab === "fantasy" && <FantasyTab favs={favs} lang={lang} />}
+        {tab === "leagues" && (
+          <LeaguesTab
+            games={games}
+            lang={lang}
+            preds={preds}
+            setPreds={setPreds}
+          />
+        )}
+        {tab === "fantasy" && (
+          <FantasyTab preds={preds} games={hubGames} lang={lang} />
+        )}
       </main>
 
-      {/* Mobile Safe-Area Bottom Nav */}
-      <nav className="fixed right-0 bottom-0 left-0 z-30 border-t border-border bg-background/95 backdrop-blur pb-safe sm:hidden">
-        <div className="grid grid-cols-6">
+      {/* Mobile Safe-Area Bottom Navigation */}
+      <nav className="fixed right-0 bottom-0 left-0 z-40 border-t border-border bg-background/95 pb-safe backdrop-blur sm:hidden">
+        <div className="grid grid-cols-6 text-center text-[10px]">
           {tabs(t, lang).map(([key, label, Icon]) => (
             <button
               key={key}
               onClick={() => setTab(key as Tab)}
-              className={`flex flex-col items-center py-2 text-[10px] font-semibold transition relative ${
-                tab === key ? "text-primary" : "text-muted-foreground"
+              className={`relative flex flex-col items-center gap-1 py-2 ${
+                tab === key ? "font-bold text-primary" : "text-muted-foreground"
               }`}
             >
               <Icon className="h-5 w-5" />
-              <span className="mt-0.5">{label}</span>
+              <span>{label}</span>
               {key === "pulse" && (
-                <span className="absolute top-1.5 right-3 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-live" />
-                </span>
+                <span className="absolute top-1.5 right-2 h-2 w-2 rounded-full bg-live" />
               )}
             </button>
           ))}
@@ -393,15 +401,34 @@ function App() {
   );
 }
 
-function tabs(t: (typeof T)["en"], lang: Lang): [Tab, string, any][] {
-  return [
-    ["live", t.live, Radio],
-    ["pulse", lang === "th" ? "ชีพจร" : "Pulse", Activity],
-    ["my", t.my, Heart],
-    ["explore", t.explore, Search],
-    ["leagues", t.leagues, Trophy],
-    ["fantasy", t.fantasy, Users],
-  ];
+function Seal({ t, size = 36 }: { t: Team; size?: number }) {
+  if (t.logo) {
+    return (
+      <img
+        src={t.logo}
+        alt={t.name}
+        className="shrink-0 rounded-full object-contain shadow-sm"
+        style={{ width: size, height: size }}
+        onError={(e) => {
+          e.currentTarget.style.display = "none";
+        }}
+      />
+    );
+  }
+
+  return (
+    <div
+      className="grid shrink-0 place-items-center rounded-full font-display font-bold text-white shadow-sm"
+      style={{
+        width: size,
+        height: size,
+        backgroundColor: t.color || "#333333",
+        fontSize: size * 0.36,
+      }}
+    >
+      {t.seal}
+    </div>
+  );
 }
 
 function HubInfo({
@@ -411,41 +438,40 @@ function HubInfo({
   lang,
 }: {
   hub: Hub;
-  now: Date | null;
+  now: Date;
   dualWeather: {
     ratchaburi: { tempC: number; humidity: number; windKmh: number } | null;
     minnesota: { tempF: number; humidity: number; windMph: number } | null;
   };
   lang: Lang;
 }) {
-  if (!now) return null;
-  const timeOpts: Intl.DateTimeFormatOptions = {
+  const ict = now.toLocaleTimeString("en-US", {
+    timeZone: "Asia/Bangkok",
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-    hour12: true,
-  };
-  const ict = now.toLocaleTimeString(lang === "th" ? "th-TH" : "en-US", {
-    ...timeOpts,
-    timeZone: "Asia/Bangkok",
   });
   const ct = now.toLocaleTimeString("en-US", {
-    ...timeOpts,
     timeZone: "America/Chicago",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
   });
 
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
       {hub === "ratchaburi" && (
         <>
-          <span className="font-semibold text-foreground">Dragon Solar Park</span>
+          <span className="font-semibold text-foreground">
+            {lang === "th" ? "ดราก้อน โซลาร์ พาร์ค" : "Dragon Solar Park"}
+          </span>
           <span>•</span>
           <span className="font-mono text-primary">ICT {ict}</span>
           <span>•</span>
           <span>
             {dualWeather.ratchaburi
               ? `${Math.round(dualWeather.ratchaburi.tempC)}°C, ${dualWeather.ratchaburi.humidity}% Hum`
-              : "32°C, 78% Hum"}
+              : "28°C, 82% Hum"}
           </span>
         </>
       )}
@@ -470,7 +496,7 @@ function HubInfo({
           <span>•</span>
           <span className="font-mono text-primary">ICT {ict}</span>
           <span>•</span>
-          <span>Global Sports Coverage</span>
+          <span>Global Sports Coverage (14 Leagues)</span>
         </>
       )}
     </div>
@@ -480,7 +506,6 @@ function HubInfo({
 function Ticker({ games, lang }: { games: Game[]; lang: Lang }) {
   const active = games.filter((g) => g.status === "LIVE" || g.status === "UPCOMING");
   if (!active.length) return null;
-  // Duplicate only when list is short so continuous marquee animates smoothly without excess repetition
   const tickerItems = active.length > 4 ? active : [...active, ...active];
 
   return (
@@ -522,7 +547,15 @@ function Ticker({ games, lang }: { games: Game[]; lang: Lang }) {
   );
 }
 
-function GameTimes({ kickoff, lang, showDual }: { kickoff: string; lang: Lang; showDual: boolean }) {
+function GameTimes({
+  kickoff,
+  lang,
+  showDual,
+}: {
+  kickoff: string;
+  lang: Lang;
+  showDual: boolean;
+}) {
   const ict = fmtTime(kickoff, "Asia/Bangkok", lang);
   const ct = fmtTime(kickoff, "America/Chicago", lang);
   return (
@@ -548,33 +581,10 @@ function calendarLinks(g: Game) {
 
   const ics =
     `data:text/calendar;charset=utf8,BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n` +
-    `SUMMARY:${title}\nDESCRIPTION:Hermetica Sports OS Match\nLOCATION:${g.venue}\n` +
+    `SUMMARY:${title}\nDESCRIPTION:Hermetica Sports OS Match\nLOCATION:${g.venue || ""}\n` +
     `DTSTART:${fmt(start)}\nDTEND:${fmt(end)}\nEND:VEVENT\nEND:VCALENDAR`;
 
   return { gcal, ics };
-}
-
-function shareCard(g: Game) {
-  const h = teamById(g.home);
-  const a = teamById(g.away);
-  const text =
-    g.status === "LIVE"
-      ? `🚨 LIVE: ${a.name} ${g.as} - ${g.hs} ${h.name} (${g.clock}) on Hermetica Sports OS!`
-      : `📅 UPCOMING: ${a.name} @ ${h.name} • Kickoff ${g.kickoff} • Venue: ${g.venue}`;
-  if (navigator.share) {
-    navigator.share({ title: "Hermetica Sports OS", text, url: window.location.href }).catch(() => {});
-  } else {
-    navigator.clipboard.writeText(text);
-    toast.success("Match card copied to clipboard!");
-  }
-}
-
-function lineShare(g: Game) {
-  const h = teamById(g.home);
-  const a = teamById(g.away);
-  const text = `${a.name} vs ${h.name} • ${g.status === "LIVE" ? `LIVE ${g.as}-${g.hs}` : "Upcoming Match"}`;
-  const url = `https://line.me/R/msg/text/?${encodeURIComponent(text + " " + window.location.href)}`;
-  window.open(url, "_blank");
 }
 
 function GameCard({
@@ -585,204 +595,131 @@ function GameCard({
 }: {
   g: Game;
   lang: Lang;
-  pred?: { h: number; a: number } | undefined;
+  pred?: { h: number; a: number };
   onPredict: (h: number, a: number) => void;
 }) {
+  const t = T[lang];
   const h = teamById(g.home);
   const a = teamById(g.away);
-  const t = T[lang];
-  const [ph, setPh] = useState(pred ? String(pred.h) : "");
-  const [pa, setPa] = useState(pred ? String(pred.a) : "");
+  const [ph, setPh] = useState(pred?.h ?? "");
+  const [pa, setPa] = useState(pred?.a ?? "");
+  const isMN = h.hub === "minnesota" || a.hub === "minnesota";
+  const isRBFC = h.hub === "ratchaburi" || a.hub === "ratchaburi";
   const { gcal, ics } = calendarLinks(g);
-  const showDual = isMN(g);
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:border-primary/50">
-      {/* Header bar */}
-      <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-4 py-2 text-xs">
+    <div className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:border-primary/50">
+      {/* Card Header */}
+      <div className="flex items-center justify-between border-b border-border/50 pb-2.5">
         <div className="flex items-center gap-2">
-          <span className="rounded bg-primary/10 px-2 py-0.5 font-bold uppercase tracking-wider text-primary">
+          <span className="rounded bg-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
             {g.league}
           </span>
-          {g.status === "LIVE" && (
-            <span className="flex items-center gap-1 font-bold text-live">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-live" />
-              LIVE {g.clock}
+          {g.status === "LIVE" ? (
+            <span className="flex items-center gap-1 rounded-full bg-live/15 px-2 py-0.5 text-[11px] font-bold text-live">
+              <span className="h-1.5 w-1.5 rounded-full bg-live animate-ping" />
+              {g.clock}
             </span>
-          )}
-          {g.status === "UPCOMING" && (
-            <span className="flex items-center gap-1 font-semibold text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              {t.next}
+          ) : (
+            <span className="text-[11px] text-muted-foreground">
+              ⏱ {t.upcoming}
             </span>
           )}
         </div>
-        <GameTimes kickoff={g.kickoff} lang={lang} showDual={showDual} />
+        <GameTimes kickoff={g.kickoff} lang={lang} showDual={isMN} />
       </div>
 
-      {/* Matchup row */}
-      <div className="grid grid-cols-7 items-center gap-2 p-4">
-        {/* Away */}
-        <div className="col-span-3 flex items-center gap-3">
-          <Seal t={a} size={44} />
-          <div className="min-w-0">
-            <h3 className="truncate font-semibold">{lang === "th" ? a.th : a.name}</h3>
-            <p className="truncate text-xs text-muted-foreground">{a.record}</p>
+      {/* Matchup Teams & Score */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 py-4">
+        {/* Away Team */}
+        <div className="flex flex-col items-center text-center">
+          <Seal t={a} size={48} />
+          <div className="mt-2 text-sm font-bold leading-tight">
+            {lang === "th" && a.th ? a.th : a.name}
           </div>
+          {a.record && (
+            <div className="text-[10px] text-muted-foreground">{a.record}</div>
+          )}
         </div>
 
-        {/* Score / Center */}
-        <div className="col-span-1 text-center">
+        {/* Score / VS Display */}
+        <div className="flex flex-col items-center px-2">
           {g.status === "LIVE" ? (
-            <div className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+            <div className="font-display text-3xl font-bold tracking-tight text-foreground">
               {g.as} : {g.hs}
             </div>
           ) : (
-            <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">VS</div>
+            <div className="font-display text-xl font-bold text-muted-foreground">
+              VS
+            </div>
           )}
         </div>
 
-        {/* Home */}
-        <div className="col-span-3 flex items-center justify-end gap-3 text-right">
-          <div className="min-w-0">
-            <h3 className="truncate font-semibold">{lang === "th" ? h.th : h.name}</h3>
-            <p className="truncate text-xs text-muted-foreground">{h.record}</p>
+        {/* Home Team */}
+        <div className="flex flex-col items-center text-center">
+          <Seal t={h} size={48} />
+          <div className="mt-2 text-sm font-bold leading-tight">
+            {lang === "th" && h.th ? h.th : h.name}
           </div>
-          <Seal t={h} size={44} />
+          {h.record && (
+            <div className="text-[10px] text-muted-foreground">{h.record}</div>
+          )}
         </div>
       </div>
 
       {/* Venue & Odds */}
-      {(g.venue || g.odds) && (
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/50 bg-muted/20 px-4 py-2 text-xs text-muted-foreground">
-          <span className="truncate">{g.venue}</span>
-          {g.odds && <span className="font-mono font-medium text-primary">{g.odds}</span>}
-        </div>
-      )}
+      <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] text-muted-foreground">
+        <span>{g.venue || "Stadium"}</span>
+        {g.odds && <span className="font-mono text-primary font-medium">{g.odds}</span>}
+      </div>
 
-      {/* SofaScore-Style Attack Momentum Bars */}
-      {g.stats?.momentum && (
-        <div className="border-t border-border/50 px-4 py-3">
-          <div className="mb-1.5 flex justify-between text-xs text-muted-foreground">
-            <span>{t.momentum}</span>
-            <span>
-              {a.seal} vs {h.seal}
-            </span>
+      {/* In-play Stats (Momentum Bar) */}
+      {g.status === "LIVE" && g.stats && (
+        <div className="mt-3 space-y-1.5 border-t border-border/50 pt-2.5">
+          <div className="flex justify-between text-[11px]">
+            <span>Poss: {100 - g.stats.possession}%</span>
+            <span className="font-semibold text-primary">Momentum Surge</span>
+            <span>Poss: {g.stats.possession}%</span>
           </div>
-          <div className="flex h-8 items-center gap-0.5 rounded bg-muted/50 p-1">
-            {g.stats.momentum.map((val, i) => {
-              const isH = val > 0;
-              const hPct = Math.min(100, Math.abs(val) * 10);
-              return (
-                <div key={i} className="flex h-full flex-1 items-center justify-center">
-                  <div
-                    className="w-full rounded-xs transition-all"
-                    style={{
-                      height: `${hPct}%`,
-                      backgroundColor: isH ? h.color || "#888" : a.color || "#888",
-                    }}
-                  />
-                </div>
-              );
-            })}
+          <div className="flex h-2 w-full gap-0.5 overflow-hidden rounded-full bg-muted">
+            <div
+              className="bg-primary transition-all duration-300"
+              style={{ width: `${100 - g.stats.possession}%` }}
+            />
+            <div
+              className="bg-accent transition-all duration-300"
+              style={{ width: `${g.stats.possession}%` }}
+            />
           </div>
         </div>
       )}
 
-      {/* Possession & Shots */}
-      {g.stats && (
-        <div className="grid grid-cols-2 gap-4 border-t border-border/50 px-4 py-2.5 text-xs">
-          <div>
-            <div className="mb-1 flex justify-between text-muted-foreground">
-              <span>{t.possession}</span>
-              <span>
-                {100 - g.stats.possession}% - {g.stats.possession}%
-              </span>
-            </div>
-            <div className="flex h-1.5 overflow-hidden rounded-full bg-muted">
-              <div style={{ width: `${100 - g.stats.possession}%`, backgroundColor: a.color || "#666" }} />
-              <div style={{ width: `${g.stats.possession}%`, backgroundColor: h.color || "#FF6600" }} />
-            </div>
-          </div>
-          <div>
-            <div className="mb-1 flex justify-between text-muted-foreground">
-              <span>{t.shots}</span>
-              <span>
-                {g.stats.shotsA} - {g.stats.shotsH}
-              </span>
-            </div>
-            <div className="flex h-1.5 overflow-hidden rounded-full bg-muted">
-              <div
-                style={{
-                  width: `${(g.stats.shotsA / ((g.stats.shotsA + g.stats.shotsH) || 1)) * 100}%`,
-                  backgroundColor: a.color || "#666",
-                }}
-              />
-              <div
-                style={{
-                  width: `${(g.stats.shotsH / ((g.stats.shotsA + g.stats.shotsH) || 1)) * 100}%`,
-                  backgroundColor: h.color || "#FF6600",
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Player Ratings */}
-      {g.ratings && g.ratings.length > 0 && (
-        <div className="border-t border-border/50 px-4 py-2.5">
-          <p className="mb-1.5 text-xs text-muted-foreground">{t.ratings}</p>
-          <div className="flex flex-wrap gap-2">
-            {g.ratings.map((r, i) => (
-              <span
-                key={i}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/60 px-2.5 py-0.5 text-xs font-semibold"
-              >
-                <span>{r.name}</span>
-                <span
-                  className="rounded px-1 text-[10px] font-bold text-white"
-                  style={{
-                    backgroundColor: r.r >= 8 ? "#10B981" : r.r >= 7 ? "#3B82F6" : "#F59E0B",
-                  }}
-                >
-                  {r.r.toFixed(1)}
-                </span>
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Action / Prediction / Share Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 bg-muted/30 px-4 py-2.5 text-xs">
-        {/* Prediction Input */}
-        <div className="flex items-center gap-1.5">
-          <span className="font-semibold text-muted-foreground">{t.predict}:</span>
+      {/* Action Footer: Prediction & Calendar Export */}
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border/50 pt-3 text-xs">
+        <div className="flex items-center gap-1">
+          <span className="text-[11px] text-muted-foreground">{t.predict}:</span>
           <input
             type="number"
-            min="0"
-            placeholder={a.seal}
             value={pa}
             onChange={(e) => setPa(e.target.value)}
-            className="w-11 rounded border border-border bg-background px-1.5 py-0.5 text-center font-bold"
+            placeholder={a.seal.slice(0, 2)}
+            className="w-10 rounded border border-border bg-background px-1 py-0.5 text-center text-xs"
           />
           <span>-</span>
           <input
             type="number"
-            min="0"
-            placeholder={h.seal}
             value={ph}
             onChange={(e) => setPh(e.target.value)}
-            className="w-11 rounded border border-border bg-background px-1.5 py-0.5 text-center font-bold"
+            placeholder={h.seal.slice(0, 2)}
+            className="w-10 rounded border border-border bg-background px-1 py-0.5 text-center text-xs"
           />
           <button
             onClick={() => {
-              const hNum = parseInt(ph, 10);
-              const aNum = parseInt(pa, 10);
-              if (!isNaN(hNum) && !isNaN(aNum)) {
-                onPredict(hNum, aNum);
-                toast.success(`Prediction saved: ${a.seal} ${aNum} - ${hNum} ${h.seal}`);
+              if (ph !== "" && pa !== "") {
+                onPredict(Number(ph), Number(pa));
+                toast.success(
+                  `${t.predictSaved}: ${a.seal} ${pa} - ${ph} ${h.seal}`
+                );
               }
             }}
             className="rounded bg-primary px-2 py-0.5 font-bold text-primary-foreground hover:opacity-90"
@@ -791,56 +728,80 @@ function GameCard({
           </button>
         </div>
 
-        {/* Calendar & Share Actions */}
-        <div className="flex items-center gap-2">
-          {g.status === "UPCOMING" && (
-            <>
-              <a
-                href={gcal}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded border border-border bg-background px-2 py-1 font-semibold hover:bg-muted"
-                title="Add to Google Calendar"
-              >
-                +Google
-              </a>
-              <a
-                href={ics}
-                download={`${g.id}.ics`}
-                className="rounded border border-border bg-background px-2 py-1 font-semibold hover:bg-muted"
-                title="Download .ics Calendar"
-              >
-                .ics
-              </a>
-            </>
-          )}
+        <div className="flex items-center gap-1.5">
+          <a
+            href={gcal}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground"
+          >
+            +Google
+          </a>
+          <a
+            href={ics}
+            download={`${a.seal}-vs-${h.seal}.ics`}
+            className="rounded bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground"
+          >
+            .ics
+          </a>
           <button
-            onClick={() => shareCard(g)}
-            className="rounded border border-border bg-background p-1.5 hover:bg-muted"
-            title="Share match card"
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: `${a.name} vs ${h.name}`,
+                  text: `Check out ${a.name} vs ${h.name} on Hermetica Sports OS! Kickoff: ${fmtTime(
+                    g.kickoff,
+                    "Asia/Bangkok",
+                    lang
+                  )}`,
+                  url: window.location.href,
+                });
+              } else {
+                navigator.clipboard.writeText(window.location.href);
+                toast.success("Match link copied to clipboard");
+              }
+            }}
+            className="rounded p-1 text-muted-foreground hover:text-foreground"
           >
             <Share2 className="h-3.5 w-3.5" />
           </button>
           <button
-            onClick={() => lineShare(g)}
-            className="rounded border border-border bg-[#06C755] px-2 py-1 font-bold text-white hover:opacity-90"
-            title="Share via LINE"
+            onClick={() => {
+              const url = `https://line.me/R/msg/text/?${encodeURIComponent(
+                `⚡ Hermetica Sports OS Match: ${a.name} vs ${h.name} (${g.league}) - ${fmtTime(
+                  g.kickoff,
+                  "Asia/Bangkok",
+                  lang
+                )}: ${window.location.href}`
+              )}`;
+              window.open(url, "_blank");
+            }}
+            className="rounded bg-[#06C755] px-2 py-0.5 text-[11px] font-bold text-white hover:opacity-90"
           >
             LINE
           </button>
         </div>
       </div>
-    </article>
+    </div>
   );
 }
 
+// =========================================================================
+// LIVE TAB
+// =========================================================================
 function LiveTab({
   games,
+  allGames,
+  hub,
+  setHub,
   lang,
   preds,
   setPreds,
 }: {
   games: Game[];
+  allGames: Game[];
+  hub: Hub;
+  setHub: (h: Hub) => void;
   lang: Lang;
   preds: Record<string, { h: number; a: number }>;
   setPreds: (p: Record<string, { h: number; a: number }>) => void;
@@ -853,7 +814,7 @@ function LiveTab({
   return (
     <div className="space-y-6">
       {/* Live Now Section */}
-      {liveGames.length > 0 && (
+      {liveGames.length > 0 ? (
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="flex items-center gap-2 font-display text-2xl tracking-wide text-live">
@@ -879,6 +840,41 @@ function LiveTab({
             ))}
           </div>
         </section>
+      ) : (
+        /* Prominent Status Banner when between match windows */
+        <section className="rounded-2xl border border-border bg-gradient-to-r from-card via-card to-secondary/20 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Radio className="h-5 w-5 animate-pulse" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-display text-lg tracking-wide">
+                    {lang === "th" ? "ระบบตรวจจับแมตช์สดทำงานอยู่" : "LIVE RADAR ACTIVE"}
+                  </span>
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+                    0 IN PLAY RIGHT NOW
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {lang === "th"
+                    ? "ไม่มีแมตช์แข่งอยู่ ณ ขณะนี้ — ตรวจสอบกำหนดการแข่งถัดไปด้านล่าง"
+                    : "No matches actively on the pitch — next live action begins today below."}
+                </p>
+              </div>
+            </div>
+
+            {hub !== "all" && (
+              <button
+                onClick={() => setHub("all")}
+                className="rounded-lg bg-primary/15 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/25 transition"
+              >
+                🌐 View All Global Sports ({allGames.length})
+              </button>
+            )}
+          </div>
+        </section>
       )}
 
       {/* Upcoming Fixtures Section */}
@@ -894,7 +890,9 @@ function LiveTab({
         </div>
         {upcomingGames.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            {lang === "th" ? "ไม่มีการแข่งขันเร็ว ๆ นี้" : "No upcoming fixtures found for this filter."}
+            {lang === "th"
+              ? "ไม่มีการแข่งขันเร็ว ๆ นี้สำหรับตัวกรองนี้"
+              : "No upcoming fixtures found for this filter."}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -944,9 +942,13 @@ function PulseTab({
     if (!g.stats) return 40;
     const recent = g.stats.momentum.slice(-4);
     const maxSurge = Math.max(...recent.map((m) => Math.abs(m)), 0);
-    const avgRecent = recent.reduce((sum, v) => sum + Math.abs(v), 0) / (recent.length || 1);
+    const avgRecent =
+      recent.reduce((sum, v) => sum + Math.abs(v), 0) / (recent.length || 1);
     const totalShots = (g.stats.shotsA || 0) + (g.stats.shotsH || 0);
-    return Math.min(100, Math.round(maxSurge * 3.5 + avgRecent * 2.5 + Math.min(20, totalShots * 1.5)));
+    return Math.min(
+      100,
+      Math.round(maxSurge * 3.5 + avgRecent * 2.5 + Math.min(20, totalShots * 1.5))
+    );
   };
 
   // Auto-sort live games: Highest intensity to lowest
@@ -957,7 +959,7 @@ function PulseTab({
       .sort((a, b) => b.pulseScore - a.pulseScore);
   }, [games]);
 
-  // Auto-sort fan sentiment: Happiest/Strongest positive down to frustrated
+  // Auto-sort fan sentiment: Positive down to frustrated
   const sortedSentimentTeams = useMemo(() => {
     const list = [rbfc, ...mnTeams.filter((t) => t.sentiment)];
     return list.sort((a, b) => {
@@ -1007,7 +1009,9 @@ function PulseTab({
           <div className="flex items-center gap-2 text-xs">
             <span className="rounded-lg bg-card/80 px-3 py-1.5 border border-border font-semibold flex items-center gap-1.5">
               <Flame className="h-3.5 w-3.5 text-primary" />
-              <span>{lang === "th" ? "เรียงลำดับ: สูง → ต่ำ" : "Ranked: High → Low"}</span>
+              <span>
+                {lang === "th" ? "เรียงลำดับ: สูง → ต่ำ" : "Ranked: High → Low"}
+              </span>
             </span>
           </div>
         </div>
@@ -1019,7 +1023,9 @@ function PulseTab({
           <div className="flex items-center justify-between">
             <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
               <Radio className="h-5 w-5 animate-pulse text-live" />
-              {lang === "th" ? "โมเมนตัมสนามสด (IN-PLAY PRESSURE)" : "LIVE IN-PLAY INTENSITY"}
+              {lang === "th"
+                ? "โมเมนตัมสนามสด (IN-PLAY PRESSURE)"
+                : "LIVE IN-PLAY INTENSITY"}
             </h3>
             <span className="text-xs text-muted-foreground font-semibold">
               {lang === "th" ? "จัดอันดับความดุเดือด" : "Ranked by In-Game Surge"}
@@ -1032,7 +1038,10 @@ function PulseTab({
               const lastMomentum = g.stats?.momentum.slice(-1)[0] ?? 0;
               const pressureTeam = lastMomentum > 0 ? h : a;
               return (
-                <div key={g.id} className="rounded-2xl border border-border bg-card p-4 space-y-3 relative overflow-hidden">
+                <div
+                  key={g.id}
+                  className="rounded-2xl border border-border bg-card p-4 space-y-3 relative overflow-hidden"
+                >
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2">
                       <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">
@@ -1083,14 +1092,22 @@ function PulseTab({
                       <div className="flex h-5 items-center gap-0.5 rounded bg-muted/40 p-1">
                         {g.stats.momentum.slice(-10).map((val, idx) => {
                           const isHome = val > 0;
-                          const heightPct = Math.min(100, Math.max(20, Math.abs(val) * 12));
+                          const heightPct = Math.min(
+                            100,
+                            Math.max(20, Math.abs(val) * 12)
+                          );
                           return (
-                            <div key={idx} className="flex h-full flex-1 items-center justify-center">
+                            <div
+                              key={idx}
+                              className="flex h-full flex-1 items-center justify-center"
+                            >
                               <div
                                 className="w-full rounded-xs transition-all"
                                 style={{
                                   height: `${heightPct}%`,
-                                  backgroundColor: isHome ? h.color || "#888" : a.color || "#888",
+                                  backgroundColor: isHome
+                                    ? h.color || "#888"
+                                    : a.color || "#888",
                                 }}
                               />
                             </div>
@@ -1106,153 +1123,152 @@ function PulseTab({
         </section>
       ) : (
         <section className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-          <Radio className="mx-auto h-6 w-6 text-muted-foreground/60 mb-2 animate-pulse" />
-          <p className="font-semibold text-foreground">No matches in play at this moment</p>
-          <p className="text-xs mt-1">Live scoreboard polling active — games update automatically when kickoff occurs.</p>
+          {lang === "th"
+            ? "ไม่มีแมตช์สดที่กำลังแข่งขันในขณะนี้ — ตรวจสอบอัตราโมเมนตัมเมื่อเกมเริ่ม"
+            : "No live games actively in play right now. Attack momentum bars will animate live once matches kick off."}
         </section>
       )}
 
-      {/* Twin Hub Heartbeat */}
+      {/* Twin Hub Atmospheric Heartbeat */}
       <section className="space-y-3">
         <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
-          <Shield className="h-5 w-5" />
-          {lang === "th" ? "สัญญาณชีพสองศูนย์กลาง (TWIN HUB HEARTBEAT)" : "TWIN HUB HEARTBEAT"}
+          <Activity className="h-5 w-5 text-primary" />
+          {lang === "th"
+            ? "สภาพแวดล้อมสนาม TWIN HUB"
+            : "TWIN HUB ATMOSPHERIC HEARTBEAT"}
         </h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Ratchaburi FC Card */}
-          <div className="rounded-2xl border border-border bg-card p-4 space-y-3 relative overflow-hidden">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* Ratchaburi Hub Weather */}
+          <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Seal t={rbfc} size={44} />
+              <div className="flex items-center gap-2">
+                <Seal t={rbfc} size={32} />
                 <div>
-                  <h4 className="font-display text-lg tracking-wide">{rbfc.name}</h4>
-                  <p className="text-xs text-muted-foreground">{rbfc.league} • Dragon Solar Park</p>
+                  <div className="font-bold text-sm">Dragon Solar Park</div>
+                  <div className="text-[10px] text-muted-foreground">
+                    Ratchaburi FC • ICT UTC+7
+                  </div>
                 </div>
               </div>
-              <button
-                onClick={() => toggleFav("rbfc")}
-                className={`rounded-full p-2 ${
-                  favs.includes("rbfc") ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                }`}
-              >
-                <Heart className={`h-4 w-4 ${favs.includes("rbfc") ? "fill-current" : ""}`} />
-              </button>
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
+                Home Turf
+              </span>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="rounded-xl bg-muted p-2.5">
-                <span className="text-muted-foreground block text-[10px]">Dragon Solar Park</span>
-                <span className="font-bold text-sm">
-                  {dualWeather.ratchaburi ? `${Math.round(dualWeather.ratchaburi.tempC)}°C` : "32°C"} •{" "}
-                  {dualWeather.ratchaburi?.humidity ?? 78}% Hum
-                </span>
+            <div className="grid grid-cols-3 gap-2 pt-1 text-center">
+              <div className="rounded-xl bg-muted/40 p-2">
+                <div className="text-[10px] text-muted-foreground">Temp</div>
+                <div className="font-display text-xl font-bold text-primary">
+                  {dualWeather.ratchaburi
+                    ? `${Math.round(dualWeather.ratchaburi.tempC)}°C`
+                    : "28°C"}
+                </div>
               </div>
-              <div className="rounded-xl bg-muted p-2.5">
-                <span className="text-muted-foreground block text-[10px]">Record</span>
-                <span className="font-bold text-sm">{rbfc.record}</span>
+              <div className="rounded-xl bg-muted/40 p-2">
+                <div className="text-[10px] text-muted-foreground">Humidity</div>
+                <div className="font-display text-xl font-bold">
+                  {dualWeather.ratchaburi?.humidity ?? 82}%
+                </div>
+              </div>
+              <div className="rounded-xl bg-muted/40 p-2">
+                <div className="text-[10px] text-muted-foreground">Wind</div>
+                <div className="font-display text-xl font-bold">
+                  {dualWeather.ratchaburi?.windKmh ?? 12} km/h
+                </div>
               </div>
             </div>
-            {rbfc.sentiment && (
-              <div className="text-xs space-y-1">
-                <div className="flex justify-between text-muted-foreground text-[11px]">
-                  <span>Fan Mood</span>
-                  <span className="font-bold text-primary">
-                    {rbfc.sentiment.pct}% {rbfc.sentiment.label}
-                  </span>
-                </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full bg-primary" style={{ width: `${rbfc.sentiment.pct}%` }} />
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Minnesota Hub Card */}
-          <div className="rounded-2xl border border-border bg-card p-4 space-y-3 relative overflow-hidden">
+          {/* Minnesota Hub Weather */}
+          <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#4F2683] text-[#FFC62F] font-display text-xl font-bold ring-2 ring-[#FFC62F]/40">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-full bg-[#4F2683] grid place-items-center text-white font-bold text-xs">
                   MN
                 </div>
                 <div>
-                  <h4 className="font-display text-lg tracking-wide">Minnesota Hub (7 Teams)</h4>
-                  <p className="text-xs text-muted-foreground">Vikings, Wolves, Twins, Wild, Lynx, Frost, MNUFC</p>
+                  <div className="font-bold text-sm">Twin Cities Complex</div>
+                  <div className="text-[10px] text-muted-foreground">
+                    7 Pro Franchises • CT UTC-5
+                  </div>
                 </div>
               </div>
-              <span className="rounded-md bg-secondary px-2 py-1 text-[11px] font-bold text-primary">
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
                 Twin Cities
               </span>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="rounded-xl bg-muted p-2.5">
-                <span className="text-muted-foreground block text-[10px]">Minneapolis Weather</span>
-                <span className="font-bold text-sm">
-                  {dualWeather.minnesota ? `${Math.round(dualWeather.minnesota.tempF)}°F` : "58°F"} •{" "}
-                  {dualWeather.minnesota?.humidity ?? 62}% Hum
-                </span>
+            <div className="grid grid-cols-3 gap-2 pt-1 text-center">
+              <div className="rounded-xl bg-muted/40 p-2">
+                <div className="text-[10px] text-muted-foreground">Temp</div>
+                <div className="font-display text-xl font-bold text-primary">
+                  {dualWeather.minnesota
+                    ? `${Math.round(dualWeather.minnesota.tempF)}°F`
+                    : "58°F"}
+                </div>
               </div>
-              <div className="rounded-xl bg-muted p-2.5">
-                <span className="text-muted-foreground block text-[10px]">Next Big Showdown</span>
-                <span className="font-bold text-sm">vs Colts (Sun Oct 25, 12:00 PM CT)</span>
+              <div className="rounded-xl bg-muted/40 p-2">
+                <div className="text-[10px] text-muted-foreground">Humidity</div>
+                <div className="font-display text-xl font-bold">
+                  {dualWeather.minnesota?.humidity ?? 62}%
+                </div>
               </div>
-            </div>
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {mnTeams.map((m) => (
-                <button
-                  key={m.id}
-                  onClick={() => toggleFav(m.id)}
-                  className={`flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold transition ${
-                    favs.includes(m.id)
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <span className="font-bold">{m.seal}</span>
-                  {favs.includes(m.id) && "✓"}
-                </button>
-              ))}
+              <div className="rounded-xl bg-muted/40 p-2">
+                <div className="text-[10px] text-muted-foreground">Wind</div>
+                <div className="font-display text-xl font-bold">
+                  {dualWeather.minnesota?.windMph ?? 8} mph
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Fan Sentiment Index */}
+      {/* Fan Sentiment Leaderboard */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
-            <TrendingUp className="h-5 w-5" />
-            {lang === "th" ? "ดัชนีอารมณ์แฟนคลับ (SENTIMENT PULSE)" : "FAN SENTIMENT INDEX"}
+            <Flame className="h-5 w-5 text-primary" />
+            {lang === "th" ? "ดัชนีอารมณ์แฟนคลับสด" : "FAN SENTIMENT INDEX"}
           </h3>
           <span className="text-xs text-muted-foreground font-semibold">
-            {lang === "th" ? "เรียงตามความพึงพอใจ" : "Ranked by Fan Optimism"}
+            {lang === "th" ? "จัดอันดับ: เชิงบวก → กังวล" : "Ranked: Positive → Frustrated"}
           </span>
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
           {sortedSentimentTeams.map((team, rankIdx) => {
-            const s = team.sentiment;
-            if (!s) return null;
-            const isNegative = s.label === "Frustrated" || s.label === "Anxious";
+            const isNegative =
+              team.sentiment?.label === "Frustrated" ||
+              team.sentiment?.label === "Anxious";
             return (
-              <div key={team.id} className="rounded-xl border border-border bg-card p-3 space-y-2">
+              <div
+                key={team.id}
+                className="rounded-2xl border border-border bg-card p-3.5 space-y-2 relative overflow-hidden"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-muted-foreground">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">
                       #{rankIdx + 1}
                     </span>
                     <Seal t={team} size={28} />
-                    <span className="font-semibold text-xs truncate max-w-[100px]">{team.seal}</span>
+                    <span className="font-bold text-xs truncate max-w-[90px]">
+                      {team.name}
+                    </span>
                   </div>
                   <span
-                    className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
-                      isNegative ? "bg-destructive/20 text-destructive" : "bg-primary/20 text-primary"
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                      isNegative
+                        ? "bg-destructive/15 text-destructive"
+                        : "bg-primary/15 text-primary"
                     }`}
                   >
-                    {s.pct}% {s.label}
+                    {team.sentiment?.pct}% {team.sentiment?.label}
                   </span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                   <div
-                    className={isNegative ? "h-full bg-destructive" : "h-full bg-primary"}
-                    style={{ width: `${s.pct}%` }}
+                    className={`h-full transition-all duration-500 ${
+                      isNegative ? "bg-destructive" : "bg-primary"
+                    }`}
+                    style={{ width: `${team.sentiment?.pct}%` }}
                   />
                 </div>
               </div>
@@ -1261,191 +1277,189 @@ function PulseTab({
         </div>
       </section>
 
-      {/* Upcoming Kickoff Countdown */}
-      {upcomingGames.length > 0 && (
-        <section className="space-y-3">
+      {/* Upcoming Schedule Highlights */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
           <h3 className="font-display text-xl tracking-wide flex items-center gap-2 text-primary">
             <Zap className="h-5 w-5" />
-            {lang === "th" ? "กำหนดการเตะใกล้ถึง" : "UPCOMING SCHEDULE PULSE"}
+            {lang === "th" ? "แมตช์ถัดไปในเรดาร์" : "UPCOMING ON RADAR"}
           </h3>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {upcomingGames.map((g) => {
-              const h = teamById(g.home);
-              const a = teamById(g.away);
-              return (
-                <div key={g.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
-                  <div className="flex items-center gap-3">
-                    <Seal t={a} size={32} />
-                    <span className="text-xs font-semibold">@</span>
-                    <Seal t={h} size={32} />
-                    <div>
-                      <div className="text-xs font-bold">
-                        {a.seal} vs {h.seal}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground">{g.league} • {g.venue}</div>
-                    </div>
+          <span className="text-xs text-muted-foreground font-semibold">
+            {upcomingGames.length} scheduled
+          </span>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {upcomingGames.map((g) => {
+            const h = teamById(g.home);
+            const a = teamById(g.away);
+            return (
+              <div
+                key={g.id}
+                className="flex items-center justify-between rounded-xl border border-border bg-card p-3 text-xs"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted-foreground">
+                    {g.league}
+                  </span>
+                  <Seal t={a} size={24} />
+                  <span className="font-bold">{a.seal}</span>
+                  <span className="text-muted-foreground">vs</span>
+                  <span className="font-bold">{h.seal}</span>
+                  <Seal t={h} size={24} />
+                </div>
+                <div className="text-right">
+                  <div className="font-semibold text-primary">
+                    {fmtTime(g.kickoff, "Asia/Bangkok", lang)}
                   </div>
-                  <div className="text-right text-xs">
-                    <div className="font-bold text-primary">ICT {fmtTime(g.kickoff, "Asia/Bangkok", lang)}</div>
-                    {isMN(g) && (
-                      <div className="text-[10px] text-muted-foreground">
-                        CT {fmtTime(g.kickoff, "America/Chicago", lang)}
-                      </div>
-                    )}
+                  <div className="text-[10px] text-muted-foreground truncate max-w-[120px]">
+                    {g.venue}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 }
 
-function TeamCard({ team, fav, toggle, lang }: { team: Team; fav: boolean; toggle: () => void; lang: Lang }) {
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const long = useRef(false);
-  const t = T[lang];
-  return (
-    <div
-      onPointerDown={() => {
-        long.current = false;
-        timer.current = setTimeout(() => {
-          long.current = true;
-          toggle();
-        }, 500);
-      }}
-      onPointerUp={() => timer.current && clearTimeout(timer.current)}
-      onPointerLeave={() => timer.current && clearTimeout(timer.current)}
-      className="select-none overflow-hidden rounded-2xl border border-border bg-card"
-      style={{ backgroundImage: `linear-gradient(135deg, ${team.color}40, transparent 60%)` }}
-    >
-      <div className="flex items-center gap-3 p-4">
-        <Seal t={team} size={52} />
-        <div className="min-w-0 flex-1">
-          <h3 className="truncate font-semibold">{lang === "th" ? team.th : team.name}</h3>
-          <p className="truncate text-xs text-muted-foreground">
-            {team.league} • {team.record}
-            {team.venue && ` • ${team.venue}`}
-          </p>
-        </div>
-        <button
-          onClick={() => {
-            if (!long.current) toggle();
-          }}
-          aria-label="favorite"
-          className={`shrink-0 rounded-full p-2 ${
-            fav ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-          }`}
-        >
-          <Heart className={`h-4 w-4 ${fav ? "fill-current" : ""}`} />
-        </button>
-      </div>
-      {team.notes && (
-        <ul className="space-y-1 px-4 pb-3 text-xs text-muted-foreground">
-          {team.notes.map((n) => (
-            <li key={n}>• {n}</li>
-          ))}
-        </ul>
-      )}
-      {team.sentiment && (
-        <div className="px-4 pb-4 text-xs">
-          <div className="mb-1 flex justify-between">
-            <span>{t.fanMood}</span>
-            <b className={team.sentiment.label === "Frustrated" ? "text-destructive" : "text-primary"}>
-              {team.sentiment.pct}% {team.sentiment.label}
-            </b>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-            <div
-              className={team.sentiment.label === "Frustrated" ? "h-full bg-destructive" : "h-full bg-primary"}
-              style={{ width: `${team.sentiment.pct}%` }}
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
+// =========================================================================
+// MY TEAMS TAB
+// =========================================================================
 function MyTab({
   favs,
-  games,
   toggleFav,
   addAllMN,
+  games,
   lang,
   preds,
   setPreds,
 }: {
   favs: string[];
-  games: Game[];
   toggleFav: (id: string) => void;
   addAllMN: () => void;
+  games: Game[];
   lang: Lang;
   preds: Record<string, { h: number; a: number }>;
   setPreds: (p: Record<string, { h: number; a: number }>) => void;
 }) {
   const t = T[lang];
-  const favTeams = favs.map(teamById);
-  const favGames = games.filter((g) => favs.includes(g.home) || favs.includes(g.away));
+  const myTeams = TEAMS.filter((tm) => favs.includes(tm.id));
+  const myGames = games.filter((g) => favs.includes(g.home) || favs.includes(g.away));
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-display text-2xl tracking-wide">{t.my}</h2>
+          <h2 className="font-display text-2xl tracking-wide">{t.myTeams}</h2>
           <p className="text-xs text-muted-foreground">
-            {favTeams.length} {lang === "th" ? "ทีมที่คุณติดตาม" : "favorited teams"}
+            {myTeams.length} teams favorited
           </p>
         </div>
         <button
           onClick={addAllMN}
-          className="flex items-center gap-1.5 rounded-full bg-[#4F2683] px-3.5 py-1.5 text-xs font-bold text-[#FFC62F] shadow-sm hover:opacity-90"
+          className="rounded-lg bg-primary/20 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/30"
         >
-          <Sparkles className="h-3.5 w-3.5" />
           {t.addAllMN}
         </button>
       </div>
 
-      {favTeams.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-          {t.empty}
-        </div>
-      ) : (
-        <>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        {myTeams.map((tm) => (
+          <TeamCard
+            key={tm.id}
+            t={tm}
+            fav={favs.includes(tm.id)}
+            onToggle={() => toggleFav(tm.id)}
+            lang={lang}
+          />
+        ))}
+      </div>
+
+      <section className="space-y-3">
+        <h3 className="font-display text-xl tracking-wide">{t.myUpcoming}</h3>
+        {myGames.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            No games found for your favorite teams.
+          </div>
+        ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {favTeams.map((team) => (
-              <TeamCard key={team.id} team={team} fav={true} toggle={() => toggleFav(team.id)} lang={lang} />
+            {myGames.map((g) => (
+              <GameCard
+                key={g.id}
+                g={g}
+                lang={lang}
+                pred={preds[g.id]}
+                onPredict={(h, a) => setPreds({ ...preds, [g.id]: { h, a } })}
+              />
             ))}
           </div>
+        )}
+      </section>
+    </div>
+  );
+}
 
-          <div className="pt-4">
-            <h3 className="mb-3 font-display text-xl tracking-wide">{lang === "th" ? "โปรแกรมทีมโปรด" : "Favorites Match Schedule"}</h3>
-            {favGames.length === 0 ? (
-              <p className="text-xs text-muted-foreground">
-                {lang === "th" ? "ไม่มีแมตช์สดหรือเร็ว ๆ นี้สำหรับทีมโปรด" : "No live or scheduled upcoming games for your favorites right now."}
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {favGames.map((g) => (
-                  <GameCard
-                    key={g.id}
-                    g={g}
-                    lang={lang}
-                    pred={preds[g.id]}
-                    onPredict={(h, a) => setPreds({ ...preds, [g.id]: { h, a } })}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </>
+function TeamCard({
+  t,
+  fav,
+  onToggle,
+  lang,
+}: {
+  t: Team;
+  fav: boolean;
+  onToggle: () => void;
+  lang: Lang;
+}) {
+  const [pressTimer, setPressTimer] = useState<any>(null);
+
+  return (
+    <div
+      onMouseDown={() => {
+        const timer = setTimeout(() => {
+          onToggle();
+          navigator.vibrate?.([50]);
+        }, 500);
+        setPressTimer(timer);
+      }}
+      onMouseUp={() => clearTimeout(pressTimer)}
+      onTouchStart={() => {
+        const timer = setTimeout(() => {
+          onToggle();
+          navigator.vibrate?.([50]);
+        }, 500);
+        setPressTimer(timer);
+      }}
+      onTouchEnd={() => clearTimeout(pressTimer)}
+      className="group relative flex flex-col items-center justify-between rounded-2xl border border-border bg-card p-4 text-center transition hover:border-primary/40"
+    >
+      <button
+        onClick={onToggle}
+        className="absolute top-2 right-2 text-muted-foreground hover:text-primary"
+      >
+        <Star
+          className={`h-4 w-4 ${fav ? "fill-primary text-primary" : "text-muted-foreground"}`}
+        />
+      </button>
+
+      <Seal t={t} size={48} />
+      <div className="mt-2 font-display text-base font-bold">
+        {lang === "th" && t.th ? t.th : t.name}
+      </div>
+      <div className="text-[11px] text-muted-foreground">{t.sport}</div>
+      {t.record && (
+        <div className="mt-1 font-mono text-[11px] font-bold text-primary">
+          {t.record}
+        </div>
       )}
     </div>
   );
 }
 
+// =========================================================================
+// EXPLORE TAB
+// =========================================================================
 function ExploreTab({
   favs,
   toggleFav,
@@ -1455,65 +1469,54 @@ function ExploreTab({
   toggleFav: (id: string) => void;
   lang: Lang;
 }) {
-  const [q, setQ] = useState("");
-  const [sportFilter, setSportFilter] = useState<string>("all");
-  const t = T[lang];
+  const [search, setSearch] = useState("");
+  const [sportFilter, setSportFilter] = useState("All");
 
-  const sports = useMemo(() => ["all", ...Array.from(new Set(TEAMS.map((x) => x.sport)))], []);
+  const sports = ["All", "Football", "Basketball", "Hockey", "Baseball", "Soccer"];
 
-  const results = useMemo(() => {
-    const query = q.toLowerCase().trim();
-    return TEAMS.filter((tm) => {
-      const matchSport = sportFilter === "all" || tm.sport === sportFilter;
-      const matchQ =
-        !query ||
-        tm.name.toLowerCase().includes(query) ||
-        tm.th.toLowerCase().includes(query) ||
-        tm.seal.toLowerCase().includes(query) ||
-        tm.league.toLowerCase().includes(query);
-      return matchSport && matchQ;
-    });
-  }, [q, sportFilter]);
+  const filteredTeams = TEAMS.filter((tm) => {
+    const matchesSearch =
+      tm.name.toLowerCase().includes(search.toLowerCase()) ||
+      tm.seal.toLowerCase().includes(search.toLowerCase()) ||
+      (tm.th && tm.th.includes(search));
+    const matchesSport = sportFilter === "All" || tm.sport === sportFilter;
+    return matchesSearch && matchesSport;
+  });
 
   return (
-    <div className="space-y-4">
-      {/* Search Input */}
-      <div className="relative">
-        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <input
           type="text"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder={t.search}
-          className="w-full rounded-2xl border border-border bg-card py-3 pr-4 pl-10 text-sm shadow-sm outline-none focus:border-primary"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search team, sport, or abbreviation..."
+          className="w-full max-w-md rounded-xl border border-border bg-card px-4 py-2.5 text-sm focus:border-primary focus:outline-hidden"
         />
+        <div className="flex gap-1.5 overflow-x-auto pb-1 text-xs">
+          {sports.map((sp) => (
+            <button
+              key={sp}
+              onClick={() => setSportFilter(sp)}
+              className={`rounded-full px-3 py-1 font-semibold whitespace-nowrap transition ${
+                sportFilter === sp
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {sp}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Sport Category Pills */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {sports.map((sp) => (
-          <button
-            key={sp}
-            onClick={() => setSportFilter(sp)}
-            className={`rounded-full px-3 py-1 text-xs font-semibold capitalize whitespace-nowrap transition ${
-              sportFilter === sp
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {sp === "all" ? (lang === "th" ? "ทั้งหมด" : "All Sports") : sp}
-          </button>
-        ))}
-      </div>
-
-      {/* Grid of Teams */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {results.map((team) => (
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        {filteredTeams.map((tm) => (
           <TeamCard
-            key={team.id}
-            team={team}
-            fav={favs.includes(team.id)}
-            toggle={() => toggleFav(team.id)}
+            key={tm.id}
+            t={tm}
+            fav={favs.includes(tm.id)}
+            onToggle={() => toggleFav(tm.id)}
             lang={lang}
           />
         ))}
@@ -1522,6 +1525,9 @@ function ExploreTab({
   );
 }
 
+// =========================================================================
+// LEAGUES TAB
+// =========================================================================
 function LeaguesTab({
   games,
   lang,
@@ -1533,69 +1539,99 @@ function LeaguesTab({
   preds: Record<string, { h: number; a: number }>;
   setPreds: (p: Record<string, { h: number; a: number }>) => void;
 }) {
-  const [sel, setSel] = useState<string>("All");
+  const [activeLeague, setActiveLeague] = useState(LEAGUES[0]);
 
-  const filtered = sel === "All" ? games : games.filter((g) => g.league === sel);
+  const leagueGames = games.filter(
+    (g) => g.league.toLowerCase() === activeLeague.toLowerCase()
+  );
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {["All", ...LEAGUES].map((lg) => (
+    <div className="space-y-6">
+      <div className="flex gap-2 overflow-x-auto pb-2 text-xs">
+        {LEAGUES.map((l) => (
           <button
-            key={lg}
-            onClick={() => setSel(lg)}
-            className={`rounded-full px-3.5 py-1 text-xs font-bold whitespace-nowrap transition ${
-              sel === lg
-                ? "bg-primary text-primary-foreground"
+            key={l}
+            onClick={() => setActiveLeague(l)}
+            className={`rounded-full px-4 py-1.5 font-bold uppercase tracking-wider whitespace-nowrap transition ${
+              activeLeague === l
+                ? "bg-primary text-primary-foreground shadow-sm"
                 : "bg-muted text-muted-foreground hover:text-foreground"
             }`}
           >
-            {lg}
+            {l}
           </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((g) => (
-          <GameCard
-            key={g.id}
-            g={g}
-            lang={lang}
-            pred={preds[g.id]}
-            onPredict={(h, a) => setPreds({ ...preds, [g.id]: { h, a } })}
-          />
-        ))}
+      <div className="space-y-3">
+        <h3 className="font-display text-xl tracking-wide">{activeLeague} Fixtures</h3>
+        {leagueGames.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            No active or upcoming fixtures currently scheduled for {activeLeague}.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {leagueGames.map((g) => (
+              <GameCard
+                key={g.id}
+                g={g}
+                lang={lang}
+                pred={preds[g.id]}
+                onPredict={(h, a) => setPreds({ ...preds, [g.id]: { h, a } })}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function FantasyTab({ favs, lang }: { favs: string[]; lang: Lang }) {
+// =========================================================================
+// FANTASY TAB
+// =========================================================================
+function FantasyTab({
+  preds,
+  games,
+  lang,
+}: {
+  preds: Record<string, { h: number; a: number }>;
+  games: Game[];
+  lang: Lang;
+}) {
   const t = T[lang];
-  const roster = favs.map(teamById);
+  const predCount = Object.keys(preds).length;
 
   const leaderboard = [
-    { rank: 1, name: "Somchai (Bangkok)", pts: 342 },
-    { rank: 2, name: "SkolVikes55 (Minneapolis)", pts: 318 },
-    { rank: 3, name: "DragonFan_RB", pts: 295 },
-    { rank: 4, name: "TwinCitiesHero", pts: 274 },
+    { rank: 1, name: "Somchai (Ratchaburi)", pts: 1420 },
+    { rank: 2, name: "SkolVikes55 (Minneapolis)", pts: 1380 },
+    { rank: 3, name: "DragonFan_RB", pts: 1240 },
+    { rank: 4, name: "TwinCitiesHero", pts: 1190 },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="mb-1 font-display text-2xl tracking-wide">{t.roster}</h2>
-        <p className="mb-4 text-xs text-muted-foreground">{t.scoring}</p>
-        <div className="flex flex-wrap gap-2">
-          {roster.map((tm) => (
-            <span
-              key={tm.id}
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-muted/60 px-3 py-1.5 text-xs font-semibold"
-            >
-              <Seal t={tm} size={24} />
-              <span>{tm.name}</span>
-            </span>
-          ))}
+      <div className="rounded-3xl border border-border bg-gradient-to-r from-card to-secondary/30 p-6 shadow-sm">
+        <h2 className="font-display text-2xl tracking-wide sm:text-3xl">
+          {t.fantasy}
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Predict match outcomes to earn points and climb the weekly leaderboard.
+        </p>
+
+        <div className="mt-4 flex gap-4 text-center">
+          <div className="rounded-2xl bg-muted/50 px-4 py-2">
+            <div className="font-display text-2xl font-bold text-primary">
+              {predCount}
+            </div>
+            <div className="text-xs text-muted-foreground">Your Predictions</div>
+          </div>
+          <div className="rounded-2xl bg-muted/50 px-4 py-2">
+            <div className="font-display text-2xl font-bold text-accent">
+              {predCount * 50}
+            </div>
+            <div className="text-xs text-muted-foreground">Est. Points</div>
+          </div>
         </div>
       </div>
 
@@ -1603,12 +1639,15 @@ function FantasyTab({ favs, lang }: { favs: string[]; lang: Lang }) {
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h3 className="font-display text-xl tracking-wide">{t.leaderboard}</h3>
-            <p className="text-xs text-muted-foreground">Weekly Hermetica OS Fantasy League</p>
+            <p className="text-xs text-muted-foreground">
+              Weekly Hermetica OS Fantasy League
+            </p>
           </div>
           <button
             onClick={() => {
               const url = `https://line.me/R/msg/text/?${encodeURIComponent(
-                "Join my Hermetica Sports OS Fantasy Leaderboard! " + window.location.href
+                "Join my Hermetica Sports OS Fantasy Leaderboard! " +
+                  window.location.href
               )}`;
               window.open(url, "_blank");
             }}
