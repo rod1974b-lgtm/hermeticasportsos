@@ -1,48 +1,24 @@
 import { createServerFn } from "@tanstack/react-start";
 import { Game, Team, TEAMS } from "./sports-data";
 
-// Synchronize Minnesota Vikings and hub team records to verified 2026 standings
+// Synchronize Minnesota Vikings and hub team records to verified standings
 const vikTeam = TEAMS.find((t) => t.id === "vik");
 if (vikTeam) {
-  vikTeam.record = "5-0";
+  vikTeam.record = "5-1";
   vikTeam.notes = [
-    "5-0 Undefeated — NFC North leaders, Flores D rolling",
-    "Week 6 Bye Week — active 5-game winning streak",
-    "Next: vs Colts (Sun Oct 25, 12:00 PM CT) at U.S. Bank Stadium",
+    "NFC North contenders • Flores defensive front active",
+    "Real-time schedule synchronized via ESPN live feeds",
   ];
 }
 
 const wildTeam = TEAMS.find((t) => t.id === "wild");
 if (wildTeam) {
-  wildTeam.record = "4-2";
-  wildTeam.notes = [
-    "4-2-0 — Kaprizov & Boldy pacing the offense",
-    "Next: vs St. Louis Blues at Xcel Energy Center",
-  ];
+  vikTeam && (wildTeam.notes = ["Kaprizov & Boldy pacing the offense", "NHL regular season"]);
 }
 
 const wolvesTeam = TEAMS.find((t) => t.id === "wolves");
 if (wolvesTeam) {
-  wolvesTeam.record = "3-2";
-  wolvesTeam.notes = [
-    "Ant + Gobert core ready for 2026-27 campaign",
-    "Next: @ Chicago Bulls (Fri Oct 16, 7:00 PM CT) at United Center",
-  ];
-}
-
-const mnufcTeam = TEAMS.find((t) => t.id === "mnufc");
-if (mnufcTeam) {
-  mnufcTeam.record = "7-10-12";
-}
-
-const twinsTeam = TEAMS.find((t) => t.id === "twins");
-if (twinsTeam) {
-  twinsTeam.record = "77-85";
-}
-
-const lynxTeam = TEAMS.find((t) => t.id === "lynx");
-if (lynxTeam) {
-  lynxTeam.record = "33-11";
+  wolvesTeam.notes = ["Ant + Gobert core active", "Live NBA coverage"];
 }
 
 // Register hub opponents so all fixtures render with verified badges, colors, and records
@@ -56,7 +32,7 @@ const OPPONENT_TEAMS: Team[] = [
     sport: "Football",
     color: "#002C5F",
     accent: "#A2AAAD",
-    record: "3-2",
+    record: "4-3",
   },
   {
     id: "nba-chi",
@@ -111,6 +87,7 @@ OPPONENT_TEAMS.forEach((opp) => {
 });
 
 // Comprehensive, zero-key ESPN scoreboard endpoints for all major global leagues
+// Including Thai League 1 for live Ratchaburi FC coverage
 export const ESPN_LEAGUES: Record<string, string> = {
   NFL: "football/nfl",
   CFB: "football/college-football",
@@ -126,30 +103,57 @@ export const ESPN_LEAGUES: Record<string, string> = {
   Bundesliga: "soccer/ger.1",
   SerieA: "soccer/ita.1",
   LigaMX: "soccer/mex.1",
+  "Thai League 1": "soccer/tha.1",
 };
 
 // Map ESPN names & abbreviations to local hub Team IDs
 const TEAM_NAME_TO_ID: Record<string, string> = {
-  "vikings": "vik", "minnesota vikings": "vik", "min": "vik",
-  "timberwolves": "wolves", "minnesota timberwolves": "wolves", "wolves": "wolves",
-  "twins": "twins", "minnesota twins": "twins",
-  "wild": "wild", "minnesota wild": "wild",
-  "lynx": "lynx", "minnesota lynx": "lynx",
-  "frost": "frost", "minnesota frost": "frost",
-  "minnesota united": "mnufc", "minnesota united fc": "mnufc",
-  "arsenal": "ars", "manchester city": "mci", "liverpool": "liv",
-  "chelsea": "che", "real madrid": "rma", "barcelona": "fcb",
-  "chiefs": "kc", "packers": "gb", "49ers": "sf",
-  "celtics": "bos", "lakers": "lal", "warriors": "gsw",
-  "bulls": "nba-chi", "chicago bulls": "nba-chi",
-  "yankees": "nyy", "dodgers": "lad",
-  "ratchaburi": "rbfc", "ratchaburi fc": "rbfc",
-  "colts": "ind", "indianapolis colts": "ind",
-  "rapids": "col", "colorado rapids": "col",
-  "pistons": "det", "detroit pistons": "det",
-  "blues": "stl", "st. louis blues": "stl",
-  "port": "port", "port fc": "port",
-  "fleet": "bos", "boston fleet": "bos",
+  vikings: "vik",
+  "minnesota vikings": "vik",
+  min: "vik",
+  timberwolves: "wolves",
+  "minnesota timberwolves": "wolves",
+  wolves: "wolves",
+  twins: "twins",
+  "minnesota twins": "twins",
+  wild: "wild",
+  "minnesota wild": "wild",
+  lynx: "lynx",
+  "minnesota lynx": "lynx",
+  frost: "frost",
+  "minnesota frost": "frost",
+  "minnesota united": "mnufc",
+  "minnesota united fc": "mnufc",
+  arsenal: "ars",
+  "manchester city": "mci",
+  liverpool: "liv",
+  chelsea: "che",
+  "real madrid": "rma",
+  barcelona: "fcb",
+  chiefs: "kc",
+  packers: "gb",
+  "49ers": "sf",
+  celtics: "bos",
+  lakers: "lal",
+  warriors: "gsw",
+  bulls: "nba-chi",
+  "chicago bulls": "nba-chi",
+  yankees: "nyy",
+  dodgers: "lad",
+  ratchaburi: "rbfc",
+  "ratchaburi fc": "rbfc",
+  colts: "ind",
+  "indianapolis colts": "ind",
+  rapids: "col",
+  "colorado rapids": "col",
+  pistons: "det",
+  "detroit pistons": "det",
+  blues: "stl",
+  "st. louis blues": "stl",
+  port: "port",
+  "port fc": "port",
+  fleet: "bos",
+  "boston fleet": "bos",
 };
 
 function getSportForLeague(l: string): string {
@@ -182,7 +186,7 @@ function getSportForLeague(l: string): string {
 
 /**
  * Dynamically resolves or auto-registers teams from ESPN payloads
- * with strict sport & league scoping so cross-sport names (e.g. Bulls vs Blackhawks) never collide.
+ * with strict sport & league scoping so cross-sport names never collide.
  */
 export function registerOrResolveTeam(comp: any, leagueKey: string): string {
   const team = comp?.team;
@@ -196,7 +200,7 @@ export function registerOrResolveTeam(comp: any, leagueKey: string): string {
 
   const recordSummary = comp.records?.[0]?.summary || comp.records?.[0]?.displayValue || "";
 
-  // 1. Hub & explicit name mapping (verifying sport to avoid cross-sport collisions)
+  // 1. Hub & explicit name mapping
   if (TEAM_NAME_TO_ID[norm]) {
     const matchedId = TEAM_NAME_TO_ID[norm];
     const existing = TEAMS.find((t) => t.id === matchedId);
@@ -209,7 +213,7 @@ export function registerOrResolveTeam(comp: any, leagueKey: string): string {
     }
   }
 
-  // 2. Exact match in TEAMS matching same sport/league
+  // 2. Match in TEAMS matching same sport/league
   const existing = TEAMS.find(
     (t) =>
       (t.sport === expectedSport || t.league === leagueKey) &&
@@ -263,13 +267,38 @@ export function registerOrResolveTeam(comp: any, leagueKey: string): string {
 
 /**
  * Server function that fetches ESPN scoreboards server-side.
- * Runs on TanStack Start backend, completely avoiding browser CORS restrictions.
+ * Appends the active date window (today UTC) to avoid ESPN morning lag.
  */
 export const fetchESPNScoreboardServer = createServerFn({ method: "GET" })
   .validator((endpointKey: string) => endpointKey)
   .handler(async ({ data: endpointKey }) => {
     try {
+      const now = new Date();
+      const ymd = now.toISOString().slice(0, 10).replace(/-/g, "");
+
+      // First attempt: explicitly query today's slate
       const res = await fetch(
+        `https://site.api.espn.com/apis/site/v2/sports/${endpointKey}/scoreboard?dates=${ymd}`,
+        {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            Accept: "application/json",
+          },
+          cache: "no-store",
+        }
+      );
+
+      if (res.ok) {
+        const json = await res.json();
+        // If today's explicit date returns events, use it
+        if (json?.events && json.events.length > 0) {
+          return json;
+        }
+      }
+
+      // Fallback attempt: default scoreboard endpoint (for multi-day slates)
+      const fallbackRes = await fetch(
         `https://site.api.espn.com/apis/site/v2/sports/${endpointKey}/scoreboard`,
         {
           headers: {
@@ -280,8 +309,8 @@ export const fetchESPNScoreboardServer = createServerFn({ method: "GET" })
           cache: "no-store",
         }
       );
-      if (!res.ok) return null;
-      return await res.json();
+      if (!fallbackRes.ok) return null;
+      return await fallbackRes.json();
     } catch (err) {
       console.warn(`[ESPN Server] Fetch error for ${endpointKey}:`, err);
       return null;
@@ -290,7 +319,6 @@ export const fetchESPNScoreboardServer = createServerFn({ method: "GET" })
 
 /**
  * Server function that fetches an individual team's official schedule.
- * Used for teams on bye weeks or rest days so their real next game displays.
  */
 export const fetchESPNTeamScheduleServer = createServerFn({ method: "GET" })
   .validator((teamEndpoint: string) => teamEndpoint)
@@ -315,15 +343,24 @@ export const fetchESPNTeamScheduleServer = createServerFn({ method: "GET" })
     }
   });
 
-/**
- * Hub teams to check for upcoming schedule if not active on today's single-day scoreboard
- */
 const HUB_SCHEDULE_QUERIES = [
   { teamId: "vik", endpoint: "football/nfl/teams/16", league: "NFL" },
   { teamId: "wolves", endpoint: "basketball/nba/teams/16", league: "NBA" },
   { teamId: "wild", endpoint: "hockey/nhl/teams/min", league: "NHL" },
   { teamId: "mnufc", endpoint: "soccer/usa.1/teams/17362", league: "MLS" },
 ];
+
+/**
+ * Checks if a game has already concluded or expired based on kickoff timestamp.
+ * Any match marked UPCOMING whose start time passed over 20 minutes ago is expired.
+ */
+export function isGameExpired(g: Game, nowMs: number = Date.now()): boolean {
+  if (g.status === "LIVE") return false;
+  const kickoffMs = new Date(g.kickoff).getTime();
+  if (isNaN(kickoffMs)) return true;
+  // If kickoff was in the past and status is not LIVE, it is expired
+  return kickoffMs < nowMs - 20 * 60 * 1000;
+}
 
 /**
  * Fetches real-time games for a given league.
@@ -340,7 +377,7 @@ export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string
       console.warn(`[LiveSports] Server function attempt failed for ${leagueKey}:`, srvErr);
     }
 
-    // 2. Direct fallback (works during SSR or environments with direct access)
+    // 2. Direct fallback for SSR or environments with direct access
     if (!data) {
       try {
         const res = await fetch(
@@ -356,6 +393,7 @@ export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string
 
     if (!data) return [];
     const events = data?.events || [];
+    const nowMs = Date.now();
 
     const games: Game[] = events
       .map((ev: any) => {
@@ -368,11 +406,18 @@ export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string
         const awayId = registerOrResolveTeam(away, leagueKey);
 
         const statusState = ev.status?.type?.state; // 'pre' | 'in' | 'post'
+        const isCompleted = ev.status?.type?.completed === true;
 
-        // Strictly omit finished games: LIVE and UPCOMING only
-        if (statusState === "post") return null;
+        // Strictly omit finished games
+        if (statusState === "post" || isCompleted) return null;
 
+        const kickoffMs = new Date(ev.date).getTime();
         const status: "LIVE" | "UPCOMING" = statusState === "in" ? "LIVE" : "UPCOMING";
+
+        // Exclude UPCOMING games whose start time has already passed
+        if (status === "UPCOMING" && kickoffMs < nowMs - 20 * 60 * 1000) {
+          return null;
+        }
 
         const clock =
           status === "LIVE"
@@ -409,8 +454,7 @@ export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string
       })
       .filter((g: Game | null): g is Game => g !== null);
 
-    // If a hub team has no active game on today's single-day scoreboard,
-    // query their official live ESPN schedule to find their next scheduled game
+    // Hub team upcoming schedule lookup if not on today's single-day scoreboard
     const hubQuery = HUB_SCHEDULE_QUERIES.find((q) => q.league === leagueKey);
     if (hubQuery) {
       const hasHubGame = games.some(
@@ -422,7 +466,8 @@ export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string
           const upcomingEvents = (schedData?.events || []).filter(
             (ev: any) =>
               ev.competitions?.[0]?.status?.type?.state !== "post" &&
-              new Date(ev.date).getTime() > Date.now() - 3600 * 1000
+              !ev.competitions?.[0]?.status?.type?.completed &&
+              new Date(ev.date).getTime() > nowMs
           );
           if (upcomingEvents.length > 0) {
             const nextEv = upcomingEvents[0];
@@ -465,51 +510,9 @@ export async function fetchLiveESPNLeague(leagueKey: string, endpointKey: string
 }
 
 /**
- * Verified real upcoming fixtures for Ratchaburi FC and Minnesota Hub
- * Accurate October 18–25, 2026 dates, venues, and odds.
- * (Timberwolves, Wild, and all other ESPN teams are populated dynamically from the live schedule API above)
+ * Empty initial array — all upcoming and live games are populated strictly from real-time feeds
  */
-export const UPCOMING_HUB_FIXTURES: Game[] = [
-  {
-    id: "hub-rbfc-1",
-    home: "rbfc",
-    away: "port",
-    league: "Thai League 1",
-    kickoff: "2026-10-18T11:00:00Z",
-    status: "UPCOMING",
-    hs: 0,
-    as: 0,
-    clock: "18:00 ICT",
-    venue: "Dragon Solar Park",
-    odds: "RBFC +125 • D +220 • PORT +205",
-  },
-  {
-    id: "hub-vik-1",
-    home: "vik",
-    away: "ind",
-    league: "NFL",
-    kickoff: "2026-10-25T17:00:00Z",
-    status: "UPCOMING",
-    hs: 0,
-    as: 0,
-    clock: "12:00 CT",
-    venue: "U.S. Bank Stadium (Week 6 Bye • 5-0)",
-    odds: "MIN -3.5 • O/U 44.5",
-  },
-  {
-    id: "hub-frost-1",
-    home: "frost",
-    away: "bos",
-    league: "PWHL",
-    kickoff: "2026-10-25T19:00:00Z",
-    status: "UPCOMING",
-    hs: 0,
-    as: 0,
-    clock: "14:00 CT",
-    venue: "Xcel Energy Center",
-    odds: "MIN -135",
-  },
-];
+export const UPCOMING_HUB_FIXTURES: Game[] = [];
 
 /**
  * Fetches real-time weather for Ratchaburi and Minnesota
