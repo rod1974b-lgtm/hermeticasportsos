@@ -1,300 +1,265 @@
 import { Team, Lang, TEAMS, teamById } from "@/lib/sports-data";
 
-export type PulseTrend = "surging" | "steady" | "cooling";
-export type SeasonPhase = "regular" | "playoffs" | "champions" | "offseason" | "bye";
+export type PulseTrend = "surging" | "steady" | "cooling" | "critical";
+
+export interface CatalystItem {
+  type: "win_streak" | "championship" | "injury" | "draft" | "offseason" | "signing";
+  headline: { en: string; th: string };
+  date: string;
+}
 
 export interface YearRoundPulse {
   teamId: string;
-  name: string;
-  league: string;
-  score: number; // 0-100 Auto-ranked
+  pulseScore: number; // 0 to 100
   trend: PulseTrend;
-  phase: SeasonPhase;
-  phaseBadge: { en: string; th: string };
-  metric: { en: string; th: string };
-  summary: { en: string; th: string };
-  catalysts: Array<{ label: { en: string; th: string }; value: { en: string; th: string } }>;
+  phase: {
+    en: string;
+    th: string;
+  };
+  narrative: {
+    en: string;
+    th: string;
+  };
+  catalysts: CatalystItem[];
+  focusPill: {
+    en: string;
+    th: string;
+  };
+  lastUpdated: string;
 }
 
 export const YEAR_ROUND_PULSE: Record<string, YearRoundPulse> = {
-  lynx: {
-    teamId: "lynx",
-    name: "Minnesota Lynx",
-    league: "WNBA",
-    score: 94,
-    trend: "surging",
-    phase: "playoffs",
-    phaseBadge: {
-      en: "Postseason Chase • #1 Seed",
-      th: "ลุ้นแชมป์เพลย์ออฟ • เต็ง 1",
-    },
-    metric: {
-      en: "32-10 Record • Top Defensive Rating • +8.4 Net Margin",
-      th: "สถิติ 32-10 • ทีมรับอันดับหนึ่ง • ผลต่างแต้ม +8.4",
-    },
-    summary: {
-      en: "Coming off a dominant 32-10 regular season and pushing for top-seed supremacy, the Lynx are operating at peak efficiency under head coach Cheryl Reeve. Their defensive communication and perimeter spacing have set the league standard, generating elite turnover-to-fastbreak conversion rates. With veteran leadership commanding late-game execution and the Target Center crowd rallying behind their title chase, the locker room pulse is running on pure championship conviction.",
-      th: "หลังจากจบฤดูกาลปกติอันยอดเยี่ยมด้วยสถิติ 32-10 และกำลังขับเคี่ยวแย่งชิงมือวางอันดับ 1 ของลีก มินนิโซตา ลิงซ์ ภายใต้การคุมทัพของโค้ช เชอริล รีฟ กำลังเล่นด้วยฟอร์มที่สมบูรณ์แบบ ทั้งระบบเกมรับที่เหนียวแน่นและการโจมตีวงนอกที่แม่นยำ ด้วยความเก๋าของแกนหลักและความฮึกเหิมของแฟนคลับในทาร์เก็ต เซ็นเตอร์ ส่งผลให้ชีพจรความมั่นใจในห้องแต่งตัวพุ่งแตะระดับลุ้นแชมป์สูงสุด",
-    },
-    catalysts: [
-      {
-        label: { en: "Head Coach Focus", th: "การคุมทีม" },
-        value: { en: "Cheryl Reeve playoff rotation discipline", th: "การจัดตัวผู้เล่นช่วงเพลย์ออฟที่รัดกุม" },
-      },
-      {
-        label: { en: "Core Strength", th: "จุดแข็งหลัก" },
-        value: { en: "Perimeter lockdown & fastbreak points", th: "การปิดพื้นที่วงนอกและการเปลี่ยนจังหวะทำแต้มเร็ว" },
-      },
-      {
-        label: { en: "Immediate Milestone", th: "เป้าหมายเร่งด่วน" },
-        value: { en: "Lock down Finals home-court advantage", th: "การันตีสิทธิ์เล่นในบ้านตลอดรอบชิงชนะเลิศ" },
-      },
-    ],
-  },
-
   vik: {
     teamId: "vik",
-    name: "Minnesota Vikings",
-    league: "NFL",
-    score: 92,
+    pulseScore: 94,
     trend: "surging",
-    phase: "regular",
-    phaseBadge: {
-      en: "Regular Season • NFC North Contender",
-      th: "ฤดูกาลปกติ • ผู้ท้าชิงสาย NFC North",
+    phase: {
+      en: "Regular Season • Undefeated Bye Week (5-0)",
+      th: "ฤดูกาลปกติ • สัปดาห์พักแข่ง ไร้พ่าย 5-0",
     },
-    metric: {
-      en: "Top-3 Scoring Defense • League-Leading Pressure Rate",
-      th: "ทีมรับเสียแต้มน้อยท็อป 3 • สถิติกดดันควอเตอร์แบ็กอันดับ 1",
-    },
-    summary: {
-      en: "Under defensive coordinator Brian Flores, Minnesota's defense has developed into a relentless turnover engine, throwing complex disguise packages at opposing quarterbacks and dictating field position. The offense has paired efficient situational red-zone play with Justin Jefferson's gravitational pull on secondaries to close out one-possession battles. Approaching high-stakes divisional clashes, the organization is carrying true postseason urgency and intense fan backing at U.S. Bank Stadium.",
-      th: "ภายใต้แผนการเล่นอันดุดันของ ไบรอัน ฟลอเรส ทีมรับของมินนิโซตา ไวกิ้งส์ ได้กลายเป็นเครื่องจักรแย่งเทิร์นโอเวอร์ชั้นยอดที่สร้างแรงกดดันใส่ควอเตอร์แบ็กคู่แข่งได้อย่างต่อเนื่อง ขณะที่เกมบุกสามารถประคองจังหวะเรดโซนได้อย่างเฉียบคมโดยมี จัสติน เจฟเฟอร์สัน เป็นหัวใจหลัก เมื่อเข้าสู่ช่วงโปรแกรมสำคัญในดิวิชั่น บรรยากาศของทีมและแรงใจจากแฟนบอลยูเอส แบงก์ สเตเดียม จึงเต็มไปด้วยความมุ่งมั่นสู่รอบเพลย์ออฟ",
+    narrative: {
+      en: "The Minnesota Vikings enter their Week 6 bye standing as one of the NFL's premier defensive and tactical juggernauts at an unblemished 5-0. Brian Flores' defense leads the entire league in takeaways, disguised coverage packages, and pressure rate, utterly suffocating opposing franchise quarterbacks. Meanwhile, Kevin O'Connell's offensive schematics have transformed Sam Darnold into an MVP-contending orchestrator with Justin Jefferson and Jordan Addison commanding the perimeter. With Aaron Jones spearheading balance in the backfield, Minnesota has transformed from an offseason question mark into the consensus betting darling to claim the NFC North crown.",
+      th: "มินนิโซตา ไวกิงส์ เข้าสู่สัปดาห์พักการแข่งขันวีก 6 ในฐานะหนึ่งในทีมที่ร้อนแรงที่สุดในเอ็นเอฟแอลด้วยสถิติ 5-0 ไร้พ่าย ภายใต้การวางหมากเกมรับของ ไบรอัน ฟลอเรส ที่นำสถิติการแย่งบอลและกดดันควอเตอร์แบ็กคู่แข่งจนขึ้นแท่นเกมรับเบอร์หนึ่ง ขณะที่ เควิน โอคอนเนลล์ ปรับจูนแท็กติกจน แซม ดาร์โนลด์ ก้าวสู่ฟอร์มระดับแถวหน้า ประสานงานกับ จัสติน เจฟเฟอร์สัน ได้อย่างเฉียบขาด ส่งผลให้กระแสความเชื่อมั่นของแฟนบอลพุ่งทะยานสู่ระดับสูงสุดในการลุ้นแชมป์สาย NFC North",
     },
     catalysts: [
       {
-        label: { en: "Defensive Catalyst", th: "หัวใจเกมรับ" },
-        value: { en: "Brian Flores exotic blitz and disguise packages", th: "การหลอกทางบุกและบลิตซ์อันซับซ้อนของฟลอเรส" },
+        type: "win_streak",
+        headline: {
+          en: "5-0 start before the London bye week",
+          th: "เปิดตัวสวยหรู 5 นัดรวดก่อนสัปดาห์พักแข่งลอนดอนเกมส์",
+        },
+        date: "Oct 2026",
       },
       {
-        label: { en: "Offensive Engine", th: "หัวใจเกมบุก" },
-        value: { en: "Justin Jefferson coverage manipulation", th: "การดึงตัวประกบคู่แข่งของ จัสติน เจฟเฟอร์สัน" },
-      },
-      {
-        label: { en: "Next Hurdle", th: "ด่านถัดไป" },
-        value: { en: "Crucial divisional battles for division lead", th: "ศึกตัดแต้มดิวิชันนัดสำคัญเพื่อยึดหัวตาราง" },
+        type: "signing",
+        headline: {
+          en: "Flores defense ranked #1 in EPA per drive",
+          th: "ระบบเกมรับของฟลอเรสครองอันดับ 1 ของลีกในค่าความคุ้มค่าเกมรับ",
+        },
+        date: "Oct 2026",
       },
     ],
+    focusPill: {
+      en: "Super Bowl Contender",
+      th: "ผู้ท้าชิงซูเปอร์โบวล์",
+    },
+    lastUpdated: "2026-10-26T08:00:00Z",
   },
-
-  frost: {
-    teamId: "frost",
-    name: "Minnesota Frost",
-    league: "PWHL",
-    score: 90,
-    trend: "steady",
-    phase: "champions",
-    phaseBadge: {
-      en: "Defending Champions • Walter Cup Dynasty",
-      th: "แชมป์เก่า • เจ้าของถ้วยวอลเตอร์ คัพ",
-    },
-    metric: {
-      en: "Back-to-Back Champions • 93.4% Penalty Kill",
-      th: "แชมป์สองสมัยซ้อน • สถิติป้องกันพาวเวอร์เพลย์ 93.4%",
-    },
-    summary: {
-      en: "The reigning back-to-back Walter Cup champions remain the gold standard of professional women's hockey, returning their shutdown defensive pairings and championship netminding core. Even during the transition into new seasonal training blocks, team cohesion remains exceptionally high as season-ticket demand hits new franchise milestones. The group enters the upcoming calendar year with the target on their back and unwavering poise.",
-      th: "ในฐานะแชมป์วอลเตอร์ คัพ สองสมัยซ้อน มินนิโซตา ฟรอสต์ ยังคงเป็นมาตรฐานสูงสุดของวงการฮอกกี้น้ำแข็งหญิงอาชีพ ด้วยการรักษาแกนหลักแนวรับและผู้รักษาประตูชุดแชมป์ไว้ได้อย่างครบถ้วน แม้จะอยู่ในช่วงเตรียมความพร้อมของโปรแกรมใหม่ แต่ความผูกพันในทีมและกระแสตอบรับจากแฟนคลับยังคงร้อนแรงต่อเนื่อง พร้อมลงป้องกันตำแหน่งด้วยความนิ่งและประสบการณ์ระดับแชมเปียน",
-    },
-    catalysts: [
-      {
-        label: { en: "Title Defense", th: "การป้องกันแชมป์" },
-        value: { en: "Intact blue-line & proven playoff netminding", th: "แผงแนวรับและผู้รักษาประตูชุดแชมป์ที่ครบเครื่อง" },
-      },
-      {
-        label: { en: "Fan Atmosphere", th: "บรรยากาศแฟนคลับ" },
-        value: { en: "Xcel Energy Center record season ticket base", th: "ยอดจองตั๋วฤดูกาลถล่มทลายที่เอ็กเซล เอนเนอร์จี เซ็นเตอร์" },
-      },
-      {
-        label: { en: "Goal", th: "เป้าหมายสูงสุด" },
-        value: { en: "Historic three-peat championship run", th: "สร้างประวัติศาสตร์คว้าแชมป์สมัยที่ 3 ติดต่อกัน" },
-      },
-    ],
-  },
-
   wolves: {
     teamId: "wolves",
-    name: "Minnesota Timberwolves",
-    league: "NBA",
-    score: 86,
+    pulseScore: 91,
     trend: "surging",
-    phase: "regular",
-    phaseBadge: {
-      en: "Regular Season • Western Contender",
-      th: "ฤดูกาลปกติ • ทีมเต็งสายตะวันตก",
+    phase: {
+      en: "Regular Season • Western Title Hunt",
+      th: "ฤดูกาลปกติ • ล่าแชมป์สายตะวันตก",
     },
-    metric: {
-      en: "Top-5 Defensive Net Rating • Edwards 28+ PPG",
-      th: "เรตติ้งเกมรับท็อป 5 • เอ็ดเวิร์ดส์เฉลี่ย 28+ แต้ม",
-    },
-    summary: {
-      en: "Built around Anthony Edwards' high-octane scoring and Rudy Gobert's interior rim deterrence, Minnesota is firmly cemented in the Western Conference contenders tier. Head coach Chris Finch has cultivated deeper bench wing production, allowing the squad to sustain defensive intensity across full 48-minute rotations. Target Center crowds are bringing playoff-tier energy, expecting nothing short of a deep Western Conference Finals run.",
-      th: "ด้วยการนำของ แอนโธนี เอ็ดเวิร์ดส์ ที่ระเบิดฟอร์มทำแต้มรอบทิศทาง ผสานกับ รูดี้ โกแบร์ ที่คุมพื้นที่ใต้แป้นได้อย่างแข็งแกร่ง ทิมเบอร์วูล์ฟส์ ยืนหยัดอย่างมั่นคงในกลุ่มหัวตารางของสายตะวันตก การหมุนเวียนผู้เล่นสำรองที่ลงตัวช่วยรักษามาตรฐานเกมรับได้ตลอดทั้งเกม ส่งผลให้แฟนบาสเกตบอลในมินนิโซตามีความหวังเต็มเปี่ยมที่จะเห็นทีมทะลุเข้าสู่รอบชิงแชมป์สายอีกครั้ง",
+    narrative: {
+      en: "Anthony Edwards has firmly established himself as a certified global megastar, elevating his offensive efficiency and late-game shot creation while commanding the Timberwolves into the upper echelon of the Western Conference. Defensively, Rudy Gobert and Jaden McDaniels continue to form an impenetrable twin-tower lockdown core that strangles transition offenses. The Target Center faithful are treated to title-caliber basketball every night, with depth from Naz Reid and Julius Randle providing secondary scoring punches that make Minnesota a lethal matchup over a seven-game postseason marathon.",
+      th: "แอนโธนี เอ็ดเวิร์ดส์ ยกระดับตนเองสู่ซูเปอร์สตาร์ระดับโลกอย่างเต็มตัว ด้วยทักษะการทำแต้มช่วงท้ายเกมและการเล่นเพลย์เมกเกอร์ที่เฉียบคม พา มินนิโซตา ทิมเบอร์วูล์ฟส์ ยืนหยัดบนหัวตารางสายตะวันตกอย่างแข็งแกร่ง ประสานกับเกมรับระดับเพชฌฆาตของ รูดี โกแบร์ต และ เจเดน แม็กแดเนียลส์ ที่หยุดยั้งคู่แข่งได้อย่างเบ็ดเสร็จ อีกทั้งการสนับสนุนจาก แนซ รีด และ จูเลียส แรนเดิล ทำให้ทัพหมาป่ากลายเป็นเต็งหามในการชิงแชมป์ NBA อย่างแท้จริง",
     },
     catalysts: [
       {
-        label: { en: "Franchise Star", th: "ผู้เล่นคนสำคัญ" },
-        value: { en: "Anthony Edwards elite clutch shot-making", th: "การทำแต้มช่วงเวลาชี้ชะตาของ แอนโธนี เอ็ดเวิร์ดส์" },
-      },
-      {
-        label: { en: "Defensive Anchor", th: "แกนหลักเกมรับ" },
-        value: { en: "Rudy Gobert paint denial & rim protection", th: "การป้องกันพื้นที่ใต้แป้นของ รูดี้ โกแบร์" },
-      },
-      {
-        label: { en: "Benchmark", th: "เป้าหมายทีม" },
-        value: { en: "Secure home-court advantage in Round 1", th: "ยึดมือวางกลุ่มบนเพื่อความได้เปรียบในบ้านรอบแรก" },
+        type: "win_streak",
+        headline: {
+          en: "Dominant 118-112 conquest at home",
+          th: "เปิดบ้านคว้าชัยเหนือแอลเอ 118-112 ด้วยฟอร์มสุดแกร่ง",
+        },
+        date: "Oct 2026",
       },
     ],
+    focusPill: {
+      en: "Western Conference Finals Favorite",
+      th: "เต็งแชมป์สายตะวันตก",
+    },
+    lastUpdated: "2026-10-26T08:00:00Z",
   },
-
-  rbfc: {
-    teamId: "rbfc",
-    name: "Ratchaburi FC",
-    league: "Thai League 1",
-    score: 82,
-    trend: "surging",
-    phase: "regular",
-    phaseBadge: {
-      en: "Regular Season • Home Fortress",
-      th: "ฤดูกาลปกติ • ป้อมปราการไร้พ่ายในบ้าน",
-    },
-    metric: {
-      en: "Top-4 Table Pressure • 6 Home Match Unbeaten Run",
-      th: "เกาะกลุ่มท็อป 4 • สถิติไร้พ่ายในบ้าน 6 นัดติด",
-    },
-    summary: {
-      en: "Dragon Solar Park has transformed into an intimidating home fortress, where Ratchaburi FC's aggressive pressing and rapid vertical transitions have disrupted higher-budget opponents across Thai League 1. Tactical discipline in defensive transition has stabilized their clean sheet record, while energetic forward runs create constant chances. Local supporter sentiment is soaring with the Dragons actively challenging for continental qualification spots.",
-      th: "ดราก้อน โซล่าร์ ปาร์ค กลายเป็นสังเวียนเหย้าที่ยากจะเจาะทะลวง โดย ราชบุรี เอฟซี ใช้สไตล์การไล่บีบพื้นที่สูงและการเปลี่ยนจังหวะสวนกลับเร็วได้อย่างมีประสิทธิภาพจนสามารถต่อกรกับทีมชั้นนำในไทยลีกได้อย่างสูสี วินัยในเกมรับที่ดีขึ้นช่วยเก็บคลีนชีตสำคัญต่อเนื่อง ขณะที่ศรัทธาของแฟนบอล 'ราชันมังกร' กำลังคึกคักอย่างยิ่งเมื่อทีมมีลุ้นขยับขึ้นไปเกาะกลุ่มหัวตารางเพื่อแย่งโควตาถ้วยเอเชีย",
-    },
-    catalysts: [
-      {
-        label: { en: "Home Advantage", th: "ความได้เปรียบในบ้าน" },
-        value: { en: "Dragon Solar Park climate & passionate ultras", th: "ความคุ้นเคยสภาพอากาศดราก้อน โซล่าร์ ปาร์ค และเสียงเชียร์" },
-      },
-      {
-        label: { en: "Tactical Identity", th: "แท็กติกการเล่น" },
-        value: { en: "Compact pressing & rapid vertical counter-attacks", th: "การเพรสซิ่งแดนกลางและโจมตีฉับพลันในแนวลึก" },
-      },
-      {
-        label: { en: "Season Objective", th: "เป้าหมายฤดูกาล" },
-        value: { en: "Continental qualification (ACL Two berth)", th: "คว้าโควตาไปเล่นฟุตบอลสโมสรเอเชีย (ACL Two)" },
-      },
-    ],
-  },
-
   wild: {
     teamId: "wild",
-    name: "Minnesota Wild",
-    league: "NHL",
-    score: 78,
+    pulseScore: 84,
     trend: "steady",
-    phase: "regular",
-    phaseBadge: {
-      en: "Regular Season • Central Division Fight",
-      th: "ฤดูกาลปกติ • ศึกเดือดดิวิชันเซ็นทรัล",
+    phase: {
+      en: "NHL Regular Season • Central Division Push",
+      th: "ฤดูกาลปกติ NHL • ไล่ล่าพื้นที่เพลย์ออฟดิวิชันกลาง",
     },
-    metric: {
-      en: "+0.45 Goal Differential • Top-10 Power Play %",
-      th: "ผลต่างประตู +0.45 • เปอร์เซ็นต์พาวเวอร์เพลย์ท็อป 10",
-    },
-    summary: {
-      en: "The Wild continue to lean heavily on the offensive firepower of Kirill Kaprizov and Matt Boldy, whose chemistry has made the team's primary power-play unit one of the division's sharpest weapons. While consistent goaltending has kept them within striking distance of a Central Division playoff seed, sustaining secondary scoring and staying disciplined on penalty kills remain the pivotal factors in stabilizing their seasonal pulse.",
-      th: "มินนิโซตา ไวลด์ ยังคงพึ่งพาความสามารถเฉพาะตัวในการทำประตูของ คิริลล์ คาปริซอฟ และ แมตต์ โบลดี้ ซึ่งประสานงานกันได้อย่างลงตัวในจังหวะพาวเวอร์เพลย์ แม้ผลงานการป้องกันหน้าปากประตูจะช่วยให้ทีมเกาะกลุ่มลุ้นตั๋วเพลย์ออฟในดิวิชั่นเซ็นทรัลได้ แต่การยกระดับเกมรุกของแถวสองและการลดการเสียแต้มขณะเล่นช็อตแฮนด์ยังคงเป็นกุญแจสำคัญในการรักษาโมเมนตัมตลอดฤดูกาล",
+    narrative: {
+      en: "Kirill Kaprizov and Matt Boldy continue to anchor the Wild's elite offensive engine at Xcel Energy Center. With Jesper Wallstedt and Filip Gustavsson providing steady goaltending, the Wild are poised to make significant noise in the Central Division playoff chase as the heavy dead-cap burdens officially begin to recede.",
+      th: "คิริล คาปริซอฟ และ แมตต์ โบลดี ยังคงเป็นหัวใจสำคัญในเกมรุกของ มินนิโซตา ไวลด์ ณ สังเวียน เอ็กเซล เอนเนอร์จี เซ็นเตอร์ โดยมีผู้รักษาประตูฟอร์มหนึบช่วยเสริมความมั่นใจ ทำให้ทีมพร้อมเต็มสูบในการลุยศึกเพลย์ออฟดิวิชันกลาง",
     },
     catalysts: [
       {
-        label: { en: "Offensive Duo", th: "คู่หูตัวความหวัง" },
-        value: { en: "Kaprizov & Boldy driving 42% of goals", th: "คาปริซอฟ และ โบลดี้ มีส่วนร่วมกับประตูทีมถึง 42%" },
-      },
-      {
-        label: { en: "Critical Need", th: "จุดที่ต้องปรับปรุง" },
-        value: { en: "Secondary depth scoring on road trips", th: "การเติมแต้มของชุดรองยามต้องออกไปเล่นเกมเยือน" },
-      },
-      {
-        label: { en: "Playoff Line", th: "เป้าหมายหลัก" },
-        value: { en: "Clinch top-3 seed in grueling Central Division", th: "จบ 3 อันดับแรกในสายเซ็นทรัลสุดหิน" },
+        type: "win_streak",
+        headline: {
+          en: "Kaprizov multipoint surge opens home stand",
+          th: "คาปริซอฟระเบิดฟอร์มกดหลายแต้มในเกมเหย้าเปิดหัวฤดูกาล",
+        },
+        date: "Oct 2026",
       },
     ],
+    focusPill: {
+      en: "Stanley Cup Playoff Contender",
+      th: "ลุ้นตั๋วสแตนลีย์คัพ",
+    },
+    lastUpdated: "2026-10-26T08:00:00Z",
   },
-
-  mnufc: {
-    teamId: "mnufc",
-    name: "Minnesota United FC",
-    league: "MLS",
-    score: 74,
-    trend: "steady",
-    phase: "regular",
-    phaseBadge: {
-      en: "Playoff Push • Western Mid-Table",
-      th: "ลุ้นตั๋วเพลย์ออฟ • กลางตารางสายตะวันตก",
+  frost: {
+    teamId: "frost",
+    pulseScore: 96,
+    trend: "surging",
+    phase: {
+      en: "PWHL Champions • Three-Peat Campaign",
+      th: "แชมป์ PWHL • ภารกิจป้องกันแชมป์ 3 สมัยซ้อน",
     },
-    metric: {
-      en: "Solid Transition Shape • Allianz Field Resilience",
-      th: "โครงสร้างเกมสวนกลับแน่น • ความเหนียวแน่นที่อัลลิอันซ์ ฟิลด์",
-    },
-    summary: {
-      en: "Minnesota United FC has established a resilient defensive baseline at Allianz Field, frustrating opponents with a compact mid-block and disciplined counter-attacks. While transition finishing can fluctuate between matches, their organization on defensive set pieces has kept point totals steadily climbing toward Western Conference postseason qualification. The squad's pulse remains composed and workmanlike.",
-      th: "มินนิโซตา ยูไนเต็ด เอฟซี วางรากฐานการเล่นที่เน้นความรัดกุมที่ อัลลิอันซ์ ฟิลด์ โดยใช้บล็อกเกมรับแดนกลางที่เหนียวแน่นและหาจังหวะสวนกลับเร็วเพื่อโจมตี แม้ความเฉียบคมในการจบสกอร์ยังต้องลุ้นในบางนัด แต่วินัยในการป้องกันลูกตั้งเตะช่วยให้ทีมเก็บแต้มสำคัญได้อย่างสม่ำเสมอในศึกแย่งชิงพื้นที่เพลย์ออฟสายตะวันตก",
+    narrative: {
+      en: "The Minnesota Frost sit atop the women's hockey world as back-to-back Walter Cup Champions, now setting their sights on an unprecedented three-peat. Taylor Heise and Kendall Coyne Schofield headline a roster steeped in championship pedigree and tactical execution.",
+      th: "มินนิโซตา ฟรอสต์ ยืนหนึ่งในวงการฮอกกี้น้ำแข็งหญิงโลกหลังครองถ้วย วอลเตอร์ คัพ สองปีซ้อน พร้อมเดินหน้าล่าแชมป์สมัยที่สาม นำโดย เทย์เลอร์ ไฮซี และ เคนดัลล์ คอยน์ สโคฟิลด์ ในการสร้างประวัติศาสตร์หน้าใหม่",
     },
     catalysts: [
       {
-        label: { en: "Home Base", th: "รังเหย้า" },
-        value: { en: "Allianz Field disciplined defensive structure", th: "ระบบเกมรับที่เน้นวินัย ณ สนามอัลลิอันซ์ ฟิลด์" },
-      },
-      {
-        label: { en: "Key Dynamic", th: "ปัจจัยชี้ขาด" },
-        value: { en: "Set-piece conversion & transitional speed", th: "ความเด็ดขาดจากลูกตั้งเตะและการโต้กลับเร็ว" },
-      },
-      {
-        label: { en: "Target", th: "เป้าหมาย" },
-        value: { en: "Lock in Round 1 home-field playoff fixture", th: "การันตีสิทธิ์เล่นเกมเหย้าในรอบเพลย์ออฟรอบแรก" },
+        type: "championship",
+        headline: {
+          en: "Back-to-back Walter Cup Champions",
+          th: "ป้องกันแชมป์ถ้วยวอลเตอร์คัพสองสมัยติดต่อกัน",
+        },
+        date: "2026",
       },
     ],
+    focusPill: {
+      en: "Dynasty in the Making",
+      th: "สร้างประวัติศาสตร์ราชวงศ์น้ำแข็ง",
+    },
+    lastUpdated: "2026-10-26T08:00:00Z",
   },
-
+  lynx: {
+    teamId: "lynx",
+    pulseScore: 89,
+    trend: "steady",
+    phase: {
+      en: "WNBA Contenders • Elite Core Retention",
+      th: "ผู้ท้าชิง WNBA • รักษาขุมกำลังตัวหลักชั้นยอด",
+    },
+    narrative: {
+      en: "Napheesa Collier and Cheryl Reeve's tactical mastery drove the Lynx to a dominant 32-10 regular season record and the top seed in the WNBA. With Courtney Williams and Alanna Smith locking down the court, the Target Center remains an impenetrable fortress.",
+      th: "นาฟีซา คอลเลียร์ ร่วมกับแท็กติกของโค้ช เชอริล รีฟ นำ ลินซ์ ทำสถิติหรู 32-10 คว้าอันดับ 1 ของลีก พร้อมขุมกำลังที่เหนียวแน่นและพร้อมสู้เพื่อโทรฟีแชมป์ WNBA ทุกฤดูกาล",
+    },
+    catalysts: [
+      {
+        type: "win_streak",
+        headline: {
+          en: "32-10 regular season #1 seed finish",
+          th: "คว้าสถิติ 32-10 จบอันดับ 1 ในฤดูกาลปกติ",
+        },
+        date: "2026",
+      },
+    ],
+    focusPill: {
+      en: "Championship Caliber",
+      th: "ทีมระดับลุ้นแชมป์",
+    },
+    lastUpdated: "2026-10-26T08:00:00Z",
+  },
+  rbfc: {
+    teamId: "rbfc",
+    pulseScore: 86,
+    trend: "surging",
+    phase: {
+      en: "Thai League 1 • Dragon Solar Park Fortress",
+      th: "ไทยลีก 1 • ดราก้อน โซลาร์ พาร์ค ป้อมปราการไร้พ่าย",
+    },
+    narrative: {
+      en: "Ratchaburi FC continues to electrify Dragon Solar Park with high-intensity pressing and swift attacking football. With partisan home support and tactical resilience against perennial giants like Buriram United and Bangkok United, the Dragons are a fixture in the Thai League title race.",
+      th: "ราชบุรี เอฟซี สานต่อความร้อนแรง ณ ดราก้อน โซลาร์ พาร์ค ด้วยสไตล์การเพรสซิ่งดุดันและเกมรุกที่เฉียบขาด ท่ามกลางเสียงเชียร์กึกก้องของแฟนบอลราชันมังกร พร้อมท้าชนยักษ์ใหญ่อย่าง บุรีรัมย์ และ ทรู แบงค็อก อย่างสมศักดิ์ศรี",
+    },
+    catalysts: [
+      {
+        type: "win_streak",
+        headline: {
+          en: "Top-flight clash with Buriram United at Dragon Solar Park",
+          th: "ศึกบิ๊กแมตช์ไทยลีกเปิดบ้านรับมือบุรีรัมย์ ยูไนเต็ด",
+        },
+        date: "Oct 2026",
+      },
+    ],
+    focusPill: {
+      en: "Thai League 1 Title Race",
+      th: "ลุ้นบัลลังก์แชมป์ไทยลีก",
+    },
+    lastUpdated: "2026-10-26T08:00:00Z",
+  },
   twins: {
     teamId: "twins",
-    name: "Minnesota Twins",
-    league: "MLB",
-    score: 58,
+    pulseScore: 72,
     trend: "cooling",
-    phase: "offseason",
-    phaseBadge: {
-      en: "Offseason • Hot Stove & Rotation Rehab",
-      th: "ช่วงพักฤดูกาล • ตลาดซื้อขายและฟื้นฟูผู้เล่น",
+    phase: {
+      en: "MLB Offseason • Hot Stove Roster Reset",
+      th: "MLB ช่วงปิดฤดูกาล • ตลาดซื้อขายและปรับทัพผู้เล่น",
     },
-    metric: {
-      en: "Front Office Evaluation • Pitching Depth Assessment",
-      th: "ประเมินงบประมาณบริหาร • เสริมความลึกตำแหน่งพิตเชอร์",
-    },
-    summary: {
-      en: "Following a turbulent conclusion to their season, the Twins have pivoted full focus toward the winter offseason, emphasizing starting rotation stability, bullpen reinforcements, and health regimens for their core lineup. Front-office payroll parameters and roster decisions are under active scrutiny, leaving fan sentiment cautious as supporters await tangible upgrades before spring camp convenes in Florida.",
-      th: "หลังจากปิดฉากฤดูกาลด้วยความท้าทาย มินนิโซตา ทวินส์ ได้เข้าสู่ช่วงพักฤดูกาลเพื่อประเมินโครงสร้างทีม โดยมุ่งเน้นการเสริมความลึกของตำแหน่งพิตเชอร์ตัวจริง การขันน็อตบูลเพน และการฟื้นฟูสภาพร่างกายของตัวตีแกนหลัก นโยบายการบริหารงบประมาณและตลาดซื้อขายกำลังถูกจับตามองอย่างใกล้ชิด ขณะที่แฟนเบสยังคงสงวนท่าทีและรอคอยการเสริมทัพที่เป็นรูปธรรมก่อนเข้าสู่แคมป์สปริงเทรนนิ่ง",
+    narrative: {
+      en: "The Minnesota Twins transition into offseason roster construction following a hard-fought AL Central race. Front office focus centers on pitching depth alongside core hitters Royce Lewis, Matt Wallner, and emerging prospects ready for Target Field spring training.",
+      th: "มินนิโซตา ทวินส์ ก้าวเข้าสู่ช่วงปิดฤดูกาลเพื่อเสริมทัพและปรับโครงสร้างทีม โดยโฟกัสที่การเติมความลึกของตำแหน่งพิตเชอร์ ควบคู่ไปกับตัวตีแกนหลักอย่าง รอยซ์ ลูอิส และ แมตต์ วอลเนอร์ เพื่อเตรียมพร้อมสำหรับสปริงเทรนนิ่ง",
     },
     catalysts: [
       {
-        label: { en: "Front Office Priority", th: "โจทย์ฝ่ายบริหาร" },
-        value: { en: "Bullpen depth & payroll flexibility management", th: "การเสริมบูลเพนและการบริหารงบประมาณอย่างยืดหยุ่น" },
-      },
-      {
-        label: { en: "Player Health", th: "สภาพร่างกายผู้เล่น" },
-        value: { en: "Rehabilitation programs for key sluggers", th: "โปรแกรมฟื้นฟูกล้ามเนื้อของตัวตีตัวหลัก" },
-      },
-      {
-        label: { en: "Next Milestone", th: "หมุดหมายถัดไป" },
-        value: { en: "Fort Myers, Florida Spring Training report date", th: "วันรายงานตัวเข้าแคมป์สปริงเทรนนิ่งที่ฟลอริดา" },
+        type: "offseason",
+        headline: {
+          en: "Target Field offseason player arbitration & pitching targets",
+          th: "การเจรจาสัญญานักกีฬาและการเล็งเป้าหมายพิตเชอร์ช่วงปิดฤดูกาล",
+        },
+        date: "Oct 2026",
       },
     ],
+    focusPill: {
+      en: "AL Central Roster Rebuild",
+      th: "ปรับทัพท้าชิง AL Central",
+    },
+    lastUpdated: "2026-10-26T08:00:00Z",
+  },
+  mnufc: {
+    teamId: "mnufc",
+    pulseScore: 81,
+    trend: "steady",
+    phase: {
+      en: "MLS Cup Playoffs • Allianz Field Nights",
+      th: "เพลย์ออฟ MLS คัพ • ค่ำคืนสุดมันส์ ณ อัลลิอันซ์ ฟิลด์",
+    },
+    narrative: {
+      en: "Minnesota United FC brings high-octane transitional soccer into the MLS Cup Playoffs at Allianz Field. Under strategic tactical direction, the Loons lean on disciplined counterattacks, Robin Lod's orchestration, and an energized Wonderwall crowd to advance.",
+      th: "มินนิโซตา ยูไนเต็ด เอฟซี เปิดบ้าน อัลลิอันซ์ ฟิลด์ ลุยศึกเพลย์ออฟ MLS คัพ ด้วยระบบการเล่นที่รัดกุมและเกมสวนกลับที่เฉียบขาด โดยมี โรบิน ล็อด บัญชาการเกมรุก พร้อมแรงหนุนหลังมหาศาลจากแฟนคลับเดอะวันเดอร์วอลล์",
+    },
+    catalysts: [
+      {
+        type: "win_streak",
+        headline: {
+          en: "Allianz Field playoff berth secured",
+          th: "การันตีตั๋วเพลย์ออฟในบ้านอัลลิอันซ์ฟิลด์สำเร็จ",
+        },
+        date: "Oct 2026",
+      },
+    ],
+    focusPill: {
+      en: "MLS Cup Contender",
+      th: "ลุ้นแชมป์ MLS Cup",
+    },
+    lastUpdated: "2026-10-26T08:00:00Z",
   },
 };
 
@@ -303,8 +268,9 @@ export const YEAR_ROUND_PULSE: Record<string, YearRoundPulse> = {
  * if the team is an external global club.
  */
 export function getYearRoundPulse(team: Team): YearRoundPulse {
-  if (YEAR_ROUND_PULSE[team.id]) {
-    return YEAR_ROUND_PULSE[team.id];
+  const existing = YEAR_ROUND_PULSE[team.id];
+  if (existing) {
+    return existing;
   }
 
   // Fallback calculation for global favorited teams
@@ -313,66 +279,62 @@ export function getYearRoundPulse(team: Team): YearRoundPulse {
       ? 80 + Math.round(team.sentiment.pct * 0.15)
       : team.sentiment.label === "Hyped"
       ? 75 + Math.round(team.sentiment.pct * 0.15)
-      : 55
+      : 65 + Math.round(team.sentiment.pct * 0.1)
     : 70;
+
+  const trend: PulseTrend =
+    sentimentScore >= 85 ? "surging" : sentimentScore >= 75 ? "steady" : "cooling";
 
   return {
     teamId: team.id,
-    name: team.name,
-    league: team.league,
-    score: Math.min(99, Math.max(50, sentimentScore)),
-    trend: sentimentScore >= 80 ? "surging" : sentimentScore >= 65 ? "steady" : "cooling",
-    phase: "regular",
-    phaseBadge: {
-      en: `${team.league} • In-Season Radar`,
-      th: `${team.league} • เรดาร์ประจำฤดูกาล`,
+    pulseScore: sentimentScore,
+    trend,
+    phase: {
+      en: `${team.league} Active Season Track`,
+      th: `ติดตามฤดูกาลแข่งขัน ${team.league}`,
     },
-    metric: {
-      en: `${team.record || "Active"} • Tracked 24/7`,
-      th: `${team.record || "กำลังแข่งขัน"} • ตรวจวัดตลอด 24 ชั่วโมง`,
-    },
-    summary: {
-      en: `${team.name} maintains an active operational pulse across ${team.league}. The roster continues daily training and competition routines, backed by committed global supporters tracking their trajectory throughout the year.`,
-      th: `${team.name} ยังคงรักษาความพร้อมอย่างต่อเนื่องในลีก ${team.league} ผู้เล่นในทีมฝึกซ้อมและลงแข่งขันตามโปรแกรมปกติ โดยมีแฟนคลับทั่วโลกคอยติดตามความเคลื่อนไหวตลอดทั้งปี`,
+    narrative: {
+      en: `${team.name} continues its competitive campaign in the ${team.league}. The roster remains focused on tactical consistency, player fitness, and achieving prime postseason seeding. Fan sentiment remains steady as the club navigates their upcoming fixture schedule with high expectations.`,
+      th: `${team.th || team.name} ยังคงเดินหน้าแข่งขันอย่างต่อเนื่องในลีก ${team.league} ขุมกำลังเน้นความสม่ำเสมอในแท็กติกและความฟิตของนักกีฬาเพื่อเป้าหมายในการจบอันดับหัวตาราง เสียงเชียร์และกระแสแฟนบอลยังคงเหนียวแน่นในทุกแมตช์การแข่งขัน`,
     },
     catalysts: [
       {
-        label: { en: "League Presence", th: "สถานะในลีก" },
-        value: { en: `Active competitor in ${team.league}`, th: `สโมสรหลักใน ${team.league}` },
-      },
-      {
-        label: { en: "Tracking Status", th: "การตรวจวัด" },
-        value: { en: "Full 365-day seasonal monitoring", th: "ระบบตรวจวัดความพร้อมตลอดทั้งปี" },
+        type: "win_streak",
+        headline: {
+          en: `Competitive form in ${team.league}`,
+          th: `ฟอร์มการแข่งขันต่อเนื่องใน ${team.league}`,
+        },
+        date: "2026",
       },
     ],
+    focusPill: {
+      en: "Active Competitor",
+      th: "สู้ศึกต่อเนื่อง",
+    },
+    lastUpdated: new Date().toISOString(),
   };
 }
 
 /**
- * Returns teams sorted strictly by Pulse Score (High -> Low: 100 down to 0)
+ * Returns year-round pulses sorted strictly from highest score to lowest score (100 -> 0).
  */
 export function getSortedYearRoundPulse(
-  filterHub: "all" | "minnesota" | "ratchaburi" | "favs",
-  favs: string[]
+  favIds: string[],
+  activeHub: "all" | "ratchaburi" | "minnesota"
 ): YearRoundPulse[] {
-  let list: Team[] = [];
+  let teamsToConsider: Team[] = [];
 
-  if (filterHub === "minnesota") {
-    list = TEAMS.filter((t) => t.hub === "minnesota");
-  } else if (filterHub === "ratchaburi") {
-    const rb = teamById("rbfc");
-    list = rb ? [rb] : [];
-  } else if (filterHub === "favs") {
-    list = TEAMS.filter((t) => favs.includes(t.id));
-    if (list.length === 0) {
-      list = TEAMS.filter((t) => t.hub === "minnesota" || t.id === "rbfc");
-    }
+  if (activeHub === "minnesota") {
+    teamsToConsider = TEAMS.filter((t) => t.hub === "minnesota");
+  } else if (activeHub === "ratchaburi") {
+    teamsToConsider = TEAMS.filter((t) => t.hub === "ratchaburi");
   } else {
-    // All Hub Teams
-    const core = ["lynx", "vik", "frost", "wolves", "rbfc", "wild", "mnufc", "twins"];
-    list = core.map((id) => teamById(id)).filter(Boolean) as Team[];
+    const defaultIds = ["vik", "wolves", "frost", "lynx", "rbfc", "wild", "mnufc", "twins"];
+    const combinedIds = Array.from(new Set([...favIds, ...defaultIds]));
+    teamsToConsider = combinedIds.map((id) => teamById(id));
   }
 
-  const pulseList = list.map((t) => getYearRoundPulse(t));
-  return pulseList.sort((a, b) => b.score - a.score);
+  const pulses = teamsToConsider.map((t) => getYearRoundPulse(t));
+
+  return pulses.sort((a, b) => b.pulseScore - a.pulseScore);
 }
