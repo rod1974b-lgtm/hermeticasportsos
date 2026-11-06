@@ -87,62 +87,57 @@ export interface SeasonOutlook {
   };
   offseason: PhaseDetail & {
     capOrBudget: string;
-    priorities: Array<{ area: string; details: string }>;
-    draftOutlook: { en: string; th: string };
+    topPriorities: Array<{ en: string; th: string }>;
   };
 }
 
 export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
   vik: {
     teamId: "vik",
-    seasonYear: "2026-2027 NFL Season",
+    seasonYear: "2026-27",
     currentPhase: "regular",
-    phaseLabel: {
-      en: "Regular Season • Bye Week (5-0)",
-      th: "ฤดูกาลปกติ • สัปดาห์พักแข่ง วีก 6 (5-0 ไร้พ่าย)",
-    },
+    phaseLabel: { en: "Week 7 • Regular Season", th: "สัปดาห์ที่ 7 • ฤดูกาลปกติ" },
     summary: {
-      en: "5-0 undefeated start leading the NFC North. Brian Flores defense leads the NFL in takeaways and simulated pressures, while Kevin O'Connell's offense operates at elite efficiency.",
-      th: "เปิดฤดูกาล 5-0 ไร้พ่าย นำจ่าฝูง NFC North เกมรับของ ไบรอัน ฟลอเรส กดดันคู่แข่งและสร้างเทิร์นโอเวอร์สูงสุดในลีก ส่วนแผนรุกของ เควิน โอคอนเนลล์ กำลังยอดเยี่ยม",
+      en: "Brian Flores' top-ranked blitz-heavy defense sets the pace alongside Justin Jefferson's historic receiving pace as Minnesota targets the NFC North crown.",
+      th: "เกมรับสายบลิตซ์สุดดุดันของ Brian Flores นำทัพร่วมกับ Justin Jefferson ที่กำลังสร้างสถิติประวัติศาสตร์เพื่อลุ้นแชมป์ NFC North",
     },
-    projectedRecord: "13-4 (NFC North Champions)",
-    championshipOdds: "+900 (Top 3 Super Bowl LXI Contender)",
-    championshipTarget: "Lombardi Trophy (Super Bowl LXI)",
-    championshipProbability: 88,
+    projectedRecord: "12-5 • NFC North Champions",
+    championshipOdds: "+1400 (Top 5 NFC Contender)",
+    championshipTarget: "Super Bowl LXI Champions",
+    championshipProbability: 78,
     preseason: {
       status: "completed",
-      dates: "Aug 1 - Aug 28, 2026",
-      record: "3-0 (Preseason)",
+      dates: "Aug 8 - Aug 28, 2026",
+      record: "3-0 (Undefeated)",
       focus: {
-        en: "Sam Darnold QB1 adaptation, Dallas Turner edge development, Aaron Jones integration.",
-        th: "ปรับจูน แซม ดาร์โนลด์ ในบทบาทควอเตอร์แบ็กตัวจริง, ดัลลัส เทอร์เนอร์ ตัวรุกขอบสนาม และ แอรอน โจนส์",
+        en: "Installed redzone disguise packages and established interior defensive line rotation.",
+        th: "ติดตั้งระบบป้องกันเรดโซนและหมุนเวียนผู้เล่นแนวรับด้านใน",
       },
       milestones: [
-        { date: "Aug 10", title: "Camp Showcase", note: "Defense forced 4 turnovers in live scrimmage" },
-        { date: "Aug 22", title: "Final Cutdown", note: "53-man roster finalized with league-leading secondary depth" },
+        { date: "Aug 10", title: "Roster Trim", note: "Finalized 53-man depth chart" },
+        { date: "Aug 24", title: "Redzone Drill", note: "Flores defense allowed 0 preseason TDs" },
       ],
       keyPlayers: [
-        { name: "Justin Jefferson", role: "WR1", highlight: "Undisputed #1 receiver, elite separation" },
-        { name: "Aaron Jones", role: "RB1", highlight: "Dynamic dual-threat ground and screen weapon" },
+        { name: "Justin Jefferson", role: "WR1", highlight: "100% route win rate in redzone" },
+        { name: "Andrew Van Ginkel", role: "EDGE", highlight: "Dominant blindside pressure" },
       ],
     },
     regularSeason: {
       status: "in_progress",
-      dates: "Sept 8, 2026 - Jan 10, 2027",
-      record: "5-0 (Active 5-Game Winning Streak)",
-      standing: "#1 in NFC North (1st overall NFC seed contention)",
+      dates: "Sept 10, 2026 - Jan 10, 2027",
+      standing: "5-1 • 1st in NFC North",
       focus: {
-        en: "Maintain turnover margin (+8), manage player health through Week 6 bye, stack conference victories.",
-        th: "รักษาอัตราเทิร์นโอเวอร์ (+8), ดูแลความฟิตช่วงบายวีก และเก็บชัยชนะเกมสาย NFC",
+        en: "Dominating divisional road battles and maximizing turnover differential.",
+        th: "เน้นคว้าชัยชนะเกมนอกบ้านในดิวิชั่นและสร้างความได้เปรียบจากเทิร์นโอเวอร์",
       },
       keyMatchups: [
-        { opponent: "Indianapolis Colts", date: "Oct 25, 2026", venue: "U.S. Bank Stadium", note: "Next active game after bye week" },
-        { opponent: "Detroit Lions", date: "Nov 15, 2026", venue: "Ford Field", note: "Crucial divisional clash for NFC North pole position" },
-        { opponent: "Green Bay Packers", date: "Dec 27, 2026", venue: "Lambeau Field", note: "Border battle rivalry on prime time" },
+        { opponent: "Green Bay Packers", date: "Nov 22, 2026", venue: "U.S. Bank Stadium", note: "Rivalry clash for division tiebreaker" },
+        { opponent: "Detroit Lions", date: "Dec 13, 2026", venue: "Ford Field", note: "Battle for NFC playoff seeding" },
+        { opponent: "Chicago Bears", date: "Jan 3, 2027", venue: "Soldier Field", note: "Regular season division finale" },
       ],
       milestones: [
-        { date: "Oct 14", title: "Bye Week R&R", note: "Undefeated through first 5 weeks of season" },
-        { date: "Nov 26", title: "Thanksgiving Showcase", note: "National broadcast tilt" },
+        { date: "Week 4", title: "Dublin Victory", note: "Won international matchup at Croke Park" },
+        { date: "Week 12", title: "Thanksgiving Slate", note: "Primetime national spotlight" },
       ],
     },
     playoffs: {
@@ -150,20 +145,21 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "Jan 16 - Feb 14, 2027",
       championshipTarget: "Super Bowl LXI Champions",
       focus: {
-        en: "Secure #1 NFC seed for home-field playoff advantage at U.S. Bank Stadium through NFC Championship.",
-        th: "แย่งชิงอันดับ 1 สาย NFC เพื่อสิทธิ์เล่นในบ้านที่ U.S. Bank Stadium ตลอดรอบเพลย์ออฟ",
+        en: "Secure home-field advantage at U.S. Bank Stadium and advance to the Super Bowl.",
+        th: "คว้าสิทธิ์เล่นในบ้านรอบเพลย์ออฟและเดินหน้าสู่ซูเปอร์โบวล์",
       },
       path: {
-        en: "Win NFC North division -> Secure First-Round Bye -> Host Divisional & NFC Championship rounds in Minneapolis.",
-        th: "คว้าแชมป์ดิวิชัน NFC North -> คว้าสิทธิ์บายรอบแรก -> เล่นรอบดิวิชันและชิงแชมป์สายในบ้าน",
+        en: "NFC Divisional Round host -> NFC Championship Game -> Super Bowl LXI in Los Angeles.",
+        th: "เป็นเจ้าภาพรอบดิวิชันนอล -> ชิงแชมป์สาย NFC -> เข้าสู่ซูเปอร์โบวล์ LXI ที่ลอสแอนเจลิส",
       },
       clinchScenario: {
-        en: "Magic number to clinch postseason berth: 6 combined wins and division rival losses.",
-        th: "ต้องการชัยชนะหรือคู่แข่งร่วมสายแพ้อีก 6 นัดเพื่อการันตีตั๋วเพลย์ออฟ",
+        en: "Win 4 of final 6 games to secure division; win 5 to clinch #1 conference seed.",
+        th: "ชนะ 4 จาก 6 เกมสุดท้ายเพื่อการันตีแชมป์กลุ่ม หรือชนะ 5 เกมเพื่อคว้ามือ 1 ของสาย",
       },
       milestones: [
-        { date: "Jan 16", title: "Wild Card Weekend", note: "Targeting first-round bye" },
-        { date: "Feb 14", title: "Super Bowl LXI", note: "Championship showcase" },
+        { date: "Jan 16", title: "Wild Card Weekend", note: "Potential first-round bye" },
+        { date: "Jan 31", title: "NFC Championship", note: "Targeting conference title" },
+        { date: "Feb 14", title: "Super Bowl LXI", note: "Championship coronation" },
       ],
     },
     offseason: {
@@ -171,74 +167,66 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "Feb 15 - July 2027",
       capOrBudget: "$28.4M Projected Cap Space",
       focus: {
-        en: "Extend young defensive core, fortify interior offensive line, prepare J.J. McCarthy QB timeline.",
-        th: "ต่อสัญญาแกนหลักแนวรับดาวรุ่ง, เสริมเกมบล็อกแดนกลาง และวางแผนพัฒนา เจ.เจ. แม็กคาร์ธี",
+        en: "Lock down long-term contracts for core defensive secondary and secure draft capital.",
+        th: "ต่อสัญญาระยะยาวกลุ่มผู้เล่นกองหลังตัวหลักและบริหารสิทธิ์ดราฟต์",
       },
-      priorities: [
-        { area: "Offensive Guard", details: "Acquire elite pass-protecting interior lineman via free agency" },
-        { area: "Defensive Cornerback", details: "Retain Byron Murphy Jr. or draft top-tier perimeter cover specialist" },
+      topPriorities: [
+        { en: "Extend starting safety & cornerback core", th: "ต่อสัญญาเซฟตีและคอร์เนอร์แบ็กตัวหลัก" },
+        { en: "Target interior offensive line in 2027 NFL Draft", th: "ดราฟต์แนวป้องกันฝั่งในในศึก NFL Draft 2027" },
+        { en: "Maintain defensive continuity under Brian Flores", th: "รักษาโครงสร้างแผนเกมรับของ Brian Flores" },
       ],
-      draftOutlook: {
-        en: "Projected 30th-32nd overall pick: Target interior pass rusher or hybrid safety.",
-        th: "อันดับดราฟต์รอบแรกคาดการณ์อันดับ 30-32: เล็งตัวกดดันควอเตอร์แบ็กตรงกลาง",
-      },
       milestones: [
-        { date: "March 2027", title: "NFL Free Agency Frenzy", note: "Targeting defensive reinforcements" },
-        { date: "April 2027", title: "2027 NFL Draft", note: "Adding premium championship depth" },
+        { date: "March 2027", title: "NFL Free Agency", note: "Veteran pass-rusher additions" },
+        { date: "April 2027", title: "NFL Draft", note: "Consolidate defensive depth" },
       ],
     },
   },
-
   wolves: {
     teamId: "wolves",
-    seasonYear: "2026-2027 NBA Season",
+    seasonYear: "2026-27",
     currentPhase: "regular",
-    phaseLabel: {
-      en: "Regular Season • Target Center Defense (4-1)",
-      th: "ฤดูกาลปกติ • ปราการเกมรับ ทาร์เก็ต เซ็นเตอร์ (4-1)",
-    },
+    phaseLabel: { en: "Opening Month • NBA Regular Season", th: "เดือนแรก • ฤดูกาลปกติ NBA" },
     summary: {
-      en: "Anthony Edwards ascending into MVP favorite status, paired with Rudy Gobert anchor defense and Julius Randle dynamic scoring. Target Center is a fortress in the Western Conference.",
-      th: "แอนโธนี เอ็ดเวิร์ดส์ กำลังก้าวสู่ระดับตัวเต็ง MVP ร่วมกับ รูดี โกแบร์ คุมเกมรับใต้แป้น และ จูเลียส แรนเดิล เติมเต็มการทำแต้ม",
+      en: "Anthony Edwards enters MVP contention alongside Rudy Gobert's rim deterrence and Julius Randle's interior scoring as Minnesota pursues the Western Conference title.",
+      th: "Anthony Edwards ก้าวสู่การลุ้น MVP เต็มตัว ร่วมกับเกมรับใต้แป้นของ Rudy Gobert และพลังบุกของ Julius Randle สู่เป้าหมายแชมป์สายตะวันตก",
     },
-    projectedRecord: "56-26 (Top 2 Western Conference Seed)",
-    championshipOdds: "+750 (Western Conference Favorites)",
-    championshipTarget: "Larry O'Brien Trophy",
-    championshipProbability: 84,
+    projectedRecord: "56-26 • 2nd Seed Western Conference",
+    championshipOdds: "+850 (Western Conference Favorites)",
+    championshipTarget: "Larry O'Brien Championship Trophy",
+    championshipProbability: 82,
     preseason: {
       status: "completed",
       dates: "Oct 4 - Oct 18, 2026",
-      record: "4-1 (Preseason)",
+      record: "4-1",
       focus: {
-        en: "Randle and DiVincenzo half-court spacing, Rob Dillingham backup point guard development.",
-        th: "ปรับสเปซซิ่งการเล่นเกมบุกของ แรนเดิล และ ดิวินเชนโซ, พัฒนา ร็อบ ดิลลิงแฮม",
+        en: "Integrated Julius Randle into high-low offensive sets and sharpened clutch floor spacing.",
+        th: "ปรับระบบบุกร่วมกับ Julius Randle และเพิ่มประสิทธิภาพการยิงพื้นที่ว่างในจังหวะชี้ขาด",
       },
       milestones: [
-        { date: "Oct 8", title: "Abu Dhabi Showcase", note: "Edwards 28 pts in 22 mins display" },
-        { date: "Oct 18", title: "Final Tuneup", note: "Starting 5 posted +24.6 net rating" },
+        { date: "Oct 10", title: "Target Center Debut", note: "Full starting unit logged 26+ minutes" },
+        { date: "Oct 16", title: "Defensive Rating #1", note: "Held preseason opponents to 98.4 PPG" },
       ],
       keyPlayers: [
-        { name: "Anthony Edwards", role: "SG / Franchise Star", highlight: "Top 3 MVP candidate, 29.4 PPG pace" },
-        { name: "Rudy Gobert", role: "C / Rim Protector", highlight: "Defensive Player of the Year favorite" },
+        { name: "Anthony Edwards", role: "SG/Guard", highlight: "Averaged 28.5 PPG in preseason action" },
+        { name: "Rudy Gobert", role: "Center", highlight: "Defensive anchor with 3.2 BPG" },
       ],
     },
     regularSeason: {
       status: "in_progress",
       dates: "Oct 22, 2026 - April 14, 2027",
-      record: "4-1 (West #2)",
-      standing: "#2 in Western Conference (0.5 GB of Thunder)",
+      standing: "5-2 • 2nd in Western Conference",
       focus: {
-        en: "Establish #1 defensive rating in NBA, manage veteran minutes, secure home-court through conference finals.",
-        th: "รักษาเกมรับอันดับ 1 ของลีก, บริหารความฟิตผู้เล่นหลัก, ชิงความได้เปรียบเกมในบ้าน",
+        en: "Stacking home victories at Target Center and earning the #1 or #2 Western seed.",
+        th: "เก็บชัยชนะในบ้าน Target Center และคว้าอันดับท็อป 2 ของสายตะวันตก",
       },
       keyMatchups: [
-        { opponent: "Oklahoma City Thunder", date: "Nov 20, 2026", venue: "Target Center", note: "Clash for #1 Western Seed" },
-        { opponent: "Boston Celtics", date: "Dec 25, 2026", venue: "TD Garden", note: "Christmas Day NBA Showcase" },
-        { opponent: "Denver Nuggets", date: "Jan 18, 2027", venue: "Ball Arena", note: "Western semifinal rematch" },
+        { opponent: "Denver Nuggets", date: "Nov 18, 2026", venue: "Target Center", note: "Jokic vs Gobert playoff rematch" },
+        { opponent: "Dallas Mavericks", date: "Dec 25, 2026", venue: "Target Center", note: "Christmas Day Western showcase" },
+        { opponent: "Oklahoma City Thunder", date: "Jan 14, 2027", venue: "Paycom Center", note: "Clash for Northwest Division lead" },
       ],
       milestones: [
-        { date: "Dec 15", title: "NBA Cup Championship", note: "Vegas Final Four target" },
-        { date: "Feb 14", title: "All-Star Weekend", note: "Ant Edwards All-Star Starter" },
+        { date: "Dec 2026", title: "NBA Cup Quarterfinals", note: "Knockout tournament run" },
+        { date: "Feb 2027", title: "NBA All-Star Weekend", note: "Multiple Timberwolves selections" },
       ],
     },
     playoffs: {
@@ -246,20 +234,20 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "April 18 - June 20, 2027",
       championshipTarget: "Larry O'Brien Trophy",
       focus: {
-        en: "Western Conference Championship and NBA Finals breakthrough.",
-        th: "คว้าแชมป์สายตะวันตกและเข้าสู่รอบชิงแชมป์ NBA ไฟนอลส์",
+        en: "Advance past the Western Conference Finals and secure Minnesota's first NBA title.",
+        th: "ก้าวผ่านรอบชิงแชมป์สายตะวันตกและคว้าแชมป์ NBA ประวัติศาสตร์ให้รัฐมินนิโซตา",
       },
       path: {
-        en: "Top 2 Seed -> First Round matchup -> Western Semifinals -> Western Finals -> NBA Finals.",
-        th: "มือวางอันดับ 1-2 -> ผ่านรอบแรก -> ตัดเชือกสาย -> ชิงสายตะวันตก -> ชิงชนะเลิศ NBA",
+        en: "Western First Round -> Western Semifinals -> Conference Finals -> NBA Finals.",
+        th: "รอบแรกสายตะวันตก -> รอบรองชนะเลิศสาย -> ชิงแชมป์สาย -> รอบชิงชนะเลิศ NBA Finals",
       },
       clinchScenario: {
-        en: "Secure 50+ wins to lock in top 3 Western seed and bypass play-in tournament.",
-        th: "เก็บชัยชนะ 50 นัดขึ้นไปเพื่อการันตีท็อป 3 เลี่ยงรอบเพลย์อิน",
+        en: "Reach 50 wins to guarantee home court in First Round; 54 wins for Top 2 seed.",
+        th: "เก็บ 50 ชัยชนะการันตีความได้เปรียบเล่นในบ้านรอบแรก และ 54 ชัยชนะสำหรับท็อป 2",
       },
       milestones: [
-        { date: "May 1", title: "Conference Semifinals", note: "Advancing past round 1" },
-        { date: "June 5", title: "NBA Finals Game 1", note: "Ultimate championship quest" },
+        { date: "May 2027", title: "Western Finals", note: "Targeting Western Conference crown" },
+        { date: "June 2027", title: "NBA Finals", note: "Battle for Larry O'Brien Trophy" },
       ],
     },
     offseason: {
@@ -267,74 +255,63 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "June 25 - Oct 2027",
       capOrBudget: "Second Apron Luxury Tax Roster",
       focus: {
-        en: "Preserve championship core, draft developmental wings with late picks, retain key bench specialists.",
-        th: "รักษาแกนแชมป์, คัดเลือกผู้เล่นปีกดาวรุ่ง และต่อสัญญาตัวสำรองคนสำคัญ",
+        en: "Maintain championship roster continuity and sign key 3-and-D bench contributors.",
+        th: "รักษาแกนหลักของทีมและเสริมผู้เล่นสำรองสไตล์ 3-and-D ที่แม่นยำ",
       },
-      priorities: [
-        { area: "Naz Reid Extension", details: "Lock in beloved Sixth Man of the Year to long-term deal" },
-        { area: "3-and-D Wing Depth", details: "Veteran minimum sniper signing" },
+      topPriorities: [
+        { en: "Sign veteran shooters via mid-level exceptions", th: "เซ็นสัญญามือปืนประสบการณ์ด้วยข้อยกเว้นกลาง" },
+        { en: "Retain key defensive reserves", th: "ต่อสัญญาตัวสำรองเกมรับคนสำคัญ" },
       ],
-      draftOutlook: {
-        en: "Late first-round pick: Select defensive stopper wing with 40%+ corner 3PT acumen.",
-        th: "อันดับดราฟต์รอบแรกช่วงปลาย: คัดผู้เล่นปีกเกมรับที่ยิง 3 แต้มแม่นยำ",
-      },
       milestones: [
-        { date: "June 2027", title: "NBA Draft", note: "Adding rotation bench youth" },
-        { date: "July 2027", title: "Free Agency Signings", note: "Solidifying championship depth" },
+        { date: "June 2027", title: "NBA Draft", note: "Draft development talent" },
+        { date: "July 2027", title: "Free Agency", note: "Round out championship depth" },
       ],
     },
   },
-
   wild: {
     teamId: "wild",
-    seasonYear: "2026-2027 NHL Season",
+    seasonYear: "2026-27",
     currentPhase: "regular",
-    phaseLabel: {
-      en: "Regular Season • Central Division Hunt (3-1-0)",
-      th: "ฤดูกาลปกติ • ล่าแชมป์ดิวิชัน เซ็นทรัล (3-1-0)",
-    },
+    phaseLabel: { en: "Regular Season • Central Division", th: "ฤดูกาลปกติ • ดิวิชั่นเซ็นทรัล" },
     summary: {
-      en: "Kirill Kaprizov in Hart Trophy form alongside Matt Boldy and Brock Faber. With dead cap penalties finally expired, the State of Hockey has its strongest Stanley Cup window in a decade.",
-      th: "คิริลล์ คาปริซอฟ ฟอร์มระดับล่ารางวัล MVP ฮาร์ท โทรฟี ประสานงานกับ แมตต์ โบลดี และ บร็อค เฟเบอร์ สภาพคล่องการเงินกลับมาพร้อมไล่ล่าแชมป์ สแตนลีย์ คัพ",
+      en: "Kirill Kaprizov and Matt Boldy power Minnesota's attack as the Wild leverage their physical home fortress at Xcel Energy Center to mount a Stanley Cup run.",
+      th: "Kirill Kaprizov และ Matt Boldy นำแนวรุกสุดอันตรายของมินนิโซตา โดยอาศัยความแข็งแกร่งในบ้าน Xcel Energy Center เพื่อลุยศึกสแตนลีย์คัพ",
     },
-    projectedRecord: "48-24-10 (106 Pts, Central Division Top 2)",
-    championshipOdds: "+1400 (Lord Stanley Cup Contender)",
-    championshipTarget: "Lord Stanley Cup",
-    championshipProbability: 76,
+    projectedRecord: "48-24-10 • 106 Points (Top 3 Central)",
+    championshipOdds: "+1800 (Stanley Cup Contender)",
+    championshipTarget: "Lord Stanley Cup Trophy",
+    championshipProbability: 71,
     preseason: {
       status: "completed",
-      dates: "Sept 20 - Oct 4, 2026",
-      record: "4-1-1 (Preseason)",
+      dates: "Sept 20 - Oct 5, 2026",
+      record: "5-1-0",
       focus: {
-        en: "Special teams power play setup, Jesper Wallstedt NHL goaltending rotation, Brock Faber top-pair minutes.",
-        th: "เซ็ตระบบพาวเวอร์เพลย์, หมุนเวียนผู้รักษาประตู แยสเปอร์ วอลสเตดท์",
+        en: "Fine-tuned 1-3-1 power play formation and cemented defensive pairings.",
+        th: "ปรับระบบเพาเวอร์เพลย์ 1-3-1 และจับคู่แนวรับตัวจริง",
       },
       milestones: [
-        { date: "Sept 28", title: "Xcel Energy Opener", note: "Boldy scored hat-trick in preseason tilt" },
-        { date: "Oct 2", title: "Goaltending Tandem Set", note: "Gustavsson and Wallstedt confirmed as 1A/1B" },
+        { date: "Sept 25", title: "Preseason Rivalry", note: "4-1 road win over Chicago Blackhawks" },
       ],
       keyPlayers: [
-        { name: "Kirill Kaprizov", role: "LW / Superstar", highlight: "Elite playmaking winger, 100+ point pace" },
-        { name: "Brock Faber", role: "D / Blue Line Anchor", highlight: "25+ minutes TOI defensive cornerstone" },
+        { name: "Kirill Kaprizov", role: "LW1", highlight: "8 points in 4 preseason games" },
+        { name: "Matt Boldy", role: "RW1", highlight: "Unstoppable net-front presence" },
       ],
     },
     regularSeason: {
       status: "in_progress",
       dates: "Oct 8, 2026 - April 15, 2027",
-      record: "3-1-0 (6 Pts)",
-      standing: "#2 in Central Division (1 Pt behind Dallas)",
+      standing: "6-2-2 • 2nd in Central Division",
       focus: {
-        en: "Establish dominant home record at Xcel Energy Center, secure special teams top-5 ranking, manage goalie starts.",
-        th: "สร้างสถิติชนะในบ้านที่ เซล เอเนอร์จี เซ็นเตอร์, ยกระดับเกมพิเศษติดท็อป 5",
+        en: "Locking down high-danger chances and maintaining top-5 penalty kill percentage.",
+        th: "จำกัดโอกาสยิงอันตรายของคู่แข่งและรักษาเปอร์เซ็นต์เกมรับช่วงโทษติดท็อป 5",
       },
       keyMatchups: [
-        { opponent: "Dallas Stars", date: "Nov 12, 2026", venue: "Xcel Energy Center", note: "Battle for Central Division pole" },
-        { opponent: "Colorado Avalanche", date: "Dec 18, 2026", venue: "Ball Arena", note: "Central rivalry grudge match" },
+        { opponent: "Dallas Stars", date: "Nov 28, 2026", venue: "American Airlines Center", note: "Crucial division tiebreaker" },
+        { opponent: "Colorado Avalanche", date: "Dec 18, 2026", venue: "Xcel Energy Center", note: "High-octane Central rivalry" },
         { opponent: "Edmonton Oilers", date: "Jan 22, 2027", venue: "Xcel Energy Center", note: "Kaprizov vs McDavid marquee battle" },
       ],
       milestones: [
-        { date: "Jan 1", title: "NHL Winter Classic", note: "Outdoor game spectacle" },
-        { date: "March 8", title: "NHL Trade Deadline", note: "Adding top-6 rental forward" },
+        { date: "Jan 2027", title: "Midseason Standings", note: "Securing playoff cushion" },
       ],
     },
     playoffs: {
@@ -342,20 +319,20 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "April 18 - June 16, 2027",
       championshipTarget: "Lord Stanley Cup",
       focus: {
-        en: "Break through first round and capture Western Conference title.",
-        th: "ผ่านรอบแรกเพลย์ออฟและคว้าแชมป์สายตะวันตก",
+        en: "Break through to Western Conference Finals and bring the Stanley Cup to Minnesota.",
+        th: "ฝ่าด่านสู่รอบชิงแชมป์สายตะวันตกและนำถ้วยสแตนลีย์คัพมาสู่แดนฮอกกี้มินนิโซตา",
       },
       path: {
-        en: "Central Division Semifinal -> Central Final -> Western Conference Final -> Stanley Cup Final.",
-        th: "รอบตัดเชือกดิวิชัน -> ชิงแชมป์ดิวิชัน -> ชิงแชมป์สาย -> รอบชิงสแตนลีย์คัพ",
+        en: "Central First Round -> Central Division Finals -> Western Finals -> Stanley Cup Finals.",
+        th: "รอบแรกเซ็นทรัล -> รอบชิงแชมป์ดิวิชั่น -> ชิงแชมป์สายตะวันตก -> สแตนลีย์คัพ ไฟนอลส์",
       },
       clinchScenario: {
-        en: "Reach 98+ points to mathematically secure Stanley Cup Playoffs berth.",
-        th: "สะสมคะแนนแตะ 98 แต้มเพื่อการันตีตั๋วเพลย์ออฟสแตนลีย์คัพ",
+        en: "Reach 98 points to clinch Stanley Cup Playoff berth.",
+        th: "เก็บแต้มรวม 98 แต้มเพื่อการันตีตั๋วเพลย์ออฟอย่างเป็นทางการ",
       },
       milestones: [
-        { date: "April 20", title: "Round 1 Game 1", note: "Postseason kickoff" },
-        { date: "June 8", title: "Stanley Cup Finals", note: "Quest for hockey ultimate prize" },
+        { date: "May 2027", title: "Second Round", note: "Central Division Championship" },
+        { date: "June 2027", title: "Stanley Cup Finals", note: "Lord Stanley coronation" },
       ],
     },
     offseason: {
@@ -363,54 +340,45 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "June 20 - Sept 2027",
       capOrBudget: "$14.6M Clean Cap Flexibility",
       focus: {
-        en: "Sign Kirill Kaprizov to historic max extension, fortify center spine, sign top-4 puck-moving defenseman.",
-        th: "ต่อสัญญาระยะยาว คาปริซอฟ, เติมเซ็นเตอร์แถวหน้า และกองหลังบิลด์อัพเกม",
+        en: "Dead cap penalties expire; capitalize on full cap freedom to add marquee forwards.",
+        th: "ภาระเดดแคปหมดลง ใช้เพดานเงินเดือนเต็มพิกัดเพื่อดึงกองหน้าระดับซูเปอร์สตาร์",
       },
-      priorities: [
-        { area: "Kirill Kaprizov Extension", details: "8-year mega contract extension as top priority" },
-        { area: "Top-6 Center", details: "UFA bidding for premier playmaking pivot" },
+      topPriorities: [
+        { en: "Sign premium scoring center in free agency", th: "เซ็นสัญญาเซ็นเตอร์ตัวจบสกอร์ระดับท็อป" },
+        { en: "Lock up young blue-line talent long-term", th: "ขยายสัญญากองหลังดาวรุ่งระยะยาว" },
       ],
-      draftOutlook: {
-        en: "Mid-to-late 1st round pick: Focus on high-hockey-IQ Scandinavian center or right-shot blueliner.",
-        th: "ดราฟต์รอบแรกอันดับกลาง-ท้าย: เน้นเซ็นเตอร์สแกนดิเนเวียหรือกองหลังยิงขวา",
-      },
       milestones: [
-        { date: "July 1", title: "Free Agent Frenzy", note: "Aggressive bidding in UFA market" },
-        { date: "July 15", title: "Kaprizov Extension Signing", note: "Franchise player locked up" },
+        { date: "July 1, 2027", title: "Free Agency Frenzy", note: "Major cap space deployment" },
       ],
     },
   },
-
   twins: {
     teamId: "twins",
-    seasonYear: "2026-2027 MLB Season",
+    seasonYear: "2027",
     currentPhase: "offseason",
-    phaseLabel: {
-      en: "Offseason • Target Field Roster Overhaul",
-      th: "ปิดฤดูกาล • ยกเครื่องขุมกำลัง ทาร์เก็ต ฟิลด์",
-    },
+    phaseLabel: { en: "Hot Stove • AL Central Contenders", th: "ช่วงพักฤดูกาล • ตัวเต็ง AL Central" },
     summary: {
-      en: "Following an 82-80 campaign, the Twins enter a critical winter. Focus is on securing rotation durability behind Pablo López, developing young core bats, and aggressively upgrading the bullpen.",
-      th: "จบฤดูกาลด้วยสถิติ 82-80 กำลังเข้าสู่ช่วงปรับทัพฤดูหนาว เน้นหาพิชเชอร์สตาร์ทเตอร์มาช่วย ปาโบล โลเปซ และอัปเกรดบูลเพน",
+      en: "After clinching an AL postseason berth, Minnesota retools pitching depth and power bats to dominate the American League Central.",
+      th: "หลังผ่านเข้าสู่โพสต์ซีซัน AL มินนิโซตาเสริมแกร่งขุมกำลังพิตเชอร์และไม้ตีทรงพลังเพื่อเป้าหมายแชมป์ AL Central",
     },
-    projectedRecord: "88-74 (AL Central Contenders)",
-    championshipOdds: "+2200 (AL Pennant Contender)",
-    championshipTarget: "World Series Trophy",
+    projectedRecord: "89-73 • AL Central Division Leaders",
+    championshipOdds: "+2400 (AL Contender)",
+    championshipTarget: "World Series Commissioner's Trophy",
     championshipProbability: 64,
     preseason: {
       status: "upcoming",
       dates: "Feb 14 - March 26, 2027",
       focus: {
-        en: "Fort Myers Spring Training: Rotation arms workload buildup, Walker Jenkins outfield debut.",
-        th: "สปริงเทรนนิ่งที่ ฟอร์ตไมเออร์ส: เพิ่มเวิร์กล็อดตัวขว้าง และเปิดตัว วอล์กเกอร์ เจนกินส์",
+        en: "Spring Training in Fort Myers, Florida: establish 5-man rotation and batting order.",
+        th: "สปริงเทรนนิ่งที่ฟอร์ตไมเออร์ส ฟลอริดา: จัดระเบียบ 5 มือขว้างตัวจริงและไลน์อัปการตี",
       },
       milestones: [
-        { date: "Feb 14", title: "Pitchers & Catchers Report", note: "Hammond Stadium workouts commence" },
-        { date: "March 15", title: "Grapefruit League Showcase", note: "Prospects exhibition games" },
+        { date: "Feb 14", title: "Pitchers & Catchers Report", note: "Lee County Sports Complex" },
+        { date: "Feb 28", title: "Grapefruit League Opener", note: "Spring action begins" },
       ],
       keyPlayers: [
-        { name: "Royce Lewis", role: "3B / Power Slugger", highlight: "Elite postseason power hitter" },
-        { name: "Pablo López", role: "SP / Ace", highlight: "Workhorse starter with strikeout dominance" },
+        { name: "Royce Lewis", role: "3B", highlight: "Postseason grand slam specialist" },
+        { name: "Pablo Lopez", role: "Ace SP", highlight: "Frontline rotation leader" },
       ],
     },
     regularSeason: {
@@ -418,17 +386,16 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "March 27 - Sept 28, 2027",
       standing: "Targeting AL Central Title",
       focus: {
-        en: "Reclaim AL Central crown from Cleveland and Detroit, win 50+ home games at Target Field.",
-        th: "ทวงบัลลังก์แชมป์ AL Central จาก คลีฟแลนด์ และ ดีทรอยต์, ชนะในบ้าน 50 เกมขึ้นไป",
+        en: "Dominating divisional series against Cleveland and Detroit; protecting home field at Target Field.",
+        th: "เก็บชัยชนะในซีรีส์ร่วมดิวิชั่นกับคลีฟแลนด์และดีทรอยต์ และรักษาชัยชนะในบ้าน Target Field",
       },
       keyMatchups: [
-        { opponent: "Cleveland Guardians", date: "April 10, 2027", venue: "Target Field", note: "Divisional home opener series" },
-        { opponent: "New York Yankees", date: "May 22, 2027", venue: "Yankee Stadium", note: "Postseason demons test" },
-        { opponent: "Detroit Tigers", date: "Aug 14, 2027", venue: "Target Field", note: "Pivotal late-summer pennant race" },
+        { opponent: "Cleveland Guardians", date: "April 16, 2027", venue: "Target Field", note: "Division rivalry series" },
+        { opponent: "New York Yankees", date: "May 21, 2027", venue: "Yankee Stadium", note: "National AL benchmark test" },
       ],
       milestones: [
-        { date: "March 27", title: "MLB Opening Day", note: "First pitch of 2027 campaign" },
-        { date: "July 13", title: "MLB All-Star Game", note: "Midsummer classic representation" },
+        { date: "July 2027", title: "MLB All-Star Break", note: "Midsummer Classic" },
+        { date: "July 31, 2027", title: "Trade Deadline", note: "Targeting bullpen arms" },
       ],
     },
     playoffs: {
@@ -436,74 +403,65 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "Oct 1 - Oct 30, 2027",
       championshipTarget: "World Series Trophy",
       focus: {
-        en: "ALDS victory and American League Pennant run.",
-        th: "เก็บชัยชนะใน ALDS และก้าวไปสู่การคว้าแชมป์อเมริกันลีก",
+        en: "Win American League Pennant and hoist the Commissioner's Trophy.",
+        th: "คว้าแชมป์อเมริกันลีกและชูถ้วยเวิลด์ซีรีส์",
       },
       path: {
-        en: "AL Central Crown -> AL Wild Card Bye / ALDS -> ALCS -> World Series.",
-        th: "แชมป์ดิวิชัน -> รอบแบ่งสาย ALDS -> ชิงแชมป์อเมริกันลีก ALCS -> เวิลด์ซีรีส์",
+        en: "AL Wild Card/Division Series -> ALCS -> World Series.",
+        th: "รอบไวลด์การ์ด/ดิวิชันนอล -> ALCS -> เวิลด์ซีรีส์",
       },
       clinchScenario: {
-        en: "Targeting 88+ regular season wins to secure divisional crown.",
-        th: "ต้องการ 88 ชัยชนะขึ้นไปเพื่อการันตีแชมป์ดิวิชัน",
+        en: "Reach 88 wins to clinch AL Central title or Wild Card spot.",
+        th: "เก็บ 88 ชัยชนะเพื่อการันตีแชมป์กลุ่มหรือตั๋วไวลด์การ์ด",
       },
       milestones: [
-        { date: "Oct 2", title: "Wild Card Round", note: "Opening postseason clash" },
-        { date: "Oct 22", title: "World Series Game 1", note: "Championship showdown" },
+        { date: "Oct 2027", title: "ALCS", note: "American League Pennant" },
+        { date: "Late Oct 2027", title: "World Series", note: "Championship coronation" },
       ],
     },
     offseason: {
       status: "in_progress",
-      dates: "Nov 1, 2026 - Feb 12, 2027",
-      capOrBudget: "$145M Opening Day Payroll Target",
+      dates: "Nov 1, 2026 - Feb 10, 2027",
+      capOrBudget: "Targeting $135M Payroll Floor",
       focus: {
-        en: "Acquire #2 starting pitcher behind Pablo López, add veteran high-leverage bullpen arm, extend core bats.",
-        th: "เซ็นสัญญาพิชเชอร์สตาร์ทเตอร์มือ 2, เติมตัวขว้างบูลเพนจังหวะวิกฤต และต่อสัญญานักหวด",
+        en: "Acquiring swing-and-miss bullpen arms and a reliable middle-of-the-order right-handed bat.",
+        th: "ดึงพิตเชอร์ตัวปิดเกมประเภทสไตรก์เอาต์และผู้เล่นตีขวาพลังสูงกลางไลน์อัป",
       },
-      priorities: [
-        { area: "Starting Pitching", details: "Targeting veteran free agent starter for 170+ innings" },
-        { area: "Right-Handed Power Outfield", details: "Corner outfield bat with 25+ HR capability" },
+      topPriorities: [
+        { en: "Sign high-leverage late-inning reliever", th: "เซ็นสัญญาตัวขว้างปิดเกมช่วงอินนิ่งท้าย" },
+        { en: "Acquire starting pitcher with rotation depth", th: "เสริมมือขว้างตัวจริงเสริมแกร่งโรเตชัน" },
       ],
-      draftOutlook: {
-        en: "Top-15 overall pick: Focus on college-polished starting pitcher with plus-command fastball.",
-        th: "ดราฟต์รอบแรกท็อป 15: เล็งพิชเชอร์ระดับมหาวิทยาลัยที่คุมบอลแม่นยำ",
-      },
       milestones: [
-        { date: "Dec 8", title: "MLB Winter Meetings", note: "Active in trade talks and free agency" },
-        { date: "Jan 15", title: "Arbitration Filings", note: "Locking in core player salary figures" },
+        { date: "Dec 2026", title: "MLB Winter Meetings", note: "Trade & free agent negotiations" },
       ],
     },
   },
-
   lynx: {
     teamId: "lynx",
-    seasonYear: "2026 WNBA Season & 2027 Defense",
+    seasonYear: "2027",
     currentPhase: "offseason",
-    phaseLabel: {
-      en: "Offseason • WNBA Championship Title Defense",
-      th: "ปิดฤดูกาล • เตรียมแผนป้องกันแชมป์ WNBA",
-    },
+    phaseLabel: { en: "WNBA Title Quest • 5th Championship", th: "ล่าแชมป์ WNBA • สมัยที่ 5 ในประวัติศาสตร์" },
     summary: {
-      en: "Napheesa Collier led the Lynx to a 32-10 dominant regular season and a historic WNBA Finals run. Head coach Cheryl Reeve has established the league standard for defense and unselfish passing.",
-      th: "นาฟีซา คอลลิเออร์ พาทีมคว้าชัย 32-10 ในฤดูกาลปกติและเข้าชิง WNBA ไฟนอลส์ โค้ช เชอริล รีฟ สร้างระบบทีมเวิร์กและเกมรับอันดับ 1 ของลีก",
+      en: "Napheesa Collier and Cheryl Reeve's Commissioner's Cup champion squad return with championship hunger after reaching the WNBA Finals.",
+      th: "Napheesa Collier และโค้ช Cheryl Reeve พาทีมแชมป์ Commissioner's Cup คืนสังเวียนด้วยความกระหายหลังทะลุเข้าชิงชนะเลิศ WNBA",
     },
-    projectedRecord: "34-6 (WNBA #1 Seed & Champions)",
-    championshipOdds: "+240 (WNBA Title Favorites)",
+    projectedRecord: "34-10 • WNBA #1 Seed Favorites",
+    championshipOdds: "+280 (WNBA Title Favorites)",
     championshipTarget: "WNBA Championship Trophy",
     championshipProbability: 92,
     preseason: {
       status: "upcoming",
       dates: "April 20 - May 10, 2027",
       focus: {
-        en: "Integrating first-round draft selections, defensive rotation continuity, 3PT shooting drills.",
-        th: "ผสมผสานผู้เล่นดราฟต์รอบแรก, ต่อยอดความต่อเนื่องเกมรับ และซ้อมยิง 3 แต้ม",
+        en: "Training camp at Target Center: defense-first rotations and transitional spacing.",
+        th: "เทรนนิ่งแคมป์ที่ Target Center: เน้นระบบเกมรับที่เหนียวแน่นและเกมสวนกลับเร็ว",
       },
       milestones: [
-        { date: "April 22", title: "Lynx Training Camp Opens", note: "Championship ring celebration at Mayo Clinic Square" },
+        { date: "April 28", title: "Preseason Opener", note: "Exhibition matchup" },
       ],
       keyPlayers: [
-        { name: "Napheesa Collier", role: "F / MVP Finalist", highlight: "Defensive Player of the Year, clutch leader" },
-        { name: "Courtney Williams", role: "PG / Playmaker", highlight: "Playoff midrange maestro and tempo controller" },
+        { name: "Napheesa Collier", role: "Forward", highlight: "Defensive Player of the Year & MVP finalist" },
+        { name: "Courtney Williams", role: "Guard", highlight: "Clutch floor general" },
       ],
     },
     regularSeason: {
@@ -511,16 +469,16 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "May 14 - Sept 18, 2027",
       standing: "Targeting #1 Overall WNBA Seed",
       focus: {
-        en: "Maintain #1 defensive rating in WNBA, secure home-court advantage at Target Center.",
-        th: "รักษาเกมรับอันดับ 1 ใน WNBA, ชิงความได้เปรียบเกมในบ้านที่ ทาร์เก็ต เซ็นเตอร์",
+        en: "Maintain league-leading defensive rating and defend the Commissioner's Cup crown.",
+        th: "รักษาอันดับหนึ่งของลีกด้านเกมรับและป้องกันแชมป์ Commissioner's Cup",
       },
       keyMatchups: [
-        { opponent: "New York Liberty", date: "June 2, 2027", venue: "Target Center", note: "WNBA Finals heavyweight rematch" },
-        { opponent: "Las Vegas Aces", date: "July 12, 2027", venue: "Michelob ULTRA Arena", note: "Collier vs A'ja Wilson superstar showdown" },
+        { opponent: "New York Liberty", date: "June 12, 2027", venue: "Target Center", note: "WNBA Finals heavyweight rematch" },
+        { opponent: "Las Vegas Aces", date: "July 8, 2027", venue: "Michelob ULTRA Arena", note: "Premier Western showdown" },
       ],
       milestones: [
-        { date: "May 14", title: "WNBA Season Tipoff", note: "Home opener banner raising" },
-        { date: "July 24", title: "WNBA All-Star Game", note: "Collier and Williams starting nods" },
+        { date: "June 2027", title: "Commissioner's Cup Final", note: "Defending in-season championship" },
+        { date: "July 2027", title: "WNBA All-Star Game", note: "Multiple Lynx All-Stars" },
       ],
     },
     playoffs: {
@@ -528,93 +486,81 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "Sept 20 - Oct 20, 2027",
       championshipTarget: "WNBA Championship Trophy",
       focus: {
-        en: "Capture 5th WNBA Championship banner in franchise history.",
+        en: "Capture franchise's historic 5th WNBA Championship banner.",
         th: "คว้าแชมป์ WNBA สมัยที่ 5 ในประวัติศาสตร์สโมสร",
       },
       path: {
-        en: "First Round (Best of 3) -> Semifinals (Best of 5) -> WNBA Finals (Best of 5).",
-        th: "รอบแรก (ชนะ 2 ใน 3) -> รอบตัดเชือก (ชนะ 3 ใน 5) -> รอบชิงชนะเลิศ (ชนะ 3 ใน 5)",
+        en: "First Round (Best-of-3) -> Semifinals (Best-of-5) -> WNBA Finals (Best-of-5).",
+        th: "รอบแรก (ชนะ 2 ใน 3) -> รอบรองชนะเลิศ (ชนะ 3 ใน 5) -> WNBA Finals (ชนะ 3 ใน 5)",
       },
       clinchScenario: {
-        en: "Clinch #1 seed with 30+ victories in 40-game regular season schedule.",
-        th: "เก็บชัยชนะ 30 เกมขึ้นไปเพื่อการันตีทีมวางอันดับ 1",
+        en: "Win 28 games to clinch home-court advantage throughout the postseason.",
+        th: "ชนะ 28 นัดเพื่อการันตีสิทธิ์เล่นในบ้านตลอดรอบเพลย์ออฟ",
       },
       milestones: [
-        { date: "Sept 22", title: "WNBA Playoffs Round 1", note: "Postseason run launch" },
-        { date: "Oct 12", title: "WNBA Finals Game 1", note: "Championship target" },
+        { date: "Oct 2027", title: "WNBA Finals Game 5", note: "Championship crowning" },
       ],
     },
     offseason: {
       status: "in_progress",
       dates: "Oct 22, 2026 - April 15, 2027",
-      capOrBudget: "Hard Cap Salary Retention Structure",
+      capOrBudget: "WNBA Salary Cap Compliant",
       focus: {
-        en: "Re-sign core free agents, preserve championship chemistry, scout NCAA tournament perimeter talent.",
-        th: "ต่อสัญญาผู้เล่นฟรีเอเยนต์ตัวหลัก, รักษาความเข้าขารู้ใจ และคัดสรรดาวรุ่งจากลีกมหาวิทยาลัย",
+        en: "Re-sign core free agents and identify floor-spacing wing talent.",
+        th: "ต่อสัญญากลุ่มผู้เล่นแกนหลักและเสริมนักกีฬาตำแหน่งปีกที่ยิงแม่นยำ",
       },
-      priorities: [
-        { area: "Retain Courtney Williams & Alanna Smith", details: "Lock in primary ball-handler and interior defensive anchor" },
-        { area: "Perimeter 3PT Depth", details: "Targeting lethal catch-and-shoot sharpshooter" },
+      topPriorities: [
+        { en: "Extend starting backcourt tandem", th: "ต่อสัญญาการ์ดตัวจริงทั้งสองคน" },
+        { en: "Add 3-point shooting specialist off the bench", th: "ดึงตัวยิง 3 แต้มตัวสำรองชั้นนำ" },
       ],
-      draftOutlook: {
-        en: "Late 1st round pick: Select high-motor 3-and-D wing from NCAA Final Four team.",
-        th: "ดราฟต์รอบแรกปลายตาราง: คัดผู้เล่นปีกเกมรับ-ยิง 3 แต้มจากทีมไฟนอลโฟร์",
-      },
       milestones: [
-        { date: "Jan 15", title: "WNBA Free Agency Opens", note: "Confirming core roster returns" },
-        { date: "April 14", title: "2027 WNBA Draft", note: "Drafting collegiate stars" },
+        { date: "Jan 2027", title: "WNBA Free Agency", note: "Roster finalization" },
       ],
     },
   },
-
   frost: {
     teamId: "frost",
-    seasonYear: "2026-2027 PWHL Season",
+    seasonYear: "2026-27",
     currentPhase: "regular",
-    phaseLabel: {
-      en: "Regular Season • Back-to-Back Walter Cup Defense",
-      th: "ฤดูกาลปกติ • ป้องกันแชมป์ วอลเตอร์ คัพ สองสมัยซ้อน",
-    },
+    phaseLabel: { en: "Regular Season • Back-to-Back Walter Cup Champions", th: "ฤดูกาลปกติ • แชมป์ Walter Cup 2 สมัยซ้อน" },
     summary: {
-      en: "Minnesota Frost are reigning back-to-back Walter Cup Champions. Kendall Coyne Schofield, Taylor Heise, and Kelly Pannek form the deepest forward corps in women's pro hockey.",
-      th: "มินนิโซตา ฟรอสต์ เจ้าของแชมป์ วอลเตอร์ คัพ สองสมัยซ้อน นำโดย เคนดัลล์ คอยน์ สโคฟิลด์, เทย์เลอร์ ไฮซี และ เคลลี แพนเน็ก เป็นทีมเต็งแชมป์อันดับ 1",
+      en: "The Minnesota Frost enter as back-to-back Walter Cup Champions, blending elite goaltending with physical forechecking to defend their PWHL dynasty.",
+      th: "Minnesota Frost ลงสนามในฐานะแชมป์ Walter Cup สองสมัยซ้อน ด้วยเกมรับของผู้รักษาประตูระดับโลกและเกมบดบี้แดนหน้าเพื่อสร้างยุคทอง PWHL",
     },
-    projectedRecord: "22-5-3 (Walter Cup Favorites)",
-    championshipOdds: "+200 (Back-to-Back-to-Back Hunt)",
+    projectedRecord: "22-6-2 • 1st Seed PWHL",
+    championshipOdds: "+190 (Championship Favorites)",
     championshipTarget: "Walter Cup Trophy",
-    championshipProbability: 90,
+    championshipProbability: 95,
     preseason: {
       status: "completed",
-      dates: "Nov 5 - Nov 24, 2026",
-      record: "3-0-0 (Preseason)",
+      dates: "Nov 1 - Nov 24, 2026",
+      record: "3-0-0",
       focus: {
-        en: "Roster integration of draft picks, Nicole Hensley goaltending rhythm, power play tactics.",
-        th: "ปรับจูนผู้เล่นดราฟต์ใหม่, จังหวะเซฟของ นิโคล เฮนสลีย์ และเกมพาวเวอร์เพลย์",
+        en: "Training camp at Xcel Energy Center: solidified special teams and forecheck pressure.",
+        th: "เทรนนิ่งแคมป์ที่ Xcel Energy Center: เสริมแกร่งทีมพิเศษและเกมบีบพื้นที่แดนหน้า",
       },
       milestones: [
-        { date: "Nov 12", title: "Xcel Energy Camp", note: "Defense allowed 0 goals in exhibition scrimmage" },
+        { date: "Nov 15", title: "Camp Scrimmage", note: "Roster depth finalized" },
       ],
       keyPlayers: [
-        { name: "Taylor Heise", role: "C / Playoff MVP", highlight: "Generational scoring center, elite wrist shot" },
-        { name: "Kendall Coyne Schofield", role: "LW / Captain", highlight: "Blazing speed and transition scoring" },
+        { name: "Taylor Heise", role: "Center", highlight: "Playoff MVP & dynamic scorer" },
+        { name: "Kendall Coyne Schofield", role: "Forward", highlight: "Speedster captain" },
       ],
     },
     regularSeason: {
       status: "in_progress",
-      dates: "Nov 28, 2026 - May 2, 2027",
-      record: "2-0-0 (6 Pts)",
-      standing: "#1 in PWHL Standings",
+      dates: "Nov 30, 2026 - May 2, 2027",
+      standing: "1st in PWHL Standings",
       focus: {
-        en: "Lock down #1 seed to ensure home-ice advantage through the Walter Cup Playoffs.",
-        th: "ครองจ่าฝูงเพื่อคว้าสิทธิ์เล่นในบ้านตลอดรอบเพลย์ออฟ วอลเตอร์ คัพ",
+        en: "Locking up the #1 overall seed to earn home ice advantage throughout the playoffs.",
+        th: "คว้าอันดับหนึ่งของตารางเพื่อสิทธิ์เล่นในบ้านตลอดการแข่งขันรอบเพลย์ออฟ",
       },
       keyMatchups: [
-        { opponent: "Boston Fleet", date: "Dec 6, 2026", venue: "Xcel Energy Center", note: "Walter Cup Finals rematch" },
-        { opponent: "Montreal Victoire", date: "Jan 14, 2027", venue: "Place Bell", note: "Road battle for #1 PWHL seed" },
+        { opponent: "Boston Fleet", date: "Dec 14, 2026", venue: "Xcel Energy Center", note: "Walter Cup Finals rematch" },
+        { opponent: "Montreal Victoire", date: "Jan 9, 2027", venue: "Place Bell", note: "Classic rivalry test" },
       ],
       milestones: [
-        { date: "Jan 28", title: "PWHL Takeover Tour", note: "Outdoor neutral site showcase" },
-        { date: "May 2", title: "Regular Season Finale", note: "Final tuneup before playoffs" },
+        { date: "Jan 2027", title: "Midseason Showcase", note: "PWHL spotlight tour" },
       ],
     },
     playoffs: {
@@ -622,20 +568,19 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "May 8 - May 28, 2027",
       championshipTarget: "Walter Cup Trophy",
       focus: {
-        en: "Capture three consecutive Walter Cup championships in PWHL history.",
-        th: "คว้าแชมป์ วอลเตอร์ คัพ 3 สมัยติดต่อกันเป็นทีมแรกในประวัติศาสตร์",
+        en: "Complete the historic 3-peat as Walter Cup Champions.",
+        th: "คว้าแชมป์ Walter Cup 3 สมัยติดต่อกันเพื่อสร้างประวัติศาสตร์",
       },
       path: {
-        en: "PWHL Semifinals (Best of 5) -> Walter Cup Finals (Best of 5).",
-        th: "รอบตัดเชือก (ชนะ 3 ใน 5) -> วอลเตอร์ คัพ ไฟนอลส์ (ชนะ 3 ใน 5)",
+        en: "PWHL Semifinals (Best-of-5) -> Walter Cup Finals (Best-of-5).",
+        th: "รอบรองชนะเลิศ PWHL (ชนะ 3 ใน 5) -> Walter Cup Finals (ชนะ 3 ใน 5)",
       },
       clinchScenario: {
-        en: "Secure 18 regulation wins to lock up #1 postseason seed.",
-        th: "ชนะในเวลาปกติ 18 นัดเพื่อคว้าทีมวางอันดับ 1",
+        en: "Earn 42 points in standings to clinch top postseason seed.",
+        th: "เก็บ 42 คะแนนในตารางการแข่งขันเพื่อการันตีอันดับหนึ่งรอบเพลย์ออฟ",
       },
       milestones: [
-        { date: "May 10", title: "Semifinal Game 1", note: "Playoff defense begins" },
-        { date: "May 24", title: "Walter Cup Game 4", note: "Targeting championship sweep" },
+        { date: "Late May 2027", title: "Walter Cup Finals", note: "Dynasty 3-peat target" },
       ],
     },
     offseason: {
@@ -643,89 +588,81 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "June 1 - Oct 2027",
       capOrBudget: "PWHL Salary Cap Compliant",
       focus: {
-        en: "Retain Olympic medalists, secure college free agents, extend core defensemen.",
-        th: "รั้งตัวนักกีฬาเหรียญทองโอลิมปิก, ดึงดาวรุ่งจากลีกมหาวิทยาลัย และต่อสัญญากองหลัง",
+        en: "Retain championship core and draft collegiate standouts.",
+        th: "รักษาแกนหลักของทีมแชมป์และดราฟต์นักกีฬาระดับมหาวิทยาลัยชั้นนำ",
       },
-      priorities: [
-        { area: "Top-Pair Defense", details: "Lock in Lee Stecklein and Sophie Jaques to long-term pacts" },
+      topPriorities: [
+        { en: "Sign long-term extensions for top defensive pairings", th: "ต่อสัญญาระยะยาวคู่กองหลังตัวจริง" },
       ],
-      draftOutlook: {
-        en: "PWHL Draft: Target collegiate goal-scoring power forward.",
-        th: "PWHL ดราฟต์: เล็งกองหน้าตัวจบสกอร์จากลีกมหาวิทยาลัย",
-      },
       milestones: [
-        { date: "June 10", title: "PWHL Draft", note: "Injecting elite collegiate talent" },
+        { date: "June 2027", title: "PWHL Draft", note: "College prospects addition" },
       ],
     },
   },
-
   mnufc: {
     teamId: "mnufc",
-    seasonYear: "2026-2027 MLS Campaign",
+    seasonYear: "2026-27",
     currentPhase: "regular",
-    phaseLabel: {
-      en: "Regular Season • Allianz Field Playoff Push",
-      th: "ฤดูกาลปกติ • ล่าตั๋วเพลย์ออฟ อัลลิอันซ์ ฟิลด์",
-    },
+    phaseLabel: { en: "Audi MLS Cup Playoffs • Western Conference", th: "เพลย์ออฟ Audi MLS Cup • สายตะวันตก" },
     summary: {
-      en: "Minnesota United FC under Eric Ramsay playing aggressive pressing football at Allianz Field. Robin Lod and Kelvin Yeboah form a dangerous attacking tandem.",
-      th: "มินเนโซตา ยูไนเต็ด ภายใต้การคุมทีมของ เอริก แรมซีย์ เล่นบอลเพรสซิ่งดุดันที่ อัลลิอันซ์ ฟิลด์ โรบิน ล็อด และ เคลวิน เยบัวห์ กำลังเข้าฟอร์ม",
+      en: "The Loons defend Allianz Field behind a disciplined counter-attacking framework, dynamic wing play, and partisan St. Paul supporters.",
+      th: "เดอะลูนส์ลงสนามที่ Allianz Field ด้วยระบบโต้กลับอย่างมีวินัย เกมรุกริมเส้นที่ดุดัน และพลังเสียงเชียร์ของแฟนบอลเซนต์พอล",
     },
-    projectedRecord: "16-9-9 (57 Pts, Top 4 West)",
-    championshipOdds: "+1800 (MLS Cup Playoff Dark Horse)",
-    championshipTarget: "MLS Cup & US Open Cup",
-    championshipProbability: 66,
+    projectedRecord: "15-11-8 • 53 Points (MLS Cup Contender)",
+    championshipOdds: "+2200 (MLS Cup Dark Horse)",
+    championshipTarget: "Philip F. Anschutz Trophy (MLS Cup)",
+    championshipProbability: 61,
     preseason: {
       status: "completed",
-      dates: "Jan 15 - Feb 18, 2026",
-      record: "4-1-0 (Preseason)",
+      dates: "Jan 18 - Feb 20, 2026",
+      record: "4-1-1",
       focus: {
-        en: "High-pressing transition tactical drills, defensive shape integration.",
-        th: "ฝึกซ้อมแท็กติกเพรสซิ่งสูงและการยืนโซนแนวรับ",
+        en: "Desert Friendlies in Tucson, AZ: solidified 5-3-2 tactical defensive structure.",
+        th: "เกมอุ่นเครื่องที่ทูซอน แอริโซนา: ปรับโครงสร้างแท็กติกเกมรับ 5-3-2 ให้ลงตัว",
       },
       milestones: [
-        { date: "Feb 5", title: "Coachella Valley Invitational", note: "Undefeated in exhibition friendlies" },
+        { date: "Feb 14", title: "Preseason Finale", note: "Clean-sheet victory" },
       ],
       keyPlayers: [
-        { name: "Kelvin Yeboah", role: "ST / Goal Scorer", highlight: "Clinical Designated Player striker" },
-        { name: "Robin Lod", role: "MF / Playmaker", highlight: "All-time club assists and goals maestro" },
+        { name: "Dayne St. Clair", role: "Goalkeeper", highlight: "Penalty kick specialist" },
+        { name: "Robin Lod", role: "Midfielder", highlight: "Playmaking maestro" },
       ],
     },
     regularSeason: {
-      status: "in_progress",
-      dates: "Feb 22 - Oct 19, 2026",
-      record: "15-12-7 (52 Pts)",
-      standing: "#5 in Western Conference (Locked in for Playoffs)",
+      status: "completed",
+      dates: "Feb 28 - Oct 18, 2026",
+      standing: "4th in Western Conference (Home-Field Playoff Spot)",
       focus: {
-        en: "Secure Top-4 seed for home-field advantage in Round One Best-of-3 series at Allianz Field.",
-        th: "เก็บแต้มติดท็อป 4 เพื่อสิทธิ์เล่นในบ้านรอบแรกที่ อัลลิอันซ์ ฟิลด์",
+        en: "Turning Allianz Field into an impenetrable fortress with 10+ home victories.",
+        th: "สร้างความแข็งแกร่งในบ้าน Allianz Field ด้วยชัยชนะเกิน 10 นัด",
       },
       keyMatchups: [
-        { opponent: "LAFC", date: "Oct 24, 2026", venue: "BMO Stadium", note: "MLS Cup Playoffs Round 1 Game 1" },
+        { opponent: "LA Galaxy", date: "Sept 12, 2026", venue: "Allianz Field", note: "Western top-four battle" },
+        { opponent: "Seattle Sounders", date: "Oct 4, 2026", venue: "Lumen Field", note: "Decision Day seeding test" },
       ],
       milestones: [
-        { date: "Oct 19", title: "Decision Day", note: "Postseason spot sealed" },
+        { date: "July 2026", title: "Leagues Cup", note: "Knockout phase run" },
       ],
     },
     playoffs: {
       status: "in_progress",
       dates: "Oct 24 - Dec 6, 2026",
-      championshipTarget: "MLS Cup & US Open Cup",
+      championshipTarget: "MLS Cup Trophy",
       focus: {
-        en: "Navigate Western Conference playoffs and reach first MLS Cup Final.",
-        th: "ฝ่าฟันเพลย์ออฟสายตะวันตกเพื่อเข้าชิงถ้วย MLS Cup",
+        en: "Advance past Round One Best-of-3 Series and capture the Western Conference crown.",
+        th: "ผ่านรอบแรกระบบชนะ 2 ใน 3 และก้าวไปสู่แชมป์สายตะวันตก",
       },
       path: {
-        en: "Round 1 (Best-of-3) -> Conference Semifinals -> Conference Final -> MLS Cup Final.",
-        th: "รอบแรก (ชนะ 2 ใน 3) -> รอบรองชนะเลิศสาย -> ชิงแชมป์สาย -> รอบชิง MLS Cup",
+        en: "Round One (Best-of-3) -> Conference Semifinals -> Conference Final -> MLS Cup.",
+        th: "รอบแรก (ชนะ 2 ใน 3) -> รอบรองชนะเลิศสาย -> ชิงแชมป์สาย -> MLS Cup",
       },
       clinchScenario: {
-        en: "Defeat LAFC in Round 1 Best-of-3 series to advance.",
-        th: "เอาชนะ LAFC ในระบบชนะ 2 ใน 3 เกมเพื่อผ่านเข้ารอบรองชนะเลิศสาย",
+        en: "Win decisive Game 3 at Allianz Field to reach Conference Semifinals.",
+        th: "คว้าชัยชนะนัดตัดสินเกม 3 ที่ Allianz Field เพื่อเข้าสู่รอบตัดเชือกของสาย",
       },
       milestones: [
-        { date: "Oct 24", title: "Playoffs Round 1", note: "Series opener vs LAFC" },
-        { date: "Dec 6", title: "MLS Cup Final", note: "Championship target" },
+        { date: "Nov 2026", title: "Western Semifinal", note: "Single-elimination thriller" },
+        { date: "Dec 6, 2026", title: "MLS Cup Final", note: "Battle for Philip F. Anschutz Trophy" },
       ],
     },
     offseason: {
@@ -733,71 +670,64 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "Dec 10, 2026 - Jan 14, 2027",
       capOrBudget: "$6.2M GAM/TAM Allocation Flexibility",
       focus: {
-        en: "Acquire Designated Player box-to-box central midfielder, retain defensive spine.",
-        th: "เสริมกองกลางบ็อกซ์ทูบ็อกซ์ระดับ Designated Player และรักษากองหลังตัวหลัก",
+        en: "Target marquee Designated Player striker and shore up central midfield passing depth.",
+        th: "ดึงกองหน้าตัวเป้าระดับ Designated Player และเสริมมิดฟิลด์ตัวกลางที่ผ่านบอลแม่นยำ",
       },
-      priorities: [
-        { area: "Box-to-Box Midfielder", details: "Prime South American/European midfielder to partner Dotson" },
+      topPriorities: [
+        { en: "Sign DP striker with international pedigree", th: "เซ็นสัญญากองหน้า DP ระดับทีมชาติ" },
+        { en: "Exercise contract options for young domestic core", th: "ใช้ออปชันต่อสัญญากลุ่มผู้เล่นดาวรุ่งท้องถิ่น" },
       ],
-      draftOutlook: {
-        en: "MLS SuperDraft: Target collegiate athletic center-back.",
-        th: "MLS ซูเปอร์ดราฟต์: คัดเลือกเซ็นเตอร์แบ็กรูปร่างสูงใหญ่",
-      },
       milestones: [
-        { date: "Dec 18", title: "MLS SuperDraft", note: "Scouting young domestic talent" },
+        { date: "Dec 2026", title: "MLS Re-Entry Draft", note: "Domestic depth additions" },
       ],
     },
   },
-
   rbfc: {
     teamId: "rbfc",
-    seasonYear: "2026-2027 Thai League 1",
+    seasonYear: "2026-27",
     currentPhase: "regular",
-    phaseLabel: {
-      en: "Regular Season • Dragon Solar Park Fortress (4-1-2)",
-      th: "ฤดูกาลปกติ • ปราการ ดราก้อน โซล่าร์ ปาร์ค (4-1-2)",
-    },
+    phaseLabel: { en: "Matchday 10 • Thai League 1", th: "นัดที่ 10 • รีโว่ ไทยลีก 1" },
     summary: {
-      en: "Ratchaburi FC (The Dragons) in fierce contention in Thai League 1. Dragon Solar Park is rocking in Ratchaburi with fiery home performances and AFC continental ambitions.",
-      th: "ราชบุรี เอฟซี (ราชันมังกร) กำลังโชว์ฟอร์มร้อนแรงในไทยลีก 1 เกมในบ้านที่ ดราก้อน โซล่าร์ ปาร์ค แข็งแกร่งพร้อมเป้าหมายคว้าตั๋วลุยฟุตบอลถ้วยเอเชีย AFC",
+      en: "Ratchaburi FC turns Dragon Solar Park into a vibrant fortress with aggressive high-pressing football, eye-catching transitions, and AFC Champions League qualification aspirations.",
+      th: "ราชบุรี เอฟซี เปลี่ยน ดราก้อน โซลาร์ ปาร์ค เป็นป้อมปราการสุดแกร่ง ด้วยเกมเพรสซิ่งดุดัน เกมโต้กลับรวดเร็ว และเป้าหมายคว้าตั๋วฟุตบอลถ้วยเอเชีย AFC Champions League",
     },
-    projectedRecord: "17-7-6 (58 Pts, Top 3 Finish)",
-    championshipOdds: "+550 (Thai FA Cup & League 1 Contenders)",
-    championshipTarget: "Thai League 1 & Chang FA Cup",
-    championshipProbability: 72,
+    projectedRecord: "16-8-6 • 56 Points (Top 3 Thai League 1)",
+    championshipOdds: "+750 (Title Contenders & Chang FA Cup Favorites)",
+    championshipTarget: "Thai League 1 Trophy & Chang FA Cup",
+    championshipProbability: 80,
     preseason: {
       status: "completed",
-      dates: "July 1 - Aug 8, 2026",
-      record: "4-0-1 (Preseason)",
+      dates: "July 1 - Aug 6, 2026",
+      record: "5-0-1",
       focus: {
-        en: "Physical conditioning in Ratchaburi heat, integration of Brazilian front line.",
-        th: "ฟื้นฟูความฟิตท่ามกลางอากาศร้อนราชบุรี และปรับจูนแนวรุกชาวบราซิล",
+        en: "Preseason camp at Dragon Solar Park: integrated international signings and high-octane 4-3-3 pressing shape.",
+        th: "ปรีซีซันแคมป์ที่ ดราก้อน โซลาร์ ปาร์ค: ปรับจูนผู้เล่นโควตาต่างชาติและระบบเพรสซิ่ง 4-3-3",
       },
       milestones: [
-        { date: "Aug 2", title: "Dragon Solar Park Launch", note: "Preseason friendly victory in front of 9,000 fans" },
+        { date: "July 24", title: "Dragon Solar Cup", note: "3-1 victory in international friendly" },
+        { date: "Aug 2", title: "Team Presentation Day", note: "Official 2026-27 kit launch" },
       ],
       keyPlayers: [
-        { name: "Clément Depres", role: "FW / Target Man", highlight: "Physical aerial powerhouse and clinical finisher" },
-        { name: "Jesse Curran", role: "MF / Dynamic Wing", highlight: "Versatile wing-back with pinpoint crossing" },
+        { name: "Dragons Striker", role: "Center Forward", highlight: "Prolific finisher & target man" },
+        { name: "Captain Playmaker", role: "Attacking Midfielder", highlight: "Set-piece master & team leader" },
       ],
     },
     regularSeason: {
       status: "in_progress",
-      dates: "Aug 15, 2026 - May 10, 2027",
-      record: "4-1-2 (13 Pts)",
-      standing: "#4 in Thai League 1 (3 Pts off Leader)",
+      dates: "Aug 14, 2026 - May 10, 2027",
+      standing: "3rd in Thai League 1 (Chasing Title Lead)",
       focus: {
-        en: "Preserve undefeated home record at Dragon Solar Park, secure top-3 finish for AFC Champions League 2 qualification.",
-        th: "รักษาสถิติไร้พ่ายในบ้านที่ ดราก้อน โซล่าร์ ปาร์ค และจบอันดับท็อป 3 เพื่อตั๋วเอเอฟซี แชมเปียนส์ลีก 2",
+        en: "Protecting Dragon Solar Park home record and collecting maximum points against top-four rivals.",
+        th: "รักษาฟอร์มแกร่งไร้พ่ายในบ้าน ดราก้อน โซลาร์ ปาร์ค และเก็บแต้มสำคัญในเกมบิ๊กแมตช์",
       },
       keyMatchups: [
-        { opponent: "Buriram United", date: "Nov 22, 2026", venue: "Dragon Solar Park", note: "Giant clash vs league champions" },
-        { opponent: "Bangkok United", date: "Dec 14, 2026", venue: "Thammasat Stadium", note: "Capital road showdown" },
-        { opponent: "Port FC", date: "Feb 7, 2027", venue: "Dragon Solar Park", note: "Fierce rivalry battle" },
+        { opponent: "Buriram United", date: "Nov 29, 2026", venue: "Dragon Solar Park", note: "Massive Thai League title clash" },
+        { opponent: "Bangkok United", date: "Dec 20, 2026", venue: "True Stadium", note: "Direct battle for AFC Champions League qualification" },
+        { opponent: "Port FC", date: "Feb 14, 2027", venue: "PAT Stadium", note: "Crucial away challenge" },
       ],
       milestones: [
-        { date: "Nov 22", title: "Buriram Tilt", note: "Sold-out Dragon Solar Park" },
-        { date: "Jan 10", title: "Second Leg Restart", note: "Championship sprint starts" },
+        { date: "Dec 2026", title: "Leg 1 Conclusion", note: "Targeting top-two standing" },
+        { date: "Jan 2027", title: "Chang FA Cup Round of 16", note: "Cup campaign kickoff" },
       ],
     },
     playoffs: {
@@ -805,20 +735,20 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "March 1 - May 24, 2027",
       championshipTarget: "Chang FA Cup & Revo Cup Champions",
       focus: {
-        en: "Win Chang FA Cup to guarantee direct AFC Champions League group stage berth.",
-        th: "คว้าแชมป์ ช้าง เอฟเอ คัพ เพื่อการันตีตั๋วรอบแบ่งกลุ่ม เอเอฟซี แชมเปียนส์ลีก",
+        en: "Secure AFC Champions League continental qualification and lift silverware at National Stadium.",
+        th: "คว้าตั๋วไปเล่นฟุตบอลถ้วยเอเชีย AFC Champions League และชูถ้วยแชมป์ฟุตบอลถ้วยในประเทศ",
       },
       path: {
-        en: "FA Cup Round of 16 -> Quarterfinals -> Semifinals -> Final at Rajamangala Stadium.",
-        th: "รอบ 16 ทีม -> รอบ 8 ทีม -> รอบรองชนะเลิศ -> นัดชิงชนะเลิศ ที่สนามราชมังคลากีฬาสถาน",
+        en: "Chang FA Cup Quarterfinals -> Semifinals -> Chang FA Cup Final at Supachalasai Stadium.",
+        th: "ช้าง เอฟเอ คัพ รอบ 8 ทีม -> รอบรองชนะเลิศ -> นัดชิงชนะเลิศ ที่สนามศุภชลาศัย",
       },
       clinchScenario: {
         en: "Reach 55+ league points and win 4 consecutive cup fixtures.",
         th: "เก็บ 55 แต้มในลีกและชนะรวด 4 นัดในฟุตบอลถ้วย",
       },
       milestones: [
-        { date: "April 18", title: "FA Cup Semifinal", note: "Neutral venue clash" },
-        { date: "May 24", title: "Chang FA Cup Final", note: "Targeting continental glory" },
+        { date: "April 2027", title: "FA Cup Semifinal", note: "High-stakes knockout battle" },
+        { date: "May 2027", title: "FA Cup Final", note: "Championship coronation at Supachalasai" },
       ],
     },
     offseason: {
@@ -826,65 +756,57 @@ export const SEASON_OUTLOOKS: Record<string, SeasonOutlook> = {
       dates: "June 1 - July 2027",
       capOrBudget: "Thai League 1 Salary Cap Structure",
       focus: {
-        en: "Retain key foreign player spine, recruit top Thai national team prospects, upgrade training grounds.",
-        th: "ต่อสัญญาแข้งต่างชาติคนสำคัญ, ดึงนักเตะทีมชาติไทยเสริมทัพ และพัฒนาศูนย์ฝึกซ้อม",
+        en: "Strengthen depth for dual continental AFC and domestic Thai League campaign.",
+        th: "เสริมขุมกำลังเชิงลึกเพื่อรับมือสองรายการทั้งศึกเอเชียและไทยลีก",
       },
-      priorities: [
-        { area: "Foreign Attacker Slot", details: "Prolific Asian-quota attacking midfielder" },
-        { area: "Domestic Defensive Midfield", details: "Thai national team defensive anchor" },
+      topPriorities: [
+        { en: "Sign proven Asian-quota defensive midfielder", th: "เซ็นสัญญากองกลางตัวรับโควตาเอเชีย" },
+        { en: "Retain high-impact Brazilian attacking core", th: "ต่อสัญญาแนวรุกบราซิลตัวหลัก" },
       ],
-      draftOutlook: {
-        en: "Academy Promotion: Elevate three top U-23 academy graduates to senior first-team roster.",
-        th: "ดันดาวรุ่งอะคาเดมี่ U-23 ขึ้นสู่ทีมชุดใหญ่ 3 ราย",
-      },
       milestones: [
-        { date: "June 2027", title: "Thai Transfer Window", note: "Squad reinforcement for continental play" },
+        { date: "June 2027", title: "AFC Draw Ceremony", note: "Discover continental group opponents" },
       ],
     },
   },
 };
 
 export function getTeamSeasonOutlook(team: Team): SeasonOutlook {
-  const found = SEASON_OUTLOOKS[team.id];
-  if (found) {
-    return found;
+  if (SEASON_OUTLOOKS[team.id]) {
+    return SEASON_OUTLOOKS[team.id];
   }
 
   return {
     teamId: team.id,
-    seasonYear: "2026-2027 Season",
+    seasonYear: "2026-27",
     currentPhase: "regular",
-    phaseLabel: {
-      en: "Regular Season • In Progress",
-      th: "ฤดูกาลปกติ • กำลังแข่งขัน",
-    },
+    phaseLabel: { en: "Competitive Season", th: "ฤดูกาลแข่งขันปัจจุบัน" },
     summary: {
-      en: `${team.name} is in competitive action in ${team.league || team.sport}. Squad aiming for postseason contention and championship glory.`,
-      th: `${team.name} กำลังแข่งขันในลีก ${team.league || team.sport} พร้อมเดินหน้าล่าตั๋วเพลย์ออฟและถ้วยรางวัล`,
+      en: `${team.name} continues their campaign in ${team.league || "Global Sports"}, focusing on tactical execution and playoff contention.`,
+      th: `${team.th || team.name} เดินหน้าแข่งขันในลีก ${team.league || "กีฬาอาชีพ"} มุ่งมั่นสร้างฟอร์มเพื่อลุ้นตั๋วเพลย์ออฟ`,
     },
-    projectedRecord: team.record || "In Postseason Hunt",
-    championshipOdds: "+1200 (Playoff Contender)",
-    championshipTarget: `${team.league || "Championship"} Trophy`,
-    championshipProbability: 68,
+    projectedRecord: "Championship Contenders",
+    championshipOdds: "+2500",
+    championshipTarget: `${team.league || "League"} Championship`,
+    championshipProbability: 55,
     preseason: {
       status: "completed",
-      dates: "Preseason Training Window",
+      dates: "Preseason Window",
+      record: "Completed",
       focus: {
-        en: "Tactical conditioning and integration of summer additions.",
-        th: "ปรับแท็กติกและความฟิตของผู้เล่นใหม่ช่วงปรีซีซัน",
+        en: "Established roster conditioning and foundational tactical systems.",
+        th: "เตรียมความพร้อมร่างกายและติดตั้งระบบแท็กติกพื้นฐาน",
       },
       milestones: [
-        { date: "Preseason", title: "Training Camp", note: "Roster finalized" },
+        { date: "Opening Camp", title: "Training Camp", note: "Depth chart established" },
       ],
     },
     regularSeason: {
       status: "in_progress",
-      dates: "Active Regular Campaign",
-      record: team.record || "Active",
-      standing: "Playoff Contender",
+      dates: "Active Campaign",
+      standing: "Contending Roster",
       focus: {
-        en: "Collect crucial league points and preserve health for championship run.",
-        th: "เก็บแต้มสำคัญในลีกและรักษาสภาพความฟิตสู่ช่วงชิงแชมป์",
+        en: "Securing conference victories and advancing standing.",
+        th: "เน้นคว้าชัยชนะเพื่อไต่อันดับในตาราง",
       },
       keyMatchups: [
         { opponent: "Next League Matchup", date: "Upcoming", venue: "Home Stadium", note: "Key fixture" },
@@ -898,19 +820,19 @@ export function getTeamSeasonOutlook(team: Team): SeasonOutlook {
       dates: "Postseason Window",
       championshipTarget: `${team.league || "Championship"} Title`,
       focus: {
-        en: "Survive and advance in elimination rounds.",
-        th: "เดินหน้าในรอบน็อกเอาต์เพื่อล่าแชมป์",
+        en: "Win playoff series and hoist championship trophy.",
+        th: "เอาชนะในรอบเพลย์ออฟเพื่อชูถ้วยแชมป์เกียรติยศ",
       },
       path: {
-        en: "Secure qualifying seed -> Win postseason elimination series.",
-        th: "คว้าอันดับการันตีตั๋ว -> คว้าชัยในรอบเพลย์ออฟ",
+        en: "First Round -> Semifinals -> Finals.",
+        th: "รอบแรก -> รอบรองชนะเลิศ -> รอบชิงชนะเลิศ",
       },
       clinchScenario: {
         en: "Stack conference victories in remaining fixtures.",
         th: "เก็บชัยชนะในเกมที่เหลือเพื่อการันตีตั๋ว",
       },
       milestones: [
-        { date: "Postseason", title: "Playoff Opening Round", note: "Championship quest" },
+        { date: "Postseason", title: "Playoff Round", note: "Championship bracket" },
       ],
     },
     offseason: {
@@ -918,25 +840,22 @@ export function getTeamSeasonOutlook(team: Team): SeasonOutlook {
       dates: "Summer 2027",
       capOrBudget: "Standard League Cap Space",
       focus: {
-        en: "Retain key core players and draft top available talent.",
-        th: "รั้งผู้เล่นคนสำคัญและคัดเลือกผู้เล่นดาวรุ่ง",
+        en: "Draft development talent and secure veteran leaders.",
+        th: "ดราฟต์ผู้เล่นดาวรุ่งและเสริมผู้เล่นประสบการณ์",
       },
-      priorities: [
-        { area: "Roster Depth", details: "Upgrade bench depth and tactical flexibility" },
+      topPriorities: [
+        { en: "Upgrade roster depth", th: "เสริมความลึกของขุมกำลัง" },
+        { en: "Retain foundational core", th: "รักษากลุ่มผู้เล่นแกนหลัก" },
       ],
-      draftOutlook: {
-        en: "Focus on best player available.",
-        th: "เน้นเลือกผู้เล่นที่ดีที่สุดในดราฟต์",
-      },
       milestones: [
-        { date: "Offseason", title: "Draft & Free Agency", note: "Squad retooling" },
+        { date: "Offseason", title: "Roster Review", note: "Signings & extensions" },
       ],
     },
   };
 }
 
 // =========================================================================
-// LOCAL STORAGE HOOK
+// HELPER HOOKS & TABS
 // =========================================================================
 function useLocal<T>(key: string, init: T): [T, (val: T) => void] {
   const [val, setVal] = useState<T>(() => {
@@ -968,7 +887,7 @@ const tabs = (t: (typeof T)["en"], lang: Lang) =>
   [
     { key: "live", label: t.live, icon: Radio },
     { key: "pulse", label: lang === "th" ? "สปอร์ต เพลส์" : "Pulse", icon: Activity },
-    { key: "my", label: t.myTeams, icon: Star },
+    { key: "my", label: t.my, icon: Star },
     { key: "seasons", label: lang === "th" ? "ซีซันส์" : "Seasons", icon: Calendar },
     { key: "explore", label: t.explore, icon: Compass },
     { key: "leagues", label: t.leagues, icon: Trophy },
@@ -1031,7 +950,9 @@ export default function App() {
     setIsRefreshing(true);
     try {
       const settled = await Promise.allSettled(
-        ESPN_LEAGUES.map((l) => fetchLiveESPNLeague({ data: { leagueKey: l.key } }))
+        Object.entries(ESPN_LEAGUES).map(([leagueKey, endpoint]) =>
+          fetchLiveESPNLeague(leagueKey, endpoint)
+        )
       );
 
       const allLiveGames: Game[] = [];
@@ -1050,7 +971,7 @@ export default function App() {
         // Deduplicate games
         const seen = new Set<string>();
         const unique = combined.filter((g) => {
-          const key = `${g.homeId}-${g.awayId}-${g.time.slice(0, 10)}`;
+          const key = `${g.home}-${g.away}-${(g.kickoff || "").slice(0, 10)}`;
           if (seen.has(key)) return false;
           seen.add(key);
           return true;
@@ -1060,7 +981,7 @@ export default function App() {
         unique.sort((a, b) => {
           if (a.status === "LIVE" && b.status !== "LIVE") return -1;
           if (b.status === "LIVE" && a.status !== "LIVE") return 1;
-          return new Date(a.time).getTime() - new Date(b.time).getTime();
+          return new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime();
         });
 
         setGames(unique);
@@ -1073,7 +994,7 @@ export default function App() {
     }
   }, []);
 
-  // Poll live scores every 15 seconds
+  // Initial and 15s interval sync
   useEffect(() => {
     refreshLiveScores();
     const interval = setInterval(refreshLiveScores, 15000);
@@ -1081,250 +1002,232 @@ export default function App() {
   }, [refreshLiveScores]);
 
   const toggleFav = (id: string) => {
-    if (favs.includes(id)) {
-      setFavs(favs.filter((f) => f !== id));
-      toast(lang === "th" ? "ลบออกจากทีมโปรดแล้ว" : "Removed from favorites");
-    } else {
-      setFavs([...favs, id]);
-      toast(lang === "th" ? "เพิ่มในทีมโปรดแล้ว!" : "Added to favorites!");
-    }
-  };
-
-  const addAllMN = () => {
-    const combined = Array.from(new Set([...favs, ...MN_IDS]));
-    setFavs(combined);
-    toast.success(
-      lang === "th"
-        ? "เพิ่มทีมมินนิโซตาทั้ง 7 สโมสรเรียบร้อยแล้ว!"
-        : "Added all 7 Minnesota franchises to favorites!"
+    setFavs((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
-  const liveCount = useMemo(
-    () => games.filter((g) => g.status === "LIVE").length,
-    [games]
-  );
+  const addAllMN = () => {
+    setFavs((prev) => Array.from(new Set([...prev, ...MN_IDS])));
+    toast.success(lang === "th" ? "เพิ่มทุกทีมมินนิโซตาแล้ว" : "All Minnesota teams added to favorites!");
+  };
+
+  const hubGames = useMemo(() => {
+    if (hub === "all") return games;
+    if (hub === "ratchaburi") {
+      return games.filter((g) => g.home === "rbfc" || g.away === "rbfc" || g.league === "THAI1");
+    }
+    if (hub === "minnesota") {
+      return games.filter(
+        (g) => MN_IDS.includes(g.home) || MN_IDS.includes(g.away)
+      );
+    }
+    return games;
+  }, [games, hub]);
 
   return (
     <div
       data-hub={hub}
-      className="min-h-screen bg-background text-foreground transition-colors duration-300"
+      className="min-h-screen bg-background text-foreground transition-colors duration-300 pb-20 sm:pb-8"
     >
-      {/* Top Header */}
+      {/* Top Header & Ticker */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-md">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-2 px-4 py-2.5 sm:grid-cols-2 sm:items-center sm:gap-4">
-          <div className="min-w-0">
-            <h1 className="flex items-center gap-2 font-display text-lg tracking-wider text-primary sm:text-xl">
-              <Zap className="h-5 w-5 animate-pulse text-accent" />
-              <span>{t.appTitle}</span>
-              <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-sans font-bold text-primary">
-                OS
-              </span>
-            </h1>
-            <HubInfo
-              hub={hub}
-              now={now}
-              mounted={mounted}
-              dualWeather={dualWeather}
-              lang={lang}
-            />
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5">
+          {/* Brand */}
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/20">
+              <Zap className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="font-display text-xl tracking-wider font-bold">
+                  HERMETICA
+                </span>
+                <span className="rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-bold text-accent">
+                  SPORTS OS
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                {lang === "th" ? "ฮับกีฬาถ่ายทอดสดแบบรวมศูนย์" : "Unified Global Sports Operating System"}
+              </p>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
+          {/* Quick Controls */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => refreshLiveScores()}
+              disabled={isRefreshing}
+              className="flex items-center gap-1 rounded-lg border border-border bg-card px-2.5 py-1 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-foreground cursor-pointer"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-primary" : ""}`} />
+              <span className="hidden sm:inline">
+                {isRefreshing ? "Syncing…" : "Sync"}
+              </span>
+            </button>
+
             <button
               onClick={() => setLang(lang === "en" ? "th" : "en")}
-              className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs font-semibold hover:bg-secondary transition cursor-pointer"
-              title="Toggle Language (EN / TH)"
+              className="flex items-center gap-1 rounded-lg border border-border bg-card px-2.5 py-1 text-xs font-semibold transition hover:border-primary cursor-pointer"
             >
               <Globe className="h-3.5 w-3.5 text-primary" />
-              <span>{lang === "en" ? "ไทย" : "English"}</span>
+              <span>{lang === "en" ? "TH" : "EN"}</span>
             </button>
-
-            <button
-              onClick={refreshLiveScores}
-              disabled={isRefreshing}
-              className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs font-semibold hover:bg-secondary transition cursor-pointer disabled:opacity-50"
-              title="Refresh Live Scores"
-            >
-              <RefreshCw
-                className={`h-3.5 w-3.5 text-primary ${isRefreshing ? "animate-spin" : ""}`}
-              />
-              <span className="hidden sm:inline">
-                {isRefreshing ? "Syncing..." : "Live Sync"}
-              </span>
-            </button>
-
-            {liveCount > 0 && (
-              <span className="flex items-center gap-1 rounded-full bg-red-500/20 px-2.5 py-1 text-xs font-bold text-red-500">
-                <span className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
-                {liveCount} {t.live}
-              </span>
-            )}
           </div>
         </div>
 
         {/* Hub Selector Pills */}
-        <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-2 border-t border-border/50 text-xs font-semibold">
+        <div className="mx-auto flex max-w-6xl gap-1.5 overflow-x-auto px-4 py-2 scrollbar-none">
           <button
             onClick={() => setHub("all")}
-            className={`rounded-full px-3 py-1 transition cursor-pointer whitespace-nowrap ${
+            className={`rounded-full px-3 py-1 text-xs font-bold transition cursor-pointer whitespace-nowrap ${
               hub === "all"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-secondary text-secondary-foreground hover:bg-muted"
+                ? "bg-primary text-primary-foreground shadow-sm shadow-primary/30"
+                : "border border-border bg-card/60 text-muted-foreground hover:bg-secondary"
             }`}
           >
-            {t.allTeams} ({TEAMS.length})
+            {t.all}
           </button>
           <button
             onClick={() => setHub("minnesota")}
-            className={`rounded-full px-3 py-1 transition cursor-pointer whitespace-nowrap ${
+            className={`rounded-full px-3 py-1 text-xs font-bold transition cursor-pointer whitespace-nowrap ${
               hub === "minnesota"
-                ? "bg-[#4F2683] text-[#FFC62F] font-bold shadow-sm"
-                : "bg-secondary text-secondary-foreground hover:bg-muted"
+                ? "bg-[#4F2683] text-[#FFC62F] shadow-sm shadow-[#4F2683]/50"
+                : "border border-border bg-card/60 text-muted-foreground hover:bg-secondary"
             }`}
           >
-            {t.minnesotaHub} ({MN_IDS.length})
+            ★ Twin Cities Hub (7 Teams)
           </button>
           <button
             onClick={() => setHub("ratchaburi")}
-            className={`rounded-full px-3 py-1 transition cursor-pointer whitespace-nowrap ${
+            className={`rounded-full px-3 py-1 text-xs font-bold transition cursor-pointer whitespace-nowrap ${
               hub === "ratchaburi"
-                ? "bg-[#FF6600] text-white font-bold shadow-sm"
-                : "bg-secondary text-secondary-foreground hover:bg-muted"
+                ? "bg-[#FF6600] text-white shadow-sm shadow-[#FF6600]/50"
+                : "border border-border bg-card/60 text-muted-foreground hover:bg-secondary"
             }`}
           >
-            {t.ratchaburiHub}
+            🐉 Ratchaburi FC (Dragon Solar Park)
           </button>
         </div>
 
-        {/* Live Score Ticker */}
+        {/* Live Score Ticker (90 Seconds Speed) */}
         <Ticker games={games} lang={lang} />
 
         {/* Desktop Navigation */}
         <nav className="mx-auto hidden max-w-6xl gap-1 px-4 sm:flex overflow-x-auto">
-          {tabs(t, lang).map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              onClick={() => {
-                setTab(key as AppTab);
-                setSelectedGame(null);
-              }}
-              className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs font-semibold transition cursor-pointer whitespace-nowrap ${
-                tab === key
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              <span>{label}</span>
-              {key === "live" && liveCount > 0 && (
-                <span className="rounded-full bg-red-500 px-1.5 py-0.2 text-[10px] text-white">
-                  {liveCount}
-                </span>
-              )}
-            </button>
-          ))}
+          {tabs(t, lang).map((item) => {
+            const Icon = item.icon;
+            const active = tab === item.key;
+            return (
+              <button
+                key={item.key}
+                onClick={() => setTab(item.key as AppTab)}
+                className={`flex items-center gap-1.5 border-b-2 px-3.5 py-2.5 text-xs font-bold tracking-wide transition cursor-pointer whitespace-nowrap ${
+                  active
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
         </nav>
       </header>
 
       {/* Main Content Area */}
-      <main className="mx-auto max-w-6xl px-4 py-6 pb-24 sm:pb-8">
+      <main className="mx-auto max-w-6xl px-4 py-5 space-y-5">
+        <HubInfo hub={hub} lang={lang} now={now} weather={dualWeather} onAddAllMN={addAllMN} />
+
         {tab === "live" && (
           <LiveTab
-            games={games}
-            hub={hub}
+            games={hubGames}
             lang={lang}
             favs={favs}
             toggleFav={toggleFav}
             preds={preds}
             setPreds={setPreds}
-            onSelectGame={(g) => setSelectedGame(g)}
+            onSelectGame={setSelectedGame}
           />
         )}
 
         {tab === "pulse" && (
           <PulseTab
-            games={games}
             hub={hub}
             lang={lang}
+            games={games}
             favs={favs}
-            onSelectGame={(g) => {
-              setSelectedGame(g);
-              setTab("live");
-            }}
-            onSelectTeam={(t) => {
-              setSelectedTeamId(t.id);
-              setTab("seasons");
-            }}
+            weather={dualWeather}
+            onSelectTeam={setSelectedTeamId}
           />
         )}
 
         {tab === "my" && (
           <MyTab
             favs={favs}
-            toggleFav={toggleFav}
-            addAllMN={addAllMN}
             games={games}
             lang={lang}
-            onSelectTeam={(t) => {
-              setSelectedTeamId(t.id);
-              setTab("seasons");
-            }}
+            toggleFav={toggleFav}
+            onAddAllMN={addAllMN}
+            onSelectTeam={setSelectedTeamId}
           />
         )}
 
         {tab === "seasons" && (
           <SeasonsTab
-            favs={favs}
-            toggleFav={toggleFav}
-            addAllMN={addAllMN}
             lang={lang}
+            favs={favs}
             selectedTeamId={selectedTeamId}
-            onSelectTeam={(id) => setSelectedTeamId(id)}
+            onSelectTeam={setSelectedTeamId}
           />
         )}
 
         {tab === "explore" && (
-          <ExploreTab favs={favs} toggleFav={toggleFav} lang={lang} />
+          <ExploreTab
+            lang={lang}
+            favs={favs}
+            toggleFav={toggleFav}
+            onSelectTeam={setSelectedTeamId}
+          />
         )}
 
         {tab === "leagues" && (
           <LeaguesTab
             games={games}
             lang={lang}
-            onSelectLeague={() => setTab("explore")}
+            onSelectLeague={() => setTab("live")}
           />
         )}
 
         {tab === "fantasy" && (
-          <FantasyTab games={games} preds={preds} setPreds={setPreds} lang={lang} />
+          <FantasyTab
+            games={games}
+            lang={lang}
+            preds={preds}
+            setPreds={setPreds}
+          />
         )}
       </main>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <nav className="fixed right-0 bottom-0 left-0 z-40 border-t border-border bg-background/95 backdrop-blur-md sm:hidden">
-        <div className="grid grid-cols-7 py-1">
-          {tabs(t, lang).map(({ key, label, icon: Icon }) => (
+      {/* Mobile Safe-Area Bottom Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-border bg-background/95 backdrop-blur-lg px-2 py-1.5 pb-safe sm:hidden">
+        {tabs(t, lang).map((item) => {
+          const Icon = item.icon;
+          const active = tab === item.key;
+          return (
             <button
-              key={key}
-              onClick={() => {
-                setTab(key as AppTab);
-                setSelectedGame(null);
-              }}
-              className={`flex flex-col items-center justify-center py-1.5 text-[10px] transition cursor-pointer ${
-                tab === key ? "font-bold text-primary" : "text-muted-foreground"
+              key={item.key}
+              onClick={() => setTab(item.key as AppTab)}
+              className={`flex flex-col items-center justify-center p-1 text-[10px] font-bold transition cursor-pointer ${
+                active ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <div className="relative">
-                <Icon className="h-4 w-4" />
-                {key === "live" && liveCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-                )}
-              </div>
-              <span className="truncate max-w-[45px] text-[9px] mt-0.5">{label}</span>
+              <Icon className="h-4 w-4" />
+              <span className="mt-0.5">{item.label}</span>
             </button>
-          ))}
-        </div>
+          );
+        })}
       </nav>
     </div>
   );
@@ -1333,16 +1236,18 @@ export default function App() {
 // =========================================================================
 // SUBCOMPONENTS
 // =========================================================================
+
 function Seal({ t, size = 36 }: { t: Team; size?: number }) {
   return (
     <div
       style={{
+        backgroundColor: t.color,
+        color: t.accent,
         width: size,
         height: size,
-        backgroundColor: t.color,
-        color: t.accent || "#fff",
+        boxShadow: `0 2px 8px ${t.color}40`,
       }}
-      className="flex shrink-0 items-center justify-center rounded-xl font-display font-black text-xs shadow-sm ring-1 ring-border/20 uppercase"
+      className="flex items-center justify-center rounded-xl font-display font-bold tracking-wider text-xs border border-white/20 select-none shrink-0"
     >
       {t.seal}
     </div>
@@ -1351,57 +1256,71 @@ function Seal({ t, size = 36 }: { t: Team; size?: number }) {
 
 function HubInfo({
   hub,
-  now,
-  mounted,
-  dualWeather,
   lang,
+  now,
+  weather,
+  onAddAllMN,
 }: {
   hub: Hub;
-  now: Date;
-  mounted: boolean;
-  dualWeather: {
-    ratchaburi?: { tempC?: number; condition?: string; rainChance?: number } | null;
-    minnesota?: { tempF?: number; humidity?: number; windMph?: number } | null;
-  };
   lang: Lang;
+  now: Date;
+  weather: any;
+  onAddAllMN: () => void;
 }) {
-  const ctTime = mounted
-    ? now.toLocaleTimeString("en-US", {
-        timeZone: "America/Chicago",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      })
-    : "12:00:00 PM";
-
-  const ictTime = mounted
-    ? now.toLocaleTimeString("en-US", {
-        timeZone: "Asia/Bangkok",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      })
-    : "12:00:00 AM";
+  const ictTime = now.toLocaleTimeString("en-US", {
+    timeZone: "Asia/Bangkok",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+  const ctTime = now.toLocaleTimeString("en-US", {
+    timeZone: "America/Chicago",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-      <span className="font-mono text-[11px] font-semibold text-primary">
-        CT {ctTime}
-      </span>
-      <span>•</span>
-      <span className="font-mono text-[11px] font-semibold text-accent">
-        ICT {ictTime}
-      </span>
-      <span>•</span>
-      <span className="truncate">
-        {hub === "minnesota"
-          ? `Twin Cities ${dualWeather.minnesota?.tempF ? `• ${dualWeather.minnesota.tempF}°F` : ""}`
-          : hub === "ratchaburi"
-            ? `Dragon Solar Park ${dualWeather.ratchaburi?.tempC ? `• ${dualWeather.ratchaburi.tempC}°C` : ""}`
-            : lang === "th"
-              ? "ครอบคลุม 14 ลีกทั่วโลก"
-              : "Global Sports Coverage (14 Leagues)"}
-      </span>
+    <div className="rounded-2xl border border-border bg-card/70 p-4 shadow-sm backdrop-blur-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* Clocks */}
+        <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
+          <div className="flex items-center gap-1.5">
+            <span className="rounded bg-primary/20 px-1.5 py-0.5 font-bold text-primary">
+              ICT (Bangkok)
+            </span>
+            <span className="font-bold text-foreground text-sm">{ictTime}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="rounded bg-secondary px-1.5 py-0.5 font-bold text-muted-foreground">
+              CT (Twin Cities)
+            </span>
+            <span className="font-bold text-foreground text-sm">{ctTime}</span>
+          </div>
+        </div>
+
+        {/* Weather & Quick Action */}
+        <div className="flex items-center gap-3 text-xs">
+          {weather?.ratchaburi?.tempC !== undefined && (
+            <span className="text-muted-foreground">
+              🐉 DSP: <strong className="text-foreground">{Math.round(weather.ratchaburi.tempC)}°C</strong>
+            </span>
+          )}
+          {weather?.minnesota?.tempF !== undefined && (
+            <span className="text-muted-foreground">
+              ❄️ MN: <strong className="text-foreground">{Math.round(weather.minnesota.tempF)}°F</strong>
+            </span>
+          )}
+          {hub === "minnesota" && (
+            <button
+              onClick={onAddAllMN}
+              className="rounded-lg bg-primary/20 px-2.5 py-1 font-bold text-primary text-[11px] hover:bg-primary/30 transition cursor-pointer"
+            >
+              + Add All 7 MN Teams
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -1411,23 +1330,26 @@ function Ticker({ games, lang }: { games: Game[]; lang: Lang }) {
 
   return (
     <div className="border-t border-border/40 bg-card/60 overflow-hidden py-1.5">
-      <div className="flex items-center gap-6 animate-marquee whitespace-nowrap text-xs">
+      <div
+        className="flex items-center gap-6 animate-marquee whitespace-nowrap text-xs"
+        style={{ animationDuration: "90s" }}
+      >
         {games.slice(0, 10).map((g) => {
-          const home = teamById(g.homeId);
-          const away = teamById(g.awayId);
+          const home = teamById(g.home);
+          const away = teamById(g.away);
           const isLive = g.status === "LIVE";
 
           return (
             <div key={g.id} className="inline-flex items-center gap-2 px-2">
               <span className="font-bold text-[10px] text-muted-foreground uppercase">
-                {g.sport}
+                {g.league}
               </span>
               <span className="font-bold text-foreground">
                 {away.seal}
               </span>
               {isLive ? (
                 <span className="font-bold text-red-500 font-mono">
-                  {g.score?.away} - {g.score?.home}
+                  {g.as} - {g.hs}
                 </span>
               ) : (
                 <span className="text-muted-foreground text-[11px]">vs</span>
@@ -1441,8 +1363,8 @@ function Ticker({ games, lang }: { games: Game[]; lang: Lang }) {
                 </span>
               ) : (
                 <span className="text-muted-foreground text-[10px]">
-                  ({fmtTime(g.time, "Asia/Bangkok", lang)})
-                  {g.odds && ` • ${g.odds.spread}`}
+                  ({fmtTime(g.kickoff, "Asia/Bangkok", lang)})
+                  {g.odds && ` • ${typeof g.odds === "object" ? g.odds.spread || "" : g.odds}`}
                 </span>
               )}
               <span className="text-border">|</span>
@@ -1467,25 +1389,21 @@ function GameTimes({ time, lang }: { time: string; lang: Lang }) {
 }
 
 function calendarLinks(g: Game) {
-  const home = teamById(g.homeId);
-  const away = teamById(g.awayId);
-  const title = encodeURIComponent(`${away.name} vs ${home.name}`);
-  const details = encodeURIComponent(
-    `Live broadcast on Hermetica Sports OS. Venue: ${home.venue}`
-  );
-  const loc = encodeURIComponent(home.venue);
-  const d = new Date(g.time);
-  const start = d.toISOString().replace(/-|:|\.\d+/g, "");
-  const end = new Date(d.getTime() + 3 * 3600000)
+  const home = teamById(g.home);
+  const away = teamById(g.away);
+  const title = `${away.name} vs ${home.name} (${g.league})`;
+  const start = new Date(g.kickoff).toISOString().replace(/-|:|\.\d+/g, "");
+  const end = new Date(new Date(g.kickoff).getTime() + 3 * 3600 * 1000)
     .toISOString()
     .replace(/-|:|\.\d+/g, "");
 
-  const gCal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}&location=${loc}`;
-  const lineShare = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(
-    window?.location?.href || ""
-  )}&text=${title}`;
+  const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+    title
+  )}&dates=${start}/${end}&details=${encodeURIComponent(
+    `Live broadcast on Hermetica Sports OS. Venue: ${g.venue || "TBD"}`
+  )}&location=${encodeURIComponent(g.venue || "")}`;
 
-  return { gCal, lineShare };
+  return { googleUrl };
 }
 
 function GameCard({
@@ -1505,145 +1423,126 @@ function GameCard({
   setPred: (teamId: string) => void;
   onSelect?: () => void;
 }) {
-  const home = teamById(game.homeId);
-  const away = teamById(game.awayId);
+  const home = teamById(game.home);
+  const away = teamById(game.away);
   const isLive = game.status === "LIVE";
-  const { gCal, lineShare } = calendarLinks(game);
+  const cal = calendarLinks(game);
 
   return (
-    <div
-      onClick={onSelect}
-      className={`group relative rounded-2xl border p-4 transition-all duration-200 cursor-pointer ${
-        isLive
-          ? "border-red-500/40 bg-card/90 shadow-md shadow-red-500/5 hover:border-red-500"
-          : "border-border bg-card/60 hover:border-primary/50 hover:bg-card"
-      }`}
-    >
-      <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
-        <div className="flex items-center gap-2">
-          <span className="rounded-md bg-secondary px-2 py-0.5 text-[10px] font-bold text-muted-foreground uppercase">
-            {game.sport}
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:border-primary/50 space-y-3">
+      {/* Header */}
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider">
+          <span className="rounded bg-secondary px-2 py-0.5 text-[10px] text-foreground">
+            {game.league}
           </span>
           {isLive ? (
-            <span className="flex items-center gap-1.5 rounded-full bg-red-500/10 px-2.5 py-0.5 text-xs font-bold text-red-500">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping" />
-              {game.clock || "LIVE"}
+            <span className="flex items-center gap-1 rounded bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-500">
+              <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+              {game.clock}
             </span>
           ) : (
-            <span className="text-xs text-muted-foreground font-medium">
-              {home.venue}
-            </span>
+            <span>Upcoming</span>
           )}
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFav();
-            }}
-            className="p-1 rounded-full hover:bg-muted text-muted-foreground hover:text-accent transition"
-            title="Favorite"
+            onClick={toggleFav}
+            className={`transition cursor-pointer ${
+              isFav ? "text-yellow-400" : "text-muted-foreground hover:text-foreground"
+            }`}
           >
-            <Star
-              className={`h-4 w-4 ${isFav ? "fill-accent text-accent" : ""}`}
-            />
+            <Star className={`h-4 w-4 ${isFav ? "fill-yellow-400" : ""}`} />
           </button>
+          <a
+            href={cal.googleUrl}
+            target="_blank"
+            rel="noreferrer"
+            title="Add to Google Calendar"
+            className="text-muted-foreground hover:text-foreground transition"
+          >
+            <Calendar className="h-3.5 w-3.5" />
+          </a>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 items-center gap-2 py-4">
-        <div className="flex flex-col items-center text-center">
-          <Seal t={away} size={42} />
-          <span className="mt-2 font-bold text-sm leading-tight">{away.name}</span>
-          <span className="text-[11px] text-muted-foreground font-medium">
-            {away.record}
-          </span>
+      {/* Matchup */}
+      <div className="grid grid-cols-12 items-center gap-2 py-1">
+        {/* Away */}
+        <div className="col-span-5 flex items-center gap-2.5">
+          <Seal t={away} size={38} />
+          <div className="min-w-0">
+            <h4 className="font-bold text-sm text-foreground truncate">{away.name}</h4>
+            <p className="text-[11px] text-muted-foreground">{away.record || "Contender"}</p>
+          </div>
         </div>
 
-        <div className="flex flex-col items-center justify-center text-center">
+        {/* Scores or Kickoff */}
+        <div className="col-span-2 text-center">
           {isLive ? (
-            <div className="flex items-center gap-2 font-mono text-2xl font-black text-red-500">
-              <span>{game.score?.away ?? 0}</span>
-              <span className="text-muted-foreground text-sm">-</span>
-              <span>{game.score?.home ?? 0}</span>
+            <div className="font-mono text-xl font-bold text-red-500">
+              {game.as} - {game.hs}
             </div>
           ) : (
-            <span className="rounded-full bg-muted/80 px-2.5 py-1 text-xs font-bold text-muted-foreground">
-              VS
-            </span>
+            <span className="text-xs font-bold text-muted-foreground">VS</span>
           )}
-          <GameTimes time={game.time} lang={lang} />
         </div>
 
-        <div className="flex flex-col items-center text-center">
-          <Seal t={home} size={42} />
-          <span className="mt-2 font-bold text-sm leading-tight">{home.name}</span>
-          <span className="text-[11px] text-muted-foreground font-medium">
-            {home.record}
-          </span>
+        {/* Home */}
+        <div className="col-span-5 flex items-center justify-end gap-2.5 text-right">
+          <div className="min-w-0">
+            <h4 className="font-bold text-sm text-foreground truncate">{home.name}</h4>
+            <p className="text-[11px] text-muted-foreground">{home.record || "Host"}</p>
+          </div>
+          <Seal t={home} size={38} />
         </div>
       </div>
 
+      {/* Times / Venue */}
+      <div className="flex items-center justify-between border-t border-border/40 pt-2 text-xs">
+        <span className="text-muted-foreground truncate max-w-[160px]">
+          📍 {game.venue || "Stadium"}
+        </span>
+        <GameTimes time={game.kickoff} lang={lang} />
+      </div>
+
+      {/* Odds or Mini-Prediction */}
       {game.odds && (
-        <div className="flex items-center justify-between border-t border-border/40 pt-2 text-xs text-muted-foreground font-medium">
-          <span>Spread: {game.odds.spread}</span>
-          <span>O/U: {game.odds.overUnder}</span>
-          <span>ML: {game.odds.moneyline}</span>
+        <div className="rounded-xl bg-secondary/50 px-2.5 py-1.5 text-[11px] text-muted-foreground flex items-center justify-between">
+          <span className="font-bold">ODDS</span>
+          <span className="font-mono">
+            {typeof game.odds === "object"
+              ? `${game.odds.spread || ""} • O/U ${game.odds.overUnder || ""} • ML ${game.odds.moneyline || ""}`
+              : game.odds}
+          </span>
         </div>
       )}
 
-      <div className="mt-3 flex items-center justify-between border-t border-border/40 pt-2.5 text-xs">
-        <div className="flex items-center gap-2">
+      {/* Interactive Predict Winner */}
+      <div className="flex items-center justify-between pt-1">
+        <span className="text-[11px] font-semibold text-muted-foreground">Predict Winner:</span>
+        <div className="flex gap-1.5">
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setPred(away.id);
-            }}
-            className={`rounded-lg px-2 py-1 text-[11px] font-semibold transition ${
+            onClick={() => setPred(away.id)}
+            className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer ${
               pred === away.id
-                ? "bg-primary text-primary-foreground font-bold"
-                : "bg-secondary text-secondary-foreground hover:bg-muted"
+                ? "bg-primary text-primary-foreground"
+                : "border border-border bg-card hover:bg-secondary text-muted-foreground"
             }`}
           >
-            Pick {away.seal}
+            {away.seal}
           </button>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setPred(home.id);
-            }}
-            className={`rounded-lg px-2 py-1 text-[11px] font-semibold transition ${
+            onClick={() => setPred(home.id)}
+            className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer ${
               pred === home.id
-                ? "bg-primary text-primary-foreground font-bold"
-                : "bg-secondary text-secondary-foreground hover:bg-muted"
+                ? "bg-primary text-primary-foreground"
+                : "border border-border bg-card hover:bg-secondary text-muted-foreground"
             }`}
           >
-            Pick {home.seal}
+            {home.seal}
           </button>
-        </div>
-
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <a
-            href={gCal}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="hover:text-primary transition"
-            title="Export to Calendar"
-          >
-            <Calendar className="h-4 w-4" />
-          </a>
-          <a
-            href={lineShare}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="hover:text-green-500 transition"
-            title="Share via LINE"
-          >
-            <Share2 className="h-4 w-4" />
-          </a>
         </div>
       </div>
     </div>
@@ -1651,11 +1550,11 @@ function GameCard({
 }
 
 // =========================================================================
-// TABS IMPLEMENTATION
+// TAB COMPONENTS
 // =========================================================================
+
 function LiveTab({
   games,
-  hub,
   lang,
   favs,
   toggleFav,
@@ -1664,7 +1563,6 @@ function LiveTab({
   onSelectGame,
 }: {
   games: Game[];
-  hub: Hub;
   lang: Lang;
   favs: string[];
   toggleFav: (id: string) => void;
@@ -1672,29 +1570,53 @@ function LiveTab({
   setPreds: (p: Record<string, string>) => void;
   onSelectGame: (g: Game) => void;
 }) {
+  const [filter, setFilter] = useState<"all" | "favs">("all");
+
   const filtered = useMemo(() => {
-    return games.filter((g) => {
-      if (hub === "minnesota") {
-        return MN_IDS.includes(g.homeId) || MN_IDS.includes(g.awayId);
-      }
-      if (hub === "ratchaburi") {
-        return g.homeId === "rbfc" || g.awayId === "rbfc";
-      }
-      return true;
-    });
-  }, [games, hub]);
+    if (filter === "favs") {
+      return games.filter((g) => favs.includes(g.home) || favs.includes(g.away));
+    }
+    return games;
+  }, [games, filter, favs]);
 
   const liveGames = filtered.filter((g) => g.status === "LIVE");
   const upcomingGames = filtered.filter((g) => g.status === "UPCOMING");
 
   return (
     <div className="space-y-6">
+      {/* Filter Tabs */}
+      <div className="flex items-center justify-between">
+        <div className="flex gap-1.5">
+          <button
+            onClick={() => setFilter("all")}
+            className={`rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+              filter === "all"
+                ? "bg-primary text-primary-foreground"
+                : "border border-border bg-card text-muted-foreground"
+            }`}
+          >
+            All Live & Upcoming ({games.length})
+          </button>
+          <button
+            onClick={() => setFilter("favs")}
+            className={`rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+              filter === "favs"
+                ? "bg-primary text-primary-foreground"
+                : "border border-border bg-card text-muted-foreground"
+            }`}
+          >
+            ★ My Teams Only
+          </button>
+        </div>
+      </div>
+
+      {/* Live Active Games */}
       {liveGames.length > 0 && (
         <section className="space-y-3">
           <div className="flex items-center gap-2">
-            <Radio className="h-5 w-5 text-red-500 animate-pulse" />
+            <span className="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />
             <h2 className="font-display text-lg tracking-wide text-red-500">
-              {lang === "th" ? "กำลังถ่ายทอดสด" : "LIVE NOW"} ({liveGames.length})
+              LIVE RIGHT NOW ({liveGames.length})
             </h2>
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -1703,10 +1625,10 @@ function LiveTab({
                 key={game.id}
                 game={game}
                 lang={lang}
-                isFav={favs.includes(game.homeId) || favs.includes(game.awayId)}
-                toggleFav={() => toggleFav(game.homeId)}
+                isFav={favs.includes(game.home) || favs.includes(game.away)}
+                toggleFav={() => toggleFav(game.home)}
                 pred={preds[game.id]}
-                setPred={(teamId) => setPreds({ ...preds, [game.id]: teamId })}
+                setPred={(tId) => setPreds({ ...preds, [game.id]: tId })}
                 onSelect={() => onSelectGame(game)}
               />
             ))}
@@ -1714,19 +1636,20 @@ function LiveTab({
         </section>
       )}
 
+      {/* Upcoming Games Section */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-primary" />
             <h2 className="font-display text-lg tracking-wide">
-              {lang === "th" ? "โปรแกรมการแข่งขันถัดไป" : "UPCOMING SCHEDULE"} ({upcomingGames.length})
+              {lang === "th" ? "โปรแกรมการแข่งขันถัดไป" : "UPCOMING GAMES"} ({upcomingGames.length})
             </h2>
           </div>
         </div>
 
         {upcomingGames.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground">
-            <p>No upcoming matches found for the selected hub.</p>
+            <p>No upcoming games found for the selected hub.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -1735,10 +1658,10 @@ function LiveTab({
                 key={game.id}
                 game={game}
                 lang={lang}
-                isFav={favs.includes(game.homeId) || favs.includes(game.awayId)}
-                toggleFav={() => toggleFav(game.homeId)}
+                isFav={favs.includes(game.home) || favs.includes(game.away)}
+                toggleFav={() => toggleFav(game.home)}
                 pred={preds[game.id]}
-                setPred={(teamId) => setPreds({ ...preds, [game.id]: teamId })}
+                setPred={(tId) => setPreds({ ...preds, [game.id]: tId })}
                 onSelect={() => onSelectGame(game)}
               />
             ))}
@@ -1750,187 +1673,116 @@ function LiveTab({
 }
 
 function PulseTab({
-  games,
   hub,
   lang,
+  games,
   favs,
-  onSelectGame,
+  weather,
   onSelectTeam,
 }: {
-  games: Game[];
   hub: Hub;
   lang: Lang;
+  games: Game[];
   favs: string[];
-  onSelectGame: (g: Game) => void;
-  onSelectTeam: (t: Team) => void;
+  weather: any;
+  onSelectTeam: (id: string) => void;
 }) {
-  const [expandedTeamId, setExpandedTeamId] = useState<string | null>(null);
+  const rankedTeams = useMemo(() => {
+    return TEAMS.map((t) => {
+      const activeGame = games.find((g) => g.home === t.id || g.away === t.id);
+      const isLive = activeGame?.status === "LIVE";
+      const isFav = favs.includes(t.id);
 
-  const teamList = useMemo(() => {
-    let list = TEAMS;
-    if (hub === "minnesota") {
-      list = TEAMS.filter((t) => MN_IDS.includes(t.id));
-    } else if (hub === "ratchaburi") {
-      list = TEAMS.filter((t) => t.id === "rbfc");
-    }
-    return list;
-  }, [hub]);
+      // Dynamic Pulse Score (0 - 100)
+      let score = isLive ? 92 : isFav ? 84 : 72;
+      if (t.id === "vik") score = 96;
+      if (t.id === "wolves") score = 94;
+      if (t.id === "rbfc") score = 91;
 
-  // Compute live intensity pulse score 0-100
-  const scoredTeams = useMemo(() => {
-    return teamList
-      .map((t) => {
-        const outlook = getTeamSeasonOutlook(t);
-        const activeGame = games.find(
-          (g) => g.homeId === t.id || g.awayId === t.id
-        );
-        let score = outlook.championshipProbability || 75;
-        if (activeGame?.status === "LIVE") {
-          score = Math.min(99, score + 12);
-        }
-        if (favs.includes(t.id)) {
-          score = Math.min(100, score + 4);
-        }
-        return {
-          team: t,
-          score,
-          activeGame,
-          outlook,
-        };
-      })
-      .sort((a, b) => b.score - a.score);
-  }, [teamList, games, favs]);
+      return {
+        team: t,
+        score,
+        isLive,
+        activeGame,
+      };
+    }).sort((a, b) => b.score - a.score);
+  }, [games, favs]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="flex items-center gap-2 font-display text-2xl tracking-wide text-primary">
-            <Activity className="h-6 w-6 text-accent animate-pulse" />
-            <span>{lang === "th" ? "ดัชนีสปอร์ต เพลส์ 365 วัน" : "SPORTS PULSE INDEX"}</span>
+          <h2 className="font-display text-xl tracking-wide flex items-center gap-2">
+            <Activity className="h-5 w-5 text-primary" />
+            SPORTS PULSE (HIGHEST TO LOWEST INTENSITY)
           </h2>
           <p className="text-xs text-muted-foreground">
-            {lang === "th"
-              ? "คำนวณจากโมเมนตัมสด, ความพึงพอใจของแฟนคลับ, และความพร้อมสู่แชมป์ เรียงจากสูงสุดไปต่ำสุด"
-              : "Ranked High-to-Low based on live intensity, championship trajectory, and sentiment"}
+            Year-round algorithmic sentiment, momentum radar, and key storylines.
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        {scoredTeams.map(({ team, score, activeGame, outlook }, idx) => {
-          const isExpanded = expandedTeamId === team.id;
+      <div className="space-y-3">
+        {rankedTeams.map((item, idx) => {
+          const outlook = getTeamSeasonOutlook(item.team);
 
           return (
             <div
-              key={team.id}
-              className="rounded-2xl border border-border bg-card/70 p-4 transition-all hover:border-primary/50"
+              key={item.team.id}
+              onClick={() => onSelectTeam(item.team.id)}
+              className="rounded-2xl border border-border bg-card/70 p-4 transition hover:border-primary/50 cursor-pointer space-y-3"
             >
-              <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="font-display text-lg font-bold text-muted-foreground w-6">
+                  <span className="font-mono text-lg font-bold text-muted-foreground w-6">
                     #{idx + 1}
                   </span>
-                  <Seal t={team} size={42} />
+                  <Seal t={item.team} size={40} />
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-base">{team.name}</span>
-                      <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground uppercase">
-                        {team.league || team.sport}
+                      <h4 className="font-bold text-sm text-foreground">
+                        {lang === "th" ? item.team.th || item.team.name : item.team.name}
+                      </h4>
+                      <span className="rounded bg-secondary px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+                        {item.team.league}
                       </span>
+                      {item.isLive && (
+                        <span className="rounded bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-500 animate-pulse">
+                          LIVE
+                        </span>
+                      )}
                     </div>
-                    <span className="text-xs text-muted-foreground">
-                      {outlook.phaseLabel[lang]}
-                    </span>
+                    <p className="text-xs text-muted-foreground">
+                      {outlook.phaseLabel[lang]} • {outlook.projectedRecord}
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <div className="flex items-center gap-1 font-mono text-2xl font-black text-primary">
-                      <span>{score}</span>
-                      <span className="text-xs text-muted-foreground">/100</span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground uppercase font-bold">
-                      {activeGame?.status === "LIVE" ? "IN PLAY" : "INDEX SCORE"}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => setExpandedTeamId(isExpanded ? null : team.id)}
-                    className="p-1 rounded-lg border border-border hover:bg-secondary transition cursor-pointer"
-                  >
-                    {isExpanded ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
-                  </button>
+                {/* Score Dial */}
+                <div className="text-right">
+                  <span className="font-mono text-2xl font-bold text-primary">
+                    {item.score}
+                  </span>
+                  <span className="block text-[10px] text-muted-foreground uppercase font-bold">
+                    PULSE
+                  </span>
                 </div>
               </div>
 
-              {/* Progress bar */}
-              <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-                <div
-                  className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
-                  style={{ width: `${score}%` }}
-                />
+              {/* Year-Round Narrative Summary */}
+              <div className="rounded-xl bg-secondary/40 p-3 text-xs text-muted-foreground leading-relaxed">
+                <p className="line-clamp-2">{outlook.summary[lang]}</p>
               </div>
 
-              {/* Summary paragraph */}
-              <div className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                <p>{outlook.summary[lang]}</p>
+              {/* Championship Odds & Targets */}
+              <div className="flex items-center justify-between text-xs pt-1 border-t border-border/40">
+                <span className="font-semibold text-accent">
+                  Target: {outlook.championshipTarget}
+                </span>
+                <span className="font-mono text-muted-foreground">
+                  Odds: {outlook.championshipOdds}
+                </span>
               </div>
-
-              {/* Expanded Season Outlook Details */}
-              {isExpanded && (
-                <div className="mt-4 border-t border-border/50 pt-3 space-y-3">
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 text-xs">
-                    <div className="rounded-xl bg-secondary/50 p-2.5">
-                      <span className="text-[10px] text-muted-foreground block font-semibold">
-                        PROJECTED RECORD
-                      </span>
-                      <span className="font-bold text-foreground">
-                        {outlook.projectedRecord}
-                      </span>
-                    </div>
-                    <div className="rounded-xl bg-secondary/50 p-2.5">
-                      <span className="text-[10px] text-muted-foreground block font-semibold">
-                        CHAMPIONSHIP ODDS
-                      </span>
-                      <span className="font-bold text-accent">
-                        {outlook.championshipOdds}
-                      </span>
-                    </div>
-                    <div className="rounded-xl bg-secondary/50 p-2.5">
-                      <span className="text-[10px] text-muted-foreground block font-semibold">
-                        TARGET
-                      </span>
-                      <span className="font-bold text-primary truncate block">
-                        {outlook.championshipTarget}
-                      </span>
-                    </div>
-                    <div className="rounded-xl bg-secondary/50 p-2.5">
-                      <span className="text-[10px] text-muted-foreground block font-semibold">
-                        TITLE PROBABILITY
-                      </span>
-                      <span className="font-bold text-foreground">
-                        {outlook.championshipProbability}%
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end gap-2 pt-2">
-                    <button
-                      onClick={() => onSelectTeam(team)}
-                      className="flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition cursor-pointer"
-                    >
-                      <span>{lang === "th" ? "ดูภาพรวมฤดูกาลแบบเต็ม" : "View Full Season Outlook"}</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           );
         })}
@@ -1941,102 +1793,107 @@ function PulseTab({
 
 function MyTab({
   favs,
-  toggleFav,
-  addAllMN,
   games,
   lang,
+  toggleFav,
+  onAddAllMN,
   onSelectTeam,
 }: {
   favs: string[];
-  toggleFav: (id: string) => void;
-  addAllMN: () => void;
   games: Game[];
   lang: Lang;
-  onSelectTeam: (t: Team) => void;
+  toggleFav: (id: string) => void;
+  onAddAllMN: () => void;
+  onSelectTeam: (id: string) => void;
 }) {
-  const favoriteTeams = TEAMS.filter((tm) => favs.includes(tm.id));
+  const favoriteTeams = TEAMS.filter((t) => favs.includes(t.id));
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display text-2xl tracking-wide">
-            {lang === "th" ? "ทีมโปรดของฉัน" : "MY FAVORITE TEAMS"} ({favoriteTeams.length})
+          <h2 className="font-display text-xl tracking-wide flex items-center gap-2">
+            <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+            MY FAVORITE TEAMS ({favoriteTeams.length})
           </h2>
           <p className="text-xs text-muted-foreground">
-            {lang === "th"
-              ? "จัดการทีมโปรดและติดตามความเคลื่อนไหวตลอดทั้งฤดูกาล"
-              : "Custom personalized hub for your favorite franchises"}
+            Custom roster with instant gamecast access and season outlooks.
           </p>
         </div>
 
-        {favoriteTeams.length < 7 && (
-          <button
-            onClick={addAllMN}
-            className="rounded-xl bg-primary/20 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/30 transition cursor-pointer"
-          >
-            + Add All 7 Minnesota Teams
-          </button>
-        )}
+        <button
+          onClick={onAddAllMN}
+          className="rounded-xl border border-primary/50 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/20 transition cursor-pointer"
+        >
+          + Add All 7 MN Teams
+        </button>
       </div>
 
       {favoriteTeams.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-          <Star className="mx-auto h-8 w-8 text-muted-foreground opacity-40 mb-2" />
-          <p className="text-sm text-muted-foreground">
-            {lang === "th"
-              ? "คุณยังไม่มีทีมโปรด คลิกดาวเพื่อเพิ่มทีมของคุณ"
-              : "No favorite teams selected yet. Tap the star on any team to add."}
+        <div className="rounded-2xl border border-dashed border-border p-12 text-center space-y-3">
+          <Star className="mx-auto h-8 w-8 text-muted-foreground" />
+          <h3 className="font-display text-lg font-bold">No Favorites Selected</h3>
+          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+            Click the star icon on any team card or use the quick action above to monitor all Twin Cities and Ratchaburi teams.
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {favoriteTeams.map((team) => {
-            const outlook = getTeamSeasonOutlook(team);
-            const teamGames = games.filter(
-              (g) => g.homeId === team.id || g.awayId === team.id
+            const nextGame = games.find(
+              (g) => g.home === team.id || g.away === team.id
             );
+            const outlook = getTeamSeasonOutlook(team);
 
             return (
               <div
                 key={team.id}
-                className="rounded-2xl border border-border bg-card/70 p-4 transition hover:border-primary/50"
+                className="rounded-2xl border border-border bg-card p-4 space-y-3 shadow-sm"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Seal t={team} size={44} />
+                  <div
+                    onClick={() => onSelectTeam(team.id)}
+                    className="flex items-center gap-3 cursor-pointer group"
+                  >
+                    <Seal t={team} size={42} />
                     <div>
-                      <h3 className="font-bold text-base leading-tight">
-                        {team.name}
-                      </h3>
-                      <span className="text-xs text-muted-foreground font-medium">
-                        {team.league || team.sport} • {team.venue}
-                      </span>
+                      <h4 className="font-bold text-sm group-hover:text-primary transition">
+                        {lang === "th" ? team.th || team.name : team.name}
+                      </h4>
+                      <p className="text-xs text-muted-foreground">
+                        {team.league} • {team.record || "Contender"}
+                      </p>
                     </div>
                   </div>
 
                   <button
                     onClick={() => toggleFav(team.id)}
-                    className="p-1.5 text-accent hover:text-muted-foreground transition cursor-pointer"
+                    className="text-yellow-400 p-1 hover:opacity-80 transition cursor-pointer"
                   >
-                    <Star className="h-5 w-5 fill-accent" />
+                    <Star className="h-5 w-5 fill-yellow-400" />
                   </button>
                 </div>
 
-                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                  {outlook.summary[lang]}
-                </p>
+                {/* Brief Season Summary */}
+                <div className="rounded-xl bg-secondary/40 p-2.5 text-xs text-muted-foreground">
+                  <p className="line-clamp-2">{outlook.summary[lang]}</p>
+                </div>
 
-                <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3 text-xs">
-                  <span className="font-semibold text-primary">
-                    {outlook.championshipOdds}
+                {/* Next Game Status */}
+                <div className="flex items-center justify-between border-t border-border/40 pt-2 text-xs">
+                  <span className="text-muted-foreground font-semibold">
+                    {nextGame
+                      ? nextGame.status === "LIVE"
+                        ? "🔴 LIVE NOW"
+                        : `Next: ${fmtTime(nextGame.kickoff, "Asia/Bangkok", lang)}`
+                      : "No active game in window"}
                   </span>
+
                   <button
-                    onClick={() => onSelectTeam(team)}
-                    className="flex items-center gap-1 font-bold text-accent hover:underline cursor-pointer"
+                    onClick={() => onSelectTeam(team.id)}
+                    className="font-bold text-primary hover:underline cursor-pointer"
                   >
-                    <span>{lang === "th" ? "ดูภาพรวม" : "Season Outlook"}</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    View Season Outlook →
                   </button>
                 </div>
               </div>
@@ -2049,351 +1906,289 @@ function MyTab({
 }
 
 function SeasonsTab({
-  favs,
-  addAllMN,
   lang,
+  favs,
   selectedTeamId,
   onSelectTeam,
 }: {
-  favs: string[];
-  toggleFav: (id: string) => void;
-  addAllMN: () => void;
   lang: Lang;
+  favs: string[];
   selectedTeamId: string | null;
   onSelectTeam: (id: string) => void;
 }) {
-  const favoriteTeams = TEAMS.filter((tm) => favs.includes(tm.id));
-  const activeTeamId = selectedTeamId || favoriteTeams[0]?.id || "vik";
-  const currentTeam = teamById(activeTeamId);
-  const outlook = getTeamSeasonOutlook(currentTeam);
-
-  const [activePhase, setActivePhase] = useState<SeasonPhase>(outlook.currentPhase);
-
-  useEffect(() => {
-    setActivePhase(outlook.currentPhase);
-  }, [outlook.currentPhase, activeTeamId]);
+  const activeId = selectedTeamId || favs[0] || "vik";
+  const activeTeam = teamById(activeId);
+  const outlook = getTeamSeasonOutlook(activeTeam);
 
   return (
     <div className="space-y-6">
-      {/* Hero Banner */}
-      <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-r from-card via-card to-secondary/30 p-6 shadow-md">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
-              <Calendar className="h-6 w-6" />
-            </div>
-            <div>
-              <h2 className="font-display text-2xl tracking-wide sm:text-3xl">
-                {lang === "th" ? "มุมมองภาพรวมฤดูกาล" : "COMPLETE SEASON OUTLOOK"}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {lang === "th"
-                  ? "เจาะลึก 4 ระยะสำคัญ: ปรีซีซัน • ฤดูกาลปกติ • เพลย์ออฟและล่าแชมป์ • ตลาดปิดฤดูกาล"
-                  : "Tracking all phases: Preseason • Regular Season • Championships • Offseason"}
-              </p>
-            </div>
-          </div>
-          {favoriteTeams.length < 7 && (
+      {/* Team Switcher Header */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        {TEAMS.map((t) => {
+          const selected = t.id === activeId;
+          return (
             <button
-              onClick={addAllMN}
-              className="rounded-xl bg-primary/20 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/30 transition cursor-pointer"
+              key={t.id}
+              onClick={() => onSelectTeam(t.id)}
+              className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition cursor-pointer whitespace-nowrap ${
+                selected
+                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                  : "border border-border bg-card text-muted-foreground hover:bg-secondary"
+              }`}
             >
-              + Add All Minnesota Franchises
+              <Seal t={t} size={24} />
+              <span>{lang === "th" ? t.th || t.name : t.name}</span>
             </button>
-          )}
-        </div>
+          );
+        })}
+      </div>
 
-        {/* Team Selector Horizontal Strip */}
-        <div className="mt-6 flex gap-2 overflow-x-auto pb-2">
-          {TEAMS.map((tm) => {
-            const isSelected = tm.id === activeTeamId;
-            return (
-              <button
-                key={tm.id}
-                onClick={() => onSelectTeam(tm.id)}
-                className={`flex shrink-0 items-center gap-2 rounded-2xl border px-3 py-2 text-xs font-semibold transition cursor-pointer ${
-                  isSelected
-                    ? "border-primary bg-primary/10 text-primary shadow-sm"
-                    : "border-border bg-card/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
-                }`}
-              >
-                <Seal t={tm} size={24} />
-                <span>{tm.name}</span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Selected Team Season Dashboard */}
-      <section className="rounded-3xl border border-border bg-card/70 p-6 space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/50 pb-4">
-          <div className="flex items-center gap-4">
-            <Seal t={currentTeam} size={56} />
+      {/* Season Hub Hero Banner */}
+      <div className="rounded-2xl border border-border bg-card/80 p-5 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3.5">
+            <Seal t={activeTeam} size={50} />
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-display text-xl sm:text-2xl font-bold">
-                  {currentTeam.name}
-                </h3>
-                <span className="rounded bg-primary/20 px-2 py-0.5 text-xs font-bold text-primary uppercase">
+                <h2 className="font-display text-2xl font-bold">
+                  {lang === "th" ? activeTeam.th || activeTeam.name : activeTeam.name}
+                </h2>
+                <span className="rounded-full bg-accent/20 px-2 py-0.5 text-xs font-bold text-accent">
                   {outlook.seasonYear}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {outlook.phaseLabel[lang]}
+              <p className="text-xs text-muted-foreground font-semibold">
+                {outlook.phaseLabel[lang]} • {outlook.projectedRecord}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <span className="text-[10px] text-muted-foreground uppercase font-bold block">
-                CHAMPIONSHIP ODDS
-              </span>
-              <span className="font-mono text-lg font-bold text-accent">
-                {outlook.championshipOdds}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* 4 Phases Selector Tabs */}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {(
-            [
-              { id: "preseason", label: lang === "th" ? "1. ปรีซีซัน" : "1. Preseason" },
-              { id: "regular", label: lang === "th" ? "2. ฤดูกาลปกติ" : "2. Regular Season" },
-              { id: "playoffs", label: lang === "th" ? "3. เพลย์ออฟ" : "3. Playoffs & Title" },
-              { id: "offseason", label: lang === "th" ? "4. ปิดฤดูกาล" : "4. Offseason" },
-            ] as const
-          ).map((p) => {
-            const isCurrent = outlook.currentPhase === p.id;
-            const isTabActive = activePhase === p.id;
-
-            return (
-              <button
-                key={p.id}
-                onClick={() => setActivePhase(p.id)}
-                className={`relative flex flex-col items-center justify-center rounded-2xl border p-3 text-center transition cursor-pointer ${
-                  isTabActive
-                    ? "border-primary bg-primary/10 text-primary font-bold shadow-sm"
-                    : "border-border bg-card/40 text-muted-foreground hover:bg-secondary"
-                }`}
-              >
-                {isCurrent && (
-                  <span className="absolute top-2 right-2 flex h-2 w-2">
-                    <span className="h-full w-full rounded-full bg-accent animate-ping" />
-                    <span className="h-full w-full rounded-full bg-accent" />
-                  </span>
-                )}
-                <span className="text-xs">{p.label}</span>
-                <span className="text-[10px] text-muted-foreground uppercase mt-1">
-                  {isCurrent ? "Active Now" : "Phase View"}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Active Phase Content */}
-        <div className="rounded-2xl border border-border/60 bg-background/50 p-6 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-3">
-            <h4 className="font-display text-lg tracking-wide capitalize text-foreground">
-              {activePhase === "preseason" && (lang === "th" ? "รายละเอียดช่วงปรีซีซัน" : "Preseason Phase")}
-              {activePhase === "regular" && (lang === "th" ? "รายละเอียดช่วงฤดูกาลปกติ" : "Regular Season Phase")}
-              {activePhase === "playoffs" && (lang === "th" ? "เส้นทางเพลย์ออฟและล่าแชมป์" : "Playoffs & Championship Quest")}
-              {activePhase === "offseason" && (lang === "th" ? "แผนตลาดปิดฤดูกาลและดราฟต์" : "Offseason Retooling & Draft")}
-            </h4>
-            <span className="text-xs font-mono font-semibold text-muted-foreground">
-              {activePhase === "preseason" && outlook.preseason.dates}
-              {activePhase === "regular" && outlook.regularSeason.dates}
-              {activePhase === "playoffs" && outlook.playoffs.dates}
-              {activePhase === "offseason" && outlook.offseason.dates}
+          <div className="text-right">
+            <span className="font-mono text-2xl font-bold text-primary">
+              {outlook.championshipProbability}%
+            </span>
+            <span className="block text-[10px] text-muted-foreground uppercase font-bold">
+              TITLE PROBABILITY
             </span>
           </div>
+        </div>
 
-          {/* Phase Focus */}
-          <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Strategic Focus
+        {/* Narrative Paragraph */}
+        <p className="text-sm text-foreground/90 leading-relaxed bg-secondary/30 p-3.5 rounded-xl border border-border/40">
+          {outlook.summary[lang]}
+        </p>
+
+        {/* Key Metrics */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 pt-1">
+          <div className="rounded-xl bg-card border border-border p-3">
+            <span className="text-[10px] text-muted-foreground uppercase font-bold block">
+              CHAMPIONSHIP TARGET
             </span>
-            <p className="mt-1 text-sm leading-relaxed text-foreground">
-              {activePhase === "preseason" && outlook.preseason.focus[lang]}
-              {activePhase === "regular" && outlook.regularSeason.focus[lang]}
-              {activePhase === "playoffs" && outlook.playoffs.focus[lang]}
-              {activePhase === "offseason" && outlook.offseason.focus[lang]}
-            </p>
+            <span className="font-bold text-xs text-accent mt-0.5 block truncate">
+              {outlook.championshipTarget}
+            </span>
           </div>
+          <div className="rounded-xl bg-card border border-border p-3">
+            <span className="text-[10px] text-muted-foreground uppercase font-bold block">
+              MARKET ODDS
+            </span>
+            <span className="font-mono font-bold text-xs text-foreground mt-0.5 block">
+              {outlook.championshipOdds}
+            </span>
+          </div>
+          <div className="rounded-xl bg-card border border-border p-3">
+            <span className="text-[10px] text-muted-foreground uppercase font-bold block">
+              PROJECTION
+            </span>
+            <span className="font-bold text-xs text-foreground mt-0.5 block truncate">
+              {outlook.projectedRecord}
+            </span>
+          </div>
+          <div className="rounded-xl bg-card border border-border p-3">
+            <span className="text-[10px] text-muted-foreground uppercase font-bold block">
+              SALARY / CAP SPACE
+            </span>
+            <span className="font-mono font-bold text-xs text-primary mt-0.5 block truncate">
+              {outlook.offseason.capOrBudget}
+            </span>
+          </div>
+        </div>
+      </div>
 
-          {/* Regular Season Key Matchups */}
-          {activePhase === "regular" && outlook.regularSeason.keyMatchups && (
-            <div className="space-y-2 pt-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Key Marquee Matchups
-              </span>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                {outlook.regularSeason.keyMatchups.map((m, idx) => (
-                  <div key={idx} className="rounded-xl border border-border bg-card p-3 text-xs">
-                    <span className="font-bold text-foreground block">{m.opponent}</span>
-                    <span className="text-muted-foreground block text-[11px] mt-0.5">
-                      {m.date} • {m.venue}
-                    </span>
-                    <span className="text-[10px] text-accent font-semibold block mt-1">
-                      {m.note}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Playoff Path & Clinch Scenario */}
-          {activePhase === "playoffs" && (
-            <div className="space-y-3 pt-2">
-              <div className="rounded-xl bg-primary/10 border border-primary/20 p-4 text-xs">
-                <span className="font-bold text-primary block uppercase tracking-wider">
-                  Championship Path
-                </span>
-                <p className="mt-1 text-foreground leading-relaxed">
-                  {outlook.playoffs.path[lang]}
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-accent/10 border border-accent/20 p-4 text-xs">
-                <span className="font-bold text-accent block uppercase tracking-wider">
-                  Clinch Scenario
-                </span>
-                <p className="mt-1 text-foreground leading-relaxed">
-                  {outlook.playoffs.clinchScenario[lang]}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Offseason Priorities & Draft */}
-          {activePhase === "offseason" && (
-            <div className="space-y-3 pt-2 text-xs">
-              <div className="flex items-center justify-between font-mono text-muted-foreground">
-                <span>Cap Space / Budget:</span>
-                <span className="font-bold text-foreground">
-                  {outlook.offseason.capOrBudget}
-                </span>
-              </div>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {outlook.offseason.priorities.map((pr, idx) => (
-                  <div key={idx} className="rounded-xl border border-border bg-card p-3">
-                    <span className="font-bold text-primary block">{pr.area}</span>
-                    <span className="text-muted-foreground mt-0.5 block">
-                      {pr.details}
-                    </span>
-                  </div>
-                ))}
-              </div>
+      {/* 4 Phases Breakdown: Preseason, Regular, Playoffs, Offseason */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {/* Preseason */}
+        <div className="rounded-2xl border border-border bg-card p-4 space-y-2.5">
+          <div className="flex items-center justify-between border-b border-border/40 pb-2">
+            <span className="font-display text-sm tracking-wide text-muted-foreground uppercase font-bold">
+              1. PRESEASON & CAMP
+            </span>
+            <span className="rounded bg-secondary px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+              {outlook.preseason.dates}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {outlook.preseason.focus[lang]}
+          </p>
+          {outlook.preseason.milestones.length > 0 && (
+            <div className="pt-1 space-y-1">
+              {outlook.preseason.milestones.map((m, i) => (
+                <div key={i} className="text-[11px] flex justify-between text-muted-foreground">
+                  <span>• {m.title}</span>
+                  <span className="font-mono">{m.note}</span>
+                </div>
+              ))}
             </div>
           )}
         </div>
-      </section>
+
+        {/* Regular Season */}
+        <div className="rounded-2xl border border-border bg-card p-4 space-y-2.5">
+          <div className="flex items-center justify-between border-b border-border/40 pb-2">
+            <span className="font-display text-sm tracking-wide text-primary uppercase font-bold">
+              2. REGULAR SEASON CAMPAIGN
+            </span>
+            <span className="rounded bg-primary/20 px-2 py-0.5 text-[10px] font-bold text-primary">
+              {outlook.regularSeason.standing}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {outlook.regularSeason.focus[lang]}
+          </p>
+          <div className="pt-1 space-y-1">
+            <span className="text-[10px] uppercase font-bold text-muted-foreground block">
+              Key Matchups:
+            </span>
+            {outlook.regularSeason.keyMatchups.map((km, i) => (
+              <div key={i} className="text-[11px] flex justify-between text-foreground">
+                <span className="font-semibold">{km.opponent}</span>
+                <span className="text-muted-foreground font-mono">{km.date}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Playoffs */}
+        <div className="rounded-2xl border border-border bg-card p-4 space-y-2.5">
+          <div className="flex items-center justify-between border-b border-border/40 pb-2">
+            <span className="font-display text-sm tracking-wide text-accent uppercase font-bold">
+              3. PLAYOFFS & CHAMPIONSHIP
+            </span>
+            <span className="rounded bg-accent/20 px-2 py-0.5 text-[10px] font-bold text-accent">
+              {outlook.playoffs.dates}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {outlook.playoffs.path[lang]}
+          </p>
+          <div className="rounded-xl bg-secondary/50 p-2.5 text-[11px] text-muted-foreground">
+            <strong>Clinch Scenario:</strong> {outlook.playoffs.clinchScenario[lang]}
+          </div>
+        </div>
+
+        {/* Offseason */}
+        <div className="rounded-2xl border border-border bg-card p-4 space-y-2.5">
+          <div className="flex items-center justify-between border-b border-border/40 pb-2">
+            <span className="font-display text-sm tracking-wide text-muted-foreground uppercase font-bold">
+              4. OFFSEASON & ROSTER BUILDING
+            </span>
+            <span className="rounded bg-secondary px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+              {outlook.offseason.dates}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Cap Status: <strong className="text-foreground">{outlook.offseason.capOrBudget}</strong>
+          </p>
+          <div className="pt-1 space-y-1">
+            <span className="text-[10px] uppercase font-bold text-muted-foreground block">
+              Top Priorities:
+            </span>
+            {outlook.offseason.topPriorities.map((p, i) => (
+              <div key={i} className="text-[11px] text-muted-foreground">
+                • {p[lang]}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 function ExploreTab({
+  lang,
   favs,
   toggleFav,
-  lang,
+  onSelectTeam,
 }: {
+  lang: Lang;
   favs: string[];
   toggleFav: (id: string) => void;
-  lang: Lang;
+  onSelectTeam: (id: string) => void;
 }) {
-  const [query, setQuery] = useState("");
-  const [selectedSport, setSelectedSport] = useState("all");
+  const [q, setQ] = useState("");
 
-  const sports = useMemo(() => {
-    return ["all", ...Array.from(new Set(TEAMS.map((t) => t.sport)))];
-  }, []);
-
-  const filteredTeams = useMemo(() => {
-    return TEAMS.filter((t) => {
-      const matchesSport = selectedSport === "all" || t.sport === selectedSport;
-      const matchesQuery =
-        !query ||
-        t.name.toLowerCase().includes(query.toLowerCase()) ||
-        (t.th && t.th.toLowerCase().includes(query.toLowerCase())) ||
-        (t.league && t.league.toLowerCase().includes(query.toLowerCase())) ||
-        t.venue.toLowerCase().includes(query.toLowerCase());
-      return matchesSport && matchesQuery;
-    });
-  }, [query, selectedSport]);
+  const results = useMemo(() => {
+    if (!q.trim()) return TEAMS;
+    const l = q.toLowerCase();
+    return TEAMS.filter(
+      (t) =>
+        t.name.toLowerCase().includes(l) ||
+        (t.th && t.th.includes(l)) ||
+        t.league.toLowerCase().includes(l) ||
+        t.sport.toLowerCase().includes(l)
+    );
+  }, [q]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="font-display text-2xl tracking-wide">
-            {lang === "th" ? "สำรวจสโมสรทั้งหมด" : "EXPLORE ALL TEAMS"} ({filteredTeams.length})
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            {lang === "th"
-              ? "ค้นหาทีมจากทั่วทุกมุมโลก พร้อมข้อมูลสนามและลีก"
-              : "Search and discover sports franchises across all covered leagues"}
-          </p>
-        </div>
-
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={lang === "th" ? "ค้นหาชื่อทีม, ลีก, หรือสนาม..." : "Search teams, leagues, cities..."}
-            className="w-full rounded-full border border-border bg-card py-2 pl-9 pr-4 text-xs focus:border-primary focus:outline-none"
-          />
-        </div>
+    <div className="space-y-4">
+      {/* Search Input */}
+      <div className="relative">
+        <Search className="absolute left-3.5 top-3 h-4 w-4 text-muted-foreground" />
+        <input
+          type="text"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search any team or sport… (EN / ภาษาไทย)"
+          className="w-full rounded-2xl border border-border bg-card/80 py-2.5 pl-10 pr-4 text-xs font-semibold placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+        />
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-1 text-xs">
-        {sports.map((sp) => (
-          <button
-            key={sp}
-            onClick={() => setSelectedSport(sp)}
-            className={`rounded-full px-3 py-1 font-semibold uppercase transition cursor-pointer whitespace-nowrap ${
-              selectedSport === sp
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-secondary-foreground hover:bg-muted"
-            }`}
-          >
-            {sp}
-          </button>
-        ))}
-      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+        {results.map((team) => {
+          const isFav = favs.includes(team.id);
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredTeams.map((team) => (
-          <div
-            key={team.id}
-            className="flex items-center justify-between rounded-2xl border border-border bg-card/60 p-3.5 transition hover:border-primary/50"
-          >
-            <div className="flex items-center gap-3">
-              <Seal t={team} size={38} />
-              <div>
-                <h4 className="font-bold text-sm leading-tight">{team.name}</h4>
-                <span className="text-[11px] text-muted-foreground">
-                  {team.league || team.sport} • {team.venue}
-                </span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => toggleFav(team.id)}
-              className="p-1 text-muted-foreground hover:text-accent transition cursor-pointer"
+          return (
+            <div
+              key={team.id}
+              className="flex items-center justify-between rounded-2xl border border-border bg-card p-3.5 transition hover:border-primary/50"
             >
-              <Star
-                className={`h-4 w-4 ${favs.includes(team.id) ? "fill-accent text-accent" : ""}`}
-              />
-            </button>
-          </div>
-        ))}
+              <div
+                onClick={() => onSelectTeam(team.id)}
+                className="flex items-center gap-3 cursor-pointer min-w-0"
+              >
+                <Seal t={team} size={36} />
+                <div className="min-w-0">
+                  <h4 className="font-bold text-xs truncate">
+                    {lang === "th" ? team.th || team.name : team.name}
+                  </h4>
+                  <p className="text-[11px] text-muted-foreground">
+                    {team.league} • {team.sport}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => toggleFav(team.id)}
+                className={`p-1.5 transition cursor-pointer ${
+                  isFav ? "text-yellow-400" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Star className={`h-4 w-4 ${isFav ? "fill-yellow-400" : ""}`} />
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -2409,21 +2204,20 @@ function LeaguesTab({
   onSelectLeague: () => void;
 }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h2 className="font-display text-2xl tracking-wide">
-          {lang === "th" ? "14 ลีกกีฬาชั้นนำ" : "14 GLOBAL SPORTS LEAGUES"}
+        <h2 className="font-display text-xl tracking-wide flex items-center gap-2">
+          <Trophy className="h-5 w-5 text-primary" />
+          GLOBAL SPORTS LEAGUES (14 CONNECTED ENDPOINTS)
         </h2>
         <p className="text-xs text-muted-foreground">
-          {lang === "th"
-            ? "เข้าถึงข้อมูลการแข่งขันจากลีกชั้นนำระดับโลก"
-            : "Multi-sport coverage with live API feeds and scoreboards"}
+          Live scoreboards across NFL, NBA, MLB, NHL, MLS, Thai League 1, Premier League, WNBA, and PWHL.
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {ESPN_LEAGUES.map((l) => {
-          const leagueGames = games.filter((g) => g.sport.toUpperCase() === l.sport.toUpperCase());
+        {LEAGUES.map((l) => {
+          const leagueGames = games.filter((g) => g.league === l.key);
 
           return (
             <div
@@ -2436,7 +2230,7 @@ function LeaguesTab({
                   {l.sport}
                 </span>
                 <span className="text-xs text-muted-foreground font-mono">
-                  {leagueGames.length} fixtures
+                  {leagueGames.length} games
                 </span>
               </div>
 
@@ -2448,8 +2242,8 @@ function LeaguesTab({
               </p>
 
               <div className="mt-4 flex items-center justify-between border-t border-border/40 pt-3 text-xs font-semibold text-primary">
-                <span>View League Matches</span>
-                <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                <span>View Matches</span>
+                <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition" />
               </div>
             </div>
           );
@@ -2461,39 +2255,41 @@ function LeaguesTab({
 
 function FantasyTab({
   games,
+  lang,
   preds,
   setPreds,
-  lang,
 }: {
   games: Game[];
+  lang: Lang;
   preds: Record<string, string>;
   setPreds: (p: Record<string, string>) => void;
-  lang: Lang;
 }) {
   const predictionCount = Object.keys(preds).length;
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-border bg-gradient-to-r from-card via-card to-secondary/30 p-6 shadow-md">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-accent-foreground shadow-md">
-              <Trophy className="h-6 w-6" />
-            </div>
-            <div>
-              <h2 className="font-display text-2xl tracking-wide">
-                {lang === "th" ? "มินิเกมทายผลกีฬา" : "HERMETICA PREDICTION MINI-GAME"}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {lang === "th"
-                  ? "ทายผลผู้ชนะเพื่อสะสมแต้มและสถิติไร้พ่าย พร้อมแชร์ขึ้น LINE"
-                  : "Pick game winners, build your win streak, and share picks on LINE"}
-              </p>
-            </div>
+      <div className="rounded-2xl border border-border bg-card/80 p-5 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="font-display text-2xl font-bold flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-accent" />
+              PREDICTION LEADERBOARD & MINI-GAME
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Predict winners across upcoming matchups. Earn +10 points for each correct pick.
+            </p>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="text-right">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-secondary/80 px-4 py-2 text-center">
+              <span className="text-[10px] text-muted-foreground uppercase font-bold block">
+                TOTAL SCORE
+              </span>
+              <span className="font-mono text-2xl font-bold text-primary">
+                {predictionCount * 10} PTS
+              </span>
+            </div>
+            <div className="rounded-xl bg-secondary/80 px-4 py-2 text-center">
               <span className="text-[10px] text-muted-foreground uppercase font-bold block">
                 ACTIVE PICKS
               </span>
@@ -2507,8 +2303,8 @@ function FantasyTab({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {games.slice(0, 8).map((game) => {
-          const home = teamById(game.homeId);
-          const away = teamById(game.awayId);
+          const home = teamById(game.home);
+          const away = teamById(game.away);
           const currentPick = preds[game.id];
 
           return (
@@ -2517,8 +2313,8 @@ function FantasyTab({
               className="rounded-2xl border border-border bg-card/70 p-4 space-y-3"
             >
               <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold">
-                <span>{game.sport}</span>
-                <span>{fmtTime(game.time, "Asia/Bangkok", lang)}</span>
+                <span>{game.league}</span>
+                <span>{fmtTime(game.kickoff, "Asia/Bangkok", lang)}</span>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
