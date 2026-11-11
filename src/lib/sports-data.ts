@@ -94,22 +94,30 @@ export interface Team {
   sentiment?: { label: string; pct: number };
 }
 
-export const LEAGUES = [
-  "NFL",
-  "NBA",
-  "MLB",
-  "NHL",
-  "WNBA",
-  "PWHL",
-  "MLS",
-  "Premier League",
-  "La Liga",
-  "Thai League 1",
-  "F1",
+export interface LeagueInfo {
+  key: string;
+  name: string;
+  sport: string;
+}
+
+export const LEAGUES_DATA: LeagueInfo[] = [
+  { key: "NFL", name: "NFL Football", sport: "Football" },
+  { key: "NBA", name: "NBA Basketball", sport: "Basketball" },
+  { key: "MLB", name: "MLB Baseball", sport: "Baseball" },
+  { key: "NHL", name: "NHL Hockey", sport: "Hockey" },
+  { key: "WNBA", name: "WNBA Basketball", sport: "Basketball" },
+  { key: "PWHL", name: "PWHL Women's Hockey", sport: "Hockey" },
+  { key: "MLS", name: "Major League Soccer", sport: "Soccer" },
+  { key: "Premier League", name: "Premier League", sport: "Soccer" },
+  { key: "La Liga", name: "La Liga EA Sports", sport: "Soccer" },
+  { key: "Thai League 1", name: "Thai League 1", sport: "Soccer" },
+  { key: "F1", name: "Formula 1 Racing", sport: "Racing" },
 ];
 
+export const LEAGUES = LEAGUES_DATA;
+
 export const TEAMS: Team[] = [
-  // Minnesota (7 teams from tracker v17)
+  // Minnesota (7 teams)
   {
     id: "vik",
     name: "Minnesota Vikings",
@@ -121,6 +129,7 @@ export const TEAMS: Team[] = [
     accent: "#FFC62F",
     record: "2-0",
     hub: "minnesota",
+    logo: "https://a.espncdn.com/i/teamlogos/nfl/500/min.png",
     venue: "U.S. Bank Stadium",
     notes: [
       "Flores D smothering — 2 games, 3 takeaways",
@@ -140,6 +149,7 @@ export const TEAMS: Team[] = [
     accent: "#78BE20",
     record: "49-33",
     hub: "minnesota",
+    logo: "https://a.espncdn.com/i/teamlogos/nba/500/min.png",
     venue: "Target Center",
     notes: [
       "Ant + Gobert core intact",
@@ -159,6 +169,7 @@ export const TEAMS: Team[] = [
     accent: "#D31145",
     record: "73-83",
     hub: "minnesota",
+    logo: "https://a.espncdn.com/i/teamlogos/mlb/500/min.png",
     venue: "Target Field",
     notes: [
       "Roden launches HR in series opener",
@@ -178,6 +189,7 @@ export const TEAMS: Team[] = [
     accent: "#A6192E",
     record: "46-24-12",
     hub: "minnesota",
+    logo: "https://a.espncdn.com/i/teamlogos/nhl/500/min.png",
     venue: "Xcel Energy Center",
     notes: [
       "Kaprizov–Boldy top line reunited",
@@ -196,6 +208,7 @@ export const TEAMS: Team[] = [
     accent: "#236192",
     record: "32-10",
     hub: "minnesota",
+    logo: "https://a.espncdn.com/i/teamlogos/wnba/500/min.png",
     venue: "Target Center",
     notes: [
       "Collier sets franchise scoring record",
@@ -215,6 +228,7 @@ export const TEAMS: Team[] = [
     accent: "#FFFFFF",
     record: "16-9-5 • 50 PTS",
     hub: "minnesota",
+    logo: "https://upload.wikimedia.org/wikipedia/en/a/ae/MinnesotaFrost.png",
     venue: "Xcel Energy Center",
     notes: [
       "Back-to-back Walter Cup Champions 🏆🏆",
@@ -233,6 +247,7 @@ export const TEAMS: Team[] = [
     accent: "#8CB5E5",
     record: "7-12-8",
     hub: "minnesota",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/18418.png",
     venue: "Allianz Field",
     notes: [
       "Ruiz free-kick stunner rescues a point",
@@ -253,6 +268,7 @@ export const TEAMS: Team[] = [
     accent: "#1A1A1A",
     record: "W5 D2 L1",
     hub: "ratchaburi",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/17760.png",
     venue: "Dragon Solar Park",
     notes: [
       "Home of the Dragons — Dragon Solar Park",
@@ -271,6 +287,7 @@ export const TEAMS: Team[] = [
     color: "#1E3A8A",
     accent: "#F2C14E",
     record: "W6 D1 L1",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/7138.png",
   },
   {
     id: "bkkutd",
@@ -282,6 +299,7 @@ export const TEAMS: Team[] = [
     color: "#E31B23",
     accent: "#FFFFFF",
     record: "W4 D3 L1",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/7522.png",
   },
   {
     id: "port",
@@ -293,6 +311,7 @@ export const TEAMS: Team[] = [
     color: "#0055A4",
     accent: "#F47B20",
     record: "W4 D2 L2",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/17757.png",
   },
   {
     id: "mtutd",
@@ -304,6 +323,7 @@ export const TEAMS: Team[] = [
     color: "#D7141A",
     accent: "#000000",
     record: "W3 D3 L2",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/15106.png",
   },
   {
     id: "bgpu",
@@ -315,6 +335,7 @@ export const TEAMS: Team[] = [
     color: "#0A2D6E",
     accent: "#00A3E0",
     record: "W4 D1 L3",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/8519.png",
   },
   // Global Franchises
   {
@@ -327,6 +348,7 @@ export const TEAMS: Team[] = [
     color: "#E31837",
     accent: "#FFB81C",
     record: "1-1",
+    logo: "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png",
   },
   {
     id: "dal",
@@ -338,6 +360,7 @@ export const TEAMS: Team[] = [
     color: "#041E42",
     accent: "#869397",
     record: "1-1",
+    logo: "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png",
   },
   {
     id: "phi",
@@ -349,6 +372,7 @@ export const TEAMS: Team[] = [
     color: "#004C54",
     accent: "#A5ACAF",
     record: "2-0",
+    logo: "https://a.espncdn.com/i/teamlogos/nfl/500/phi.png",
   },
   {
     id: "pit",
@@ -360,6 +384,7 @@ export const TEAMS: Team[] = [
     color: "#101820",
     accent: "#FFB612",
     record: "1-1",
+    logo: "https://a.espncdn.com/i/teamlogos/nfl/500/pit.png",
   },
   {
     id: "lal",
@@ -371,6 +396,7 @@ export const TEAMS: Team[] = [
     color: "#552583",
     accent: "#FDB927",
     record: "50-32",
+    logo: "https://a.espncdn.com/i/teamlogos/nba/500/lal.png",
   },
   {
     id: "gsw",
@@ -382,6 +408,7 @@ export const TEAMS: Team[] = [
     color: "#1D428A",
     accent: "#FFC72C",
     record: "48-34",
+    logo: "https://a.espncdn.com/i/teamlogos/nba/500/gsw.png",
   },
   {
     id: "nyy",
@@ -393,6 +420,7 @@ export const TEAMS: Team[] = [
     color: "#0C2340",
     accent: "#C4CED4",
     record: "90-66",
+    logo: "https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png",
   },
   {
     id: "lad",
@@ -404,6 +432,7 @@ export const TEAMS: Team[] = [
     color: "#005A9C",
     accent: "#EF3E42",
     record: "88-68",
+    logo: "https://a.espncdn.com/i/teamlogos/mlb/500/lad.png",
   },
   {
     id: "cle",
@@ -415,6 +444,7 @@ export const TEAMS: Team[] = [
     color: "#00385D",
     accent: "#E50022",
     record: "84-72",
+    logo: "https://a.espncdn.com/i/teamlogos/mlb/500/cle.png",
   },
   {
     id: "chi",
@@ -426,6 +456,7 @@ export const TEAMS: Team[] = [
     color: "#CF0A2C",
     accent: "#000000",
     record: "25-46-11",
+    logo: "https://a.espncdn.com/i/teamlogos/nhl/500/chi.png",
   },
   {
     id: "lv",
@@ -437,6 +468,7 @@ export const TEAMS: Team[] = [
     color: "#000000",
     accent: "#BA0C2F",
     record: "28-14",
+    logo: "https://a.espncdn.com/i/teamlogos/wnba/500/lv.png",
   },
   {
     id: "bos",
@@ -448,6 +480,7 @@ export const TEAMS: Team[] = [
     color: "#173F35",
     accent: "#C8A774",
     record: "14-11-5",
+    logo: "https://upload.wikimedia.org/wikipedia/en/b/bc/BostonFleet.png",
   },
   {
     id: "sea",
@@ -459,6 +492,7 @@ export const TEAMS: Team[] = [
     color: "#5D9741",
     accent: "#005595",
     record: "12-8-7",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/9723.png",
   },
   {
     id: "ars",
@@ -470,6 +504,7 @@ export const TEAMS: Team[] = [
     color: "#EF0107",
     accent: "#FFFFFF",
     record: "W5 D1 L0",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/359.png",
   },
   {
     id: "mci",
@@ -481,6 +516,7 @@ export const TEAMS: Team[] = [
     color: "#6CABDD",
     accent: "#1C2C5B",
     record: "W4 D1 L1",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/382.png",
   },
   {
     id: "liv",
@@ -492,6 +528,7 @@ export const TEAMS: Team[] = [
     color: "#C8102E",
     accent: "#F6EB61",
     record: "W5 D0 L1",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/364.png",
   },
   {
     id: "che",
@@ -503,6 +540,7 @@ export const TEAMS: Team[] = [
     color: "#034694",
     accent: "#DBA111",
     record: "W3 D2 L1",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/363.png",
   },
   {
     id: "rma",
@@ -514,6 +552,7 @@ export const TEAMS: Team[] = [
     color: "#FEBE10",
     accent: "#00529F",
     record: "W6 D0 L0",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/86.png",
   },
   {
     id: "bar",
@@ -525,6 +564,7 @@ export const TEAMS: Team[] = [
     color: "#A50044",
     accent: "#004D98",
     record: "W5 D1 L0",
+    logo: "https://a.espncdn.com/i/teamlogos/soccer/500/83.png",
   },
   {
     id: "rbr",
@@ -536,6 +576,7 @@ export const TEAMS: Team[] = [
     color: "#1E41FF",
     accent: "#FFD700",
     record: "P2 • 412 PTS",
+    logo: "https://media.formula1.com/content/dam/fom-website/teams/2024/red-bull-racing-logo.png",
   },
   {
     id: "fer",
@@ -547,11 +588,22 @@ export const TEAMS: Team[] = [
     color: "#DC0000",
     accent: "#FFF200",
     record: "P3 • 356 PTS",
+    logo: "https://media.formula1.com/content/dam/fom-website/teams/2024/ferrari-logo.png",
   },
 ];
 
 export const teamById = (id: string): Team =>
-  TEAMS.find((t) => t.id === id) ?? { id, name: id.toUpperCase(), th: id, seal: id.slice(0, 4).toUpperCase(), league: "", sport: "", color: "#333333", accent: "#FFFFFF", record: "" };
+  TEAMS.find((t) => t.id === id) ?? {
+    id,
+    name: id.toUpperCase(),
+    th: id,
+    seal: id.slice(0, 4).toUpperCase(),
+    league: "",
+    sport: "",
+    color: "#333333",
+    accent: "#FFFFFF",
+    record: "",
+  };
 
 export interface Game {
   id: string;
@@ -804,8 +856,7 @@ export const T = {
     final: "Final",
     points: "pts",
     roster: "Fantasy roster",
-    scoring:
-      "Scoring: NFL TD 6 • NBA pt 1, reb 1.2, ast 1.5 • Soccer goal 5",
+    scoring: "Scoring: NFL TD 6 • NBA pt 1, reb 1.2, ast 1.5 • Soccer goal 5",
   },
   th: {
     live: "สด",
@@ -834,8 +885,7 @@ export const T = {
     final: "จบเกม",
     points: "คะแนน",
     roster: "ทีมแฟนตาซี",
-    scoring:
-      "คะแนน: NFL ทัชดาวน์ 6 • NBA แต้ม 1 รีบาวด์ 1.2 แอสซิสต์ 1.5 • ฟุตบอล ประตู 5",
+    scoring: "คะแนน: NFL ทัชดาวน์ 6 • NBA แต้ม 1 รีบาวด์ 1.2 แอสซิสต์ 1.5 • ฟุตบอล ประตู 5",
   },
 };
 
